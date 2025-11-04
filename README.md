@@ -1,12 +1,10 @@
-# 🚀 Fullstack Monorepo Starter (Next.js + Express + Prisma + PostgreSQL)
+# 🚀  Aution Web (Next.js + Express + Prisma + PostgreSQL)
 
 A modern **fullstack monorepo** boilerplate built with:
 - **Next.js (TypeScript)** for the frontend
 - **Node.js + Express + Prisma** for the backend
 - **PostgreSQL** as the database
 - **Shared workspace** for common types and utilities
-
-This structure is clean, scalable, and production-ready — similar to setups used in real-world teams.
 
 ---
 
