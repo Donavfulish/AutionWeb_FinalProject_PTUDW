@@ -24,7 +24,7 @@ function page() {
 }
 
 export default page;
-// "/category/[:category_slugs]/product/[:product_slug]"
+// "/category/[:...category_slugs]/product/[:product_slug]"
 // "/user/info"
 // "/user/rating"
 // "/user/favourite_products"
