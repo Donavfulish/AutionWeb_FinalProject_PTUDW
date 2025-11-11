@@ -19,7 +19,7 @@ function SortDropdown() {
     router.push(`${pathname}?${params.toString()}`);
   }
 
-  return <div>
+  return <div className="pr-2">
     <select
       className="mt-2 border border-gray-300 rounded-sm text-sm w-full py-1.5 bg-white hover:border-blue-500 transition-all"
       defaultValue={currentSort || "ascending-price"}
@@ -50,7 +50,7 @@ export default function CategoryTable({ productCategories }: { productCategories
   }
 
   return (
-    <div className="w-60 h-120 flex flex-col bg-white border-2 border-gray-200 rounded-xl p-4">
+    <div className="relative w-60 h-120 flex flex-col bg-white border-2 border-gray-200 rounded-xl py-4 pl-4 pr-2 shadow-sm">
       {isInCategoryPage && (<div className="mb-5">
         <p className="text-xl font-medium">Sắp xếp sản phẩm</p>
         <SortDropdown />
