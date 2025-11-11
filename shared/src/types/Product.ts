@@ -1,14 +1,16 @@
+import { User } from "./User";
+
 export type Product = {
   id: number;
   slug: string;
-  seller_id: number;
+  seller: Pick<User, 'id' | 'name' | 'profile_img'>;
   category_id: number;
   main_image: string;
   extra_images: string[];
   name: string;
   initial_price: number;
   buy_now_price: number;
-  top_bidder_id: number | null;
+  top_bidder: Pick<User, 'id' | 'name' | 'profile_img'> | null;
   end_time: Date;
   description: string;
   auto_extend: boolean;
@@ -30,7 +32,7 @@ export type ProductCategoryTree = {
 export type ProductAnswer = {
   id: number;
   question_id: number;
-  user_id: number;
+  user: Pick<User, 'id' | 'name' | 'profile_img'>;
   comment: string;
   created_at: Date;
 }
@@ -38,7 +40,7 @@ export type ProductAnswer = {
 export type ProductQuestion = {
   id: number;
   product_id: number;
-  user_id: number;
+  user: Pick<User, 'id' | 'name' | 'profile_img'>;
   comment: string;
   answer?: ProductAnswer;
   created_at: Date;

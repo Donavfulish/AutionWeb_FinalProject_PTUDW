@@ -4,7 +4,6 @@ export type User = {
   email: string;
   address: string;
   profile_img: string;
-  password_hash: string;
   role: "guest" | "bidder" | "seller" | "admin";
   seller_expired_date?: Date;
   positive_points: number;

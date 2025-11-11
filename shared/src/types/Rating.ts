@@ -1,7 +1,9 @@
+import { User } from "./User";
+
 export type UserRating = {
   id: number;
-  rater_id: number;
-  ratee_id: number;
+  rater: Pick<User, 'id' | 'name' | 'profile_img'>;
+  ratee: Pick<User, 'id' | 'name' | 'profile_img'>;
   rating: number;
   comment?: string;
   created_at: Date;
