@@ -1,26 +1,20 @@
-"use client"
+"use client";
 
-import React from 'react'
-import { useEffect, useState } from 'react'
+import React from "react";
+import { useEffect, useState } from "react";
 
 function page() {
   const [message, setMessage] = useState("Loading");
 
   useEffect(() => {
-    fetch("http://localhost:8080/").then(
-      response => response.json()
-    ).then(
-      data => {
+    fetch("http://localhost:8080/")
+      .then((response) => response.json())
+      .then((data) => {
         console.log(data);
         setMessage(data.message);
-      }
-    )
-  }, [])
-  return (
-    <div>
-      {message}
-    </div>
-  )
+      });
+  }, []);
+  return <div>{message}</div>;
 }
 
 export default page;
@@ -33,4 +27,3 @@ export default page;
 // "/user/seller_role"
 // "/user/selling_products"
 // "/user/sold_products"
-
