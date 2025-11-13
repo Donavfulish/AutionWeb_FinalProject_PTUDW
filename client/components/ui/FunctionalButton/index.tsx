@@ -4,6 +4,7 @@ interface FuntionalButtonProps {
     name: string
     handleClick: () => void
 }
+
 const FunctionalButton: React.FC<FuntionalButtonProps> = ({ name, handleClick }) => {
     return (
         <button

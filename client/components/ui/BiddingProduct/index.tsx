@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-type bidding_product = {
+interface BiddingProductProps {
     id: number,
     main_image: string,
     name: string,
@@ -8,7 +8,7 @@ type bidding_product = {
     bidding_price: string,
 }
 
-const BiddingProduct = ({ product }: { product: bidding_product }) => {
+const BiddingProduct = ({ product }: { product: BiddingProductProps }) => {
     return (
         <div className="flex items-center justify-between bg-white border border-gray-100 rounded-lg shadow-xs p-3 w-[75%]">
             <div className="flex items-center gap-3">

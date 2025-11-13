@@ -1,13 +1,13 @@
 import Image from "next/image";
 
-type winning_product = {
+interface WinningProductProps {
     id: number,
     main_image: string,
     name: string,
     bidding_price: string,
 }
 
-const WinningProduct = ({ product }: { product: winning_product }) => {
+const WinningProduct = ({ product }: { product: WinningProductProps }) => {
     return (
         <div className="flex items-center justify-between bg-white border border-gray-100 rounded-lg shadow-xs p-3 w-[75%]">
             <div className="flex items-center gap-3">
