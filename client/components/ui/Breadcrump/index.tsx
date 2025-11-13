@@ -11,6 +11,7 @@ interface BreadCrumpProps {
 const BreadCrump = ({ category_name, category_slug, product_name }: BreadCrumpProps) => {
 
     const router = useRouter();
+    
     const handleClickHome = () => {
         router.push('/')
     }
