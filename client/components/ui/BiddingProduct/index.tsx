@@ -41,46 +41,5 @@ const BiddingProduct = ({ product }: { product: BiddingProductProps }) => {
     );
 };
 
-// const mockBiddingProducts = [
-//     {
-//         id: 1,
-//         main_image: 'https://via.placeholder.com/150',
-//         name: 'Product 1',
-//         current_price: "100",
-//         bidding_price: "120",
-//     },
-//     {
-//         id: 2,
-//         main_image: 'https://via.placeholder.com/150',
-//         name: 'Product 2',
-//         current_price: "200",
-//         bidding_price: "220",
-//     },
-//     {
-//         id: 3,
-//         main_image: 'https://via.placeholder.com/150',
-//         name: 'Product 3',
-//         current_price: "300",
-//         bidding_price: "350",
-//     },
-//     {
-//         id: 4,
-//         main_image: "/mygf.png",
-//         name: "My-Masterpiece",
-//         bidding_price: "999.999.999",
-//         current_price: "999.999.999"
-//     }
-// ];
-
-// const BiddingProducts = () => {
-//     return (
-//         <div className="flex flex-col justify-between gap-3 items-center">
-//             {mockBiddingProducts.map(p => (
-//                 <BiddingProduct key={p.name} product={p} />
-//             ))}
-//         </div>
-//     );
-// };
-
 
 export default BiddingProduct;
