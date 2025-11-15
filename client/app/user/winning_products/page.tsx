@@ -55,8 +55,8 @@ const BiddingProductPage = () => {
                 Sản phẩm đã thắng
             </div>
             <div className="flex flex-col gap-5">
-                {biddingProduct.map((bP) => (
-                    <WinningProduct product={bP}/>
+                {biddingProduct.map((bP, index) => (
+                    <WinningProduct product={bP} key={index}/>
                 ))}
             </div>
         </div>

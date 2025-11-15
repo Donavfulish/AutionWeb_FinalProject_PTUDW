@@ -14,6 +14,7 @@ namespace ProductType {
         name: string,
         intial_price: string,
         closing_price: string,
+        buyer_name: string,
     }
 
     export interface WinningProduct{
