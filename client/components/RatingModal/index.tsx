@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { UserRating } from "../../../../shared/src/types";
+import { UserRating } from "../../../shared/src/types";
 
 interface RatingModalProps {
   rating: UserRating | null;
