@@ -105,7 +105,7 @@ const CreateProductPage = () => {
     setContent(content);
   };
   return (
-    <div className="w-full bg-[#F8FAFC] px-32">
+    <div className="w-full bg-[#F8FAFC] lg:px-32">
       <h1 className="text-3xl font-bold text-gray-900 mb-2">
         Đăng sản phẩm mới
       </h1>
