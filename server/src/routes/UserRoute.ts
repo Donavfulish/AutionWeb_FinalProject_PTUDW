@@ -1,24 +1,17 @@
 import { BaseRoute } from "./BaseRoute";
 import { UserController } from "../controllers/UserController";
 import { UserService } from "../services/UserService";
-
+import { BaseController } from "../controllers/BaseController";
 export class UserRoute extends BaseRoute {
   private userController: UserController;
-
   constructor() {
     super();
-    // Dependency Injection + Singleton
     this.userController = new UserController(UserService.getInstance());
+    this.initRoutes();
   }
 
   initRoutes() {
-    this.router.get("/", (req, res) => this.userController.handleGetAllUsers(req, res));
-    this.router.get("/:id", (req, res) => this.userController.handleGetUser(req, res));
+    this.router.get("/",BaseController.handleRequest(this.userController.getUsers.bind(this.userController)));
   }
 }
 
-
-
-
-
-// GET: https:localhost:8000/users/

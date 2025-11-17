@@ -1,4 +1,10 @@
-import { Response } from "express";
+import { Request, Response, NextFunction } from "express";
+
+export type AsyncControllerFunction = (
+  req: Request,
+  res: Response,
+  next?: NextFunction
+) => Promise<any>;
 
 export class BaseController {
   protected service: any;
@@ -7,22 +13,28 @@ export class BaseController {
     this.service = service; // Dependency Injection
   }
 
-  sendSuccess(res: Response, success: any, status = 200) {
-    res.status(status).json({ success: true, message: success.message || "Success" });
-  }
 
-  sendError(res: Response, error: any, status = 500) {
-    res.status(status).json({ success: false, message: error.message || "Internal Server Error" });
-  }
 
-  
+  static handleRequest(controllerFn: AsyncControllerFunction) {
+    return async (req: Request, res: Response) => {
+      try {
+        // Gọi controller và nhận kết quả
+        const result = await controllerFn(req, res);
+        return res.status(200).json({
+          success: true,
+          ...result,
+        });
+      } catch (error: any) {
+        console.error("Controller Error:", error);
 
-  // Template Method: controller con override
-  handleRequest(...args: any[]) {
+        const statusCode = error.statusCode || 500;
+        const message = error.message || "Internal Server Error";
 
-    /*
-    -- COPY 
-    */
-    throw new Error("handleRequest must be implemented");
+        return res.status(statusCode).json({
+          success: false,
+          message: message,
+        });
+      }
+    };
   }
 }

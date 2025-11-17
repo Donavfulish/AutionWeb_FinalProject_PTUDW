@@ -11,3 +11,5 @@ export class ResourceFactory {
         return new ResourceClass();
     }
 }
+
+

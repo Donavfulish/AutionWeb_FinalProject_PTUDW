@@ -18,13 +18,10 @@ export class UserService extends BaseService {
     return UserService.instance;
   }
 
-  getUserById(id: number) {
-    this.log(`Fetching user ${id}`);
-    return this.users.find(u => u.id === id);
-  }
-
-  getAllUsers() {
-    this.log(`Fetching all users`);
-    return this.users;
+  async getUsers() {
+    const sql = `SELECT * FROM product.products`;
+    const users = await this.safeQuery(sql);
+    // const users = await this.safeQuery(sql, params);
+    return users;
   }
 }

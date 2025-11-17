@@ -1,18 +1,23 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import routes from "./routes";
+import router from "./routes/index";
+import { UserRoute } from "./routes/UserRoute";
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(cors());
 app.use(morgan("dev")); // log the requests
 
 // Dùng Factory tạo route cho resource
-app.use("/", routes);
+app.use("/", router);
 
+
+// const userRoute = new UserRoute();
+
+// app.use("/user", userRoute.router); // ← mount router vào /user
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

@@ -5,10 +5,5 @@ export class BaseRoute {
 
   constructor() {
     this.router = Router();
-    this.initRoutes();
-  }
-
-  initRoutes() {
-    throw new Error("initRoutes must be implemented");
   }
 }
