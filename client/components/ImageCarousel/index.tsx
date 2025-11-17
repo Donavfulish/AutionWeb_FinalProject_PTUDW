@@ -4,10 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 
 const images = [
-  "https://flowbite.s3.amazonaws.com/docs/gallery/featured/image.jpg",
-  //"https://tse3.mm.bing.net/th/id/OIP.IaM8CpqbgQeegBKYt6P1JwHaHa?pid=Api",
-  //"https://tse4.mm.bing.net/th/id/OIP.SzZxoYZazNktjqd9SgRpvAHaLH?pid=Api",
-  //"https://tse4.mm.bing.net/th/id/OIP.RuFeLPm3iUIxSx5JH9JJKwHaCe?pid=Api",
+  //"https://flowbite.s3.amazonaws.com/docs/gallery/featured/image.jpg",
+  "https://tse3.mm.bing.net/th/id/OIP.IaM8CpqbgQeegBKYt6P1JwHaHa?pid=Api",
+  "https://tse4.mm.bing.net/th/id/OIP.SzZxoYZazNktjqd9SgRpvAHaLH?pid=Api",
+  "https://tse4.mm.bing.net/th/id/OIP.RuFeLPm3iUIxSx5JH9JJKwHaCe?pid=Api",
 ];
 
 export const ImageCarousel = () => {
@@ -41,14 +41,15 @@ export const ImageCarousel = () => {
   return (
     <div className="flex flex-col gap-2 w-full h-full ">
       {/* Main*/}
-      <div className="   relative ">
+      <div className="relative ">
         <div
           className="flex rounded-lg bg-gray-200 justify-center overflow-hidden aspect-square hover:cursor-pointer "
           onClick={() => openModal(images[currentImage])}
         >
           <Image
             src={images[currentImage]}
-            className="w-full h-full "
+            width={800}
+            height={800}
             alt="..."
           />
         </div>
@@ -119,7 +120,7 @@ export const ImageCarousel = () => {
               }`}
               onClick={() => hanldeSwitchImage(index)}
             >
-              <Image src={link} className=" " alt="..." />
+              <Image src={link} width={200} height={200} alt="..." />
             </div>
           );
         })}
@@ -137,7 +138,9 @@ export const ImageCarousel = () => {
               <Image
                 src={selectedImage}
                 alt="Selected View"
-                className="max-w-full max-h-[80vh] h-auto object-contain "
+                className="max-w-full max-h-[80vh]  "
+                width={1200}
+                height={1200}
               />
             </div>
           </div>

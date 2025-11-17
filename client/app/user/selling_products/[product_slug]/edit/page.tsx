@@ -1,0 +1,132 @@
+"use client";
+import BreadCrump from "@/components/Breadcrump";
+import { CalendarOutlineIcon, UserOutlineIcon } from "@/components/icons";
+import { ImageCarousel } from "@/components/ImageCarousel";
+import Image from "next/image";
+import React from "react";
+import { useState } from "react";
+import dynamic from "next/dynamic";
+import { Editor as TinyMCEEditor } from "@tinymce/tinymce-react";
+const Editor = dynamic(
+  () =>
+    import("@tinymce/tinymce-react").then(
+      (mod) => mod.Editor as unknown as React.ComponentType<any>
+    ),
+  { ssr: false }
+);
+const EditProductPage = () => {
+  const [content, setContent] = useState("");
+  const handleEditorChange = (content: string, editor: any) => {
+    setContent(content);
+  };
+  const handleAddDes = () => {
+    console.log(content);
+  };
+  return (
+    <div className="bg-[#F8FAFC] w-full">
+      <div className="mb-4">
+        <BreadCrump category_name="" category_slug="" product_name="" />
+      </div>
+      <div className="flex flex-col md:flex-row gap-12 mb-12 ">
+        <div className="p-8 md:p-0 md:w-1/2 ">
+          <ImageCarousel />
+        </div>
+        <div className="bg-white border  border-gray-200 rounded-lg p-4 sm:p-8 w-full">
+          <div className="pb-6 border-b mb-6  border-slate-200">
+            <h1 className="text-2xl font-bold mb-4 text-slate-900">
+              Tôi là luân
+            </h1>
+            <p className="text-sm font-light mb-2 text-slate-600">
+              Giá hiện tại
+            </p>
+            <p className="text-4xl font-bold text-teal-600 mb-2">
+              100.000.000 ₫
+            </p>
+            <p className="text-sm text-slate-600 font-light">
+              {" "}
+              {10} Lượt đấu giá
+            </p>
+          </div>
+          <div className="pb-6 border-b mb-6 border-slate-200 grid grid-cols-2">
+            <div>
+              <p className="text-sm text-slate-600 mb-2 flex items-center gap-2">
+                <CalendarOutlineIcon />
+                Thời điểm đăng
+              </p>
+              <p className="ml-4 text-[16px] font-semibold text-slate-900">
+                Ngày 33/15/2025
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-slate-600 mb-2 flex items-center gap-2">
+                <UserOutlineIcon />
+                Người ra giá cao nhất
+              </p>
+              <p className=" ml-4 text-[16px] font-semibold text-slate-900">
+                Chưa có
+              </p>
+            </div>
+          </div>
+
+          <div className="pb-6 border-b  mb-6 border-slate-200 ">
+            <p className="text-sm text-slate-600 mb-2 font-light">
+              Thời gian còn lại
+            </p>
+            <p className="text-xl font-bold text-teal-600">Đã kết thúc</p>
+          </div>
+          <div className="pb-6 border-b  mb-6 border-slate-200 ">
+            <p className="text-sm text-slate-600 mb-2 font-light">
+              Giá đấu tiếp theo
+            </p>
+            <p className="text-3xl font-bold text-teal-600">52.500.000 ₫</p>
+          </div>
+          <div></div>
+        </div>
+      </div>
+      <div className="bg-white rounded-lg p-3 sm:p-6 mb-8 border border-slate-200">
+        <h3 className="text-2xl font-bold text-slate-900 mb-4">
+          Thông tin chi tiết sản phẩm
+        </h3>
+        <p>
+          Rolex Datejust 41mm hai kim, mặt xanh, thép không gỉ. Đồng hồ chính
+          hãng, có giấy tờ đầy đủ.
+        </p>
+      </div>
+      <h3 className="text-2xl font-bold text-slate-900 mb-4">
+        Thêm mô tả sản phẩm
+      </h3>
+      <div className="bg-white rounded-lg   mb-8 border border-slate-200">
+        <Editor
+          apiKey="211n6cxarxlvaqsl12amn3gpqw2r8urx8llspg5k7b1q77my"
+          initialValue=""
+          init={{
+            height: 500,
+            menubar: false,
+            skin: "oxide",
+            content_css: "oxide",
+            readonly: false,
+            plugins: [
+              "advlist autolink lists link image charmap print preview anchor",
+              "searchreplace visualblocks code fullscreen",
+              "insertdatetime media table paste code help wordcount",
+            ],
+            toolbar:
+              "undo redo | blocks fontfamily fontsize backcolor forecolor  | bold italic underline strikethrough | link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+          }}
+          onEditorChange={handleEditorChange}
+          disabled={false}
+        />
+        <div className="flex w-full my-4 justify-center">
+          <button
+            type="button"
+            onClick={handleAddDes}
+            className="w-48 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold hover:cursor-pointer"
+          >
+            Lưu
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+export default EditProductPage;
