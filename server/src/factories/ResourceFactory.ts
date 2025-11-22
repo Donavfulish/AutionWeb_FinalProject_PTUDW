@@ -1,8 +1,10 @@
+import { FavoriteRoute } from "../routes/FavoriteRoute";
 import { UserRoute } from "../routes/UserRoute";
 
 
 const resourceMap: Record<string, any> = {
-    user: UserRoute
+    user: UserRoute,
+    favorite: FavoriteRoute
 }
 export class ResourceFactory {
     static createResource(resource: string){

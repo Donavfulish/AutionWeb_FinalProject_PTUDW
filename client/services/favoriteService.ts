@@ -9,9 +9,16 @@ export class FavoriteService {
     });
   }
 
-  static async updateFavorite(productId: number, isFavorite: boolean): Promise<any> {
+  static async addFavorite(productId: number): Promise<any> {
     return safeRequest(async () => {
-      const res = await api.patch(API_ROUTES.favorite.updateFavorite(productId, isFavorite));
+      const res = await api.post(API_ROUTES.favorite.addFavorite(productId));
+      return res.data;
+    });
+  }
+
+  static async removeFavorite(productId: number): Promise<any> {
+    return safeRequest(async () => {
+      const res = await api.delete(API_ROUTES.favorite.removeFavorite(productId));
       return res.data;
     });
   }

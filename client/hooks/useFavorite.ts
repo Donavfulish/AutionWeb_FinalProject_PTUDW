@@ -17,12 +17,28 @@ class FavoriteHook {
     });
   }
 
-  static useUpdateFavorite() {
+  static useAddFavorite() {
     const queryClient = useQueryClient();
 
     return useMutation({
-      mutationFn: (params: { productId: number; isFavorite: boolean }) =>
-        FavoriteService.updateFavorite(params.productId, params.isFavorite),
+      mutationFn: (params: { productId: number }) =>
+        FavoriteService.addFavorite(params.productId),
+
+      onSuccess: (_, params) => {
+        // Invalidate cache của dữ liệu
+        queryClient.invalidateQueries({
+          queryKey: ["favorite_product"],
+        });
+      }
+    });
+  }
+
+  static useRemoveFavorite() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (params: { productId: number }) =>
+        FavoriteService.removeFavorite(params.productId),
 
       onSuccess: (_, params) => {
         // Invalidate cache của dữ liệu

@@ -7,7 +7,7 @@ const router = Router();
 
 
 // Khong 's trong resource 
-const resource = [`user`];
+const resource = [`user`, `favorite`];
 
 resource.forEach((name) => {
   const routerClass = ResourceFactory.createResource(name);

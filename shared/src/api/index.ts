@@ -12,7 +12,8 @@ const API_ROUTES = {
   },
   favorite: {
     getFavorite: FAVORITE_API, // GET
-    updateFavorite: (productId: number, isFavorite: boolean) => `${FAVORITE_API}/${productId}/${isFavorite}`, // PATCH
+    addFavorite: (productId: number) => `${FAVORITE_API}/${productId}`, // POST
+    removeFavorite: (productId: number) => `${FAVORITE_API}/${productId}`, // DELETE
   },
   order: {
     getOrder: ORDER_API, // GET
