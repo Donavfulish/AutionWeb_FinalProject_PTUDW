@@ -86,7 +86,7 @@
     GET	    /order	                            Xem danh sách đơn hàng của user	
     GET	    /order/:productId	                Xem chi tiết đơn hàng (thắng đấu giá)	
     POST	/order	                            Tạo đơn hàng sau khi kết thúc phiên	
-    PATCH	/order/:productId/status	        Cập nhật trạng thái (paid / shipped / completed / cancelled)
+    PATCH	/order/:productId/:status	        Cập nhật trạng thái (paid / shipped / completed / cancelled)
     GET   /order/:productId/chat             Lấy dữ liệu chat giữa buyer & seller	
     POST	/order/:productId/chat	            Cập nhật chat giữa buyer & seller	
 

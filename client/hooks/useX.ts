@@ -34,7 +34,7 @@ class XHook {
         // Invalidate cache của dữ liệu
         queryClient.invalidateQueries({
           queryKey: ["x_by_something"],
-        });
+        }); 
       }
     });
   }

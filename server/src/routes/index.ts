@@ -11,7 +11,7 @@ const resource = [`user`];
 
 resource.forEach((name) => {
   const routerClass = ResourceFactory.createResource(name);
-  //  UserRoute 
+  //  UserRoute
   router.use(`/${name}`, routerClass.router); 
 });
 

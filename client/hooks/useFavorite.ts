@@ -2,12 +2,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { FavoriteService } from "@/services/favoriteService";
 import { STALE_10_MIN } from "@/config/query.config";
 
-// Một hàm xử lý logic REACT, và chỉ được biết tới REACT(FRONT END) thôi
-// Nó không được biết về api
 class FavoriteHook {
   static useFavorite() {
     return useQuery({
-      queryKey: ["Favorite"],
+      queryKey: ["favorite_product"],
 
       queryFn: () => FavoriteService.getFavorite(),
 
@@ -29,7 +27,7 @@ class FavoriteHook {
       onSuccess: (_, params) => {
         // Invalidate cache của dữ liệu
         queryClient.invalidateQueries({
-          queryKey: ["Favorite"],
+          queryKey: ["favorite_product"],
         });
       }
     });
