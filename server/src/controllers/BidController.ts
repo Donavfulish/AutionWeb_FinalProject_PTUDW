@@ -1,5 +1,4 @@
 import { BidLog } from "../../../shared/src/types/Bid";
-
 import { BaseController } from "./BaseController";
 import { Request, Response, NextFunction } from "express";
 

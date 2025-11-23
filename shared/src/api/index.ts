@@ -1,4 +1,4 @@
-const BASE_API = "http://localhost:8080";
+const BASE_API = "/api";
 const CATEGORY_API = `${BASE_API}/category`;
 const BID_API = `${BASE_API}/bid`;
 import { Pagination } from "../types/Pagination";
