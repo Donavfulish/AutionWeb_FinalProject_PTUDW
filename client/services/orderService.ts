@@ -1,5 +1,6 @@
 import { api, safeRequest } from "@/config/axios.config";
 import API_ROUTES from "../../shared/src/api"
+import { NewOrderMessageRequest, NewOrderRequest, OrderStatus } from "../../shared/src/types";
 
 export class OrderService {
   static async getOrder(): Promise<any> {
@@ -16,14 +17,14 @@ export class OrderService {
     })
   }
 
-  static async createOrder(payload: any): Promise<any> {
+  static async createOrder(payload: NewOrderRequest): Promise<any> {
     return safeRequest(async() => {
       const res = await api.post(API_ROUTES.order.createOrder, payload);
       return res.data;
     })
   }
 
-  static async updateOrderStatus(productId: number, status: 'pending | paid | shipped | completed | cancelled'): Promise<any> {
+  static async updateOrderStatus(productId: number, status: OrderStatus): Promise<any> {
     return safeRequest(async() => {
       const res = await api.patch(API_ROUTES.order.updateOrderStatus(productId, status));
       return res.data;
@@ -37,7 +38,7 @@ export class OrderService {
     })
   }
 
-  static async createOrderChat(productId: number, payload: any): Promise<any> {
+  static async createOrderChat(productId: number, payload: NewOrderMessageRequest): Promise<any> {
     return safeRequest(async() => {
       const res = await api.post(API_ROUTES.order.createOrderChat(productId), payload);
       return res.data;

@@ -1,4 +1,4 @@
-import { ProductPreview } from "../../../shared/src/types";
+  import { ProductPreview } from "../../../shared/src/types";
 import { BaseService } from "./BaseService";
 
 type MutationResult = {
@@ -28,20 +28,21 @@ export class FavoriteService extends BaseService {
         COUNT(LOG.ID) AS BID_COUNT,
         (
           SELECT L.PRICE
-          FROM BID_LOGS L
+          FROM AUCTION.BID_LOGS L
           WHERE L.PRODUCT_ID = P.ID
           ORDER BY L.CREATED_AT DESC
           LIMIT 1
         ) AS CURRENT_PRICE
-      FROM FAVORITE_PRODUCTS FP
-      JOIN PRODUCTS P ON P.ID = FP.PRODUCT_ID 
-      LEFT JOIN USERS BID ON BID.ID = P.TOP_BIDDER_ID
-      LEFT JOIN BID_LOGS LOG ON LOG.PRODUCT_ID = P.ID
+      FROM AUCTION.FAVORITE_PRODUCTS FP
+      JOIN PRODUCT.PRODUCTS P ON P.ID = FP.PRODUCT_ID 
+      LEFT JOIN ADMIN.USERS BID ON BID.ID = P.TOP_BIDDER_ID
+      LEFT JOIN AUCTION.BID_LOGS LOG ON LOG.PRODUCT_ID = P.ID
       WHERE FP.USER_ID = 1
       GROUP BY 
         P.ID, P.SLUG, P.CATEGORY_ID, P.MAIN_IMAGE, P.NAME,
         P.BUY_NOW_PRICE, P.END_TIME, P.AUTO_EXTEND, P.CREATED_AT,
-        BID.NAME;
+        BID.NAME, FP.CREATED_AT
+      ORDER BY FP.CREATED_AT DESC
     `;
 
     const favoriteProducts = await this.safeQuery<ProductPreview>(sql);
@@ -51,7 +52,7 @@ export class FavoriteService extends BaseService {
 
   async addFavorite(productId: number): Promise<MutationResult> {
     const sql = `
-      INSERT INTO FAVORITE_PRODUCTS (PRODUCT_ID, USER_ID, CREATED_AT, UPDATED_AT)
+      INSERT INTO AUCTION.FAVORITE_PRODUCTS (PRODUCT_ID, USER_ID, CREATED_AT, UPDATED_AT)
       VALUES ($1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     `
 
@@ -63,7 +64,7 @@ export class FavoriteService extends BaseService {
 
   async removeFavorite(productId: number): Promise<MutationResult> {
     const sql = `
-      DELETE FROM FAVORITE_PRODUCTS
+      DELETE FROM AUCTION.FAVORITE_PRODUCTS
       WHERE PRODUCT_ID = $1 AND USER_ID = 1
     `
 

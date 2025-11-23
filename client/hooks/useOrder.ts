@@ -1,6 +1,7 @@
 import { STALE_10_MIN } from "@/config/query.config";
 import { OrderService } from "@/services/orderService";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { NewOrderMessageRequest, NewOrderRequest, OrderStatus } from "../../shared/src/types";
 
 class OrderHook {
   static useOrder() {
@@ -35,8 +36,8 @@ class OrderHook {
     const queryClient = useQueryClient();
 
     return useMutation({
-      mutationFn: (params: { payload: any }) =>
-        OrderService.createOrder('/order'),
+      mutationFn: (params: { payload: NewOrderRequest }) =>
+        OrderService.createOrder(params.payload),
 
       onSuccess: (_, params) => {
         queryClient.invalidateQueries({
@@ -50,7 +51,7 @@ class OrderHook {
     const queryClient = useQueryClient();
 
     return useMutation({
-      mutationFn: (params: { productId: number, status: string}) =>
+      mutationFn: (params: { productId: number, status: OrderStatus}) =>
         OrderService.updateOrderStatus(params.productId, params.status),
 
       onSuccess: (_, params) => {
@@ -79,7 +80,7 @@ class OrderHook {
     const queryClient = useQueryClient();
 
     return useMutation({
-      mutationFn: (params: { productId: number, payload: any}) =>
+      mutationFn: (params: { productId: number, payload: NewOrderMessageRequest}) =>
         OrderService.createOrderChat(params.productId, params.payload),
 
       onSuccess: (_, params) => {

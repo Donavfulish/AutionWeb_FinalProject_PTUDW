@@ -8,20 +8,20 @@ export class FavoriteController extends BaseController {
 
   async getFavorite(req: Request, res: Response) {
     const favoriteProducts = await this.service.getFavorite();
-    return {favorite_products: favoriteProducts}
+    return res.status(200).json({favorite_products: favoriteProducts});
   }
 
   async addFavorite(req: Request, res: Response) {
     const productId = Number(req.params.productId);
 
     const result = await this.service.addFavorite(productId);
-    return result;
+    return res.status(200).json(result);
   }
   
   async removeFavorite(req: Request, res: Response) {
     const productId = Number(req.params.productId);
 
     const result = await this.service.removeFavorite(productId);
-    return result;
+    return res.status(200).json(result);
   }
 }

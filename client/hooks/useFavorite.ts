@@ -26,7 +26,6 @@ class FavoriteHook {
         FavoriteService.addFavorite(params.productId),
 
       onSuccess: (_, params) => {
-        // Invalidate cache của dữ liệu
         queryClient.invalidateQueries({
           queryKey: ["favorite_product"],
         });
@@ -42,7 +41,6 @@ class FavoriteHook {
         FavoriteService.removeFavorite(params.productId),
 
       onSuccess: (_, params) => {
-        // Invalidate cache của dữ liệu
         queryClient.invalidateQueries({
           queryKey: ["favorite_product"],
         });
