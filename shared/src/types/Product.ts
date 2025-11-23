@@ -22,6 +22,22 @@ export type Product = {
   updated_at: Date | null;
 }
 
+export type ProductPreview = Pick<Product,
+  'id' |
+  'slug' |
+  'category_id' |
+  'main_image' |
+  'name' |
+  'current_price' |
+  'buy_now_price' |
+  'bid_count' |
+  'end_time' |
+  'auto_extend' | 
+  'created_at'
+> & {
+    top_bidder_name: string
+}
+
 export type ProductCategoryTree = {
   id: number;
   slug: string;
