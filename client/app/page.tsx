@@ -3,8 +3,12 @@ import { SearchBar } from "@/components/SearchBar";
 import { SearchItem } from "@/components/SearchBar";
 import { ArrowRight } from "@/components/icons";
 import Link from "next/link";
-import { Product } from "../../shared/src/types";
+import { Product, ProductCategoryTree } from "../../shared/src/types";
 import ProductCard from "@/components/ProductCard";
+import CategoryHook from "@/hooks/useCategory";
+import { Pagination } from "../../shared/src/types/Pagination";
+import AuctionHook from "@/hooks/useAuction";
+import { BidLog } from "../../shared/src/types";
 
 const mockProductEndTime: Product[] = [
   {
@@ -166,7 +170,7 @@ const mockProductEndTime: Product[] = [
     price_increment: 500000,
     created_at: new Date(),
     updated_at: null,
-  }
+  },
 ];
 
 interface PageItem {
@@ -194,9 +198,19 @@ const pageItems: PageItem[] = [
 ];
 
 function Page() {
+  // const { mutate: create, isPending: isPendingCategory } =
+  //   CategoryHook.useDeleteCategory();
+  const { mutate: create, isPending: isLoadingbid } =
+    AuctionHook.useCreateReject();
+  const bid: BidLog = {
+    id: -1,
+    user: { id: 2, name: "luan" },
+    price: 12333,
+    product_id: 11,
+  };
   return (
     <>
-      <div>
+      <div onClick={() => create(bid)}>
         <div className="text-center w-full">
           <h1 className="text-4xl">Chào mừng đến AuctionHub</h1>
           <div className="mt-2 text-gray-500">
@@ -204,7 +218,6 @@ function Page() {
           </div>
         </div>
         {pageItems.map((item, index) => {
-          console.log(item);
           return (
             <div key={index}>
               <div className="mt-15">
