@@ -1,3 +1,4 @@
+import { getProductColumns, getProductValue } from "../utils";
 import { ProductQuestion } from "./../../../shared/src/types/Product";
 import { BaseService } from "./BaseService";
 import { Request, Response, NextFunction } from "express";
@@ -15,12 +16,122 @@ export class ProductService extends BaseService {
     return ProductService.instance;
   }
 
+  async getTopBidder(productId: number) {
+    const sql = `  
+    SELECT u.id, u.name, u.profile_img
+    FROM auction.bid_logs bl 
+    JOIN admin.users u on bl.user_id = u.id 
+    WHERE bl.product_id = $1
+    ORDER BY bl.price DESC 
+    LIMIT 1 
+    `;
+    const bidder = await this.safeQuery(sql, [productId]);
+    return bidder[0] ? bidder[0] : null;
+  }
+
+  async getBidCount(productId: number) {
+    const sql = `  
+    SELECT COUNT(*) AS bid_count
+    FROM auction.bid_logs bl 
+    WHERE bl.product_id = $1
+    `;
+    const bidCount: {bid_count: number}[] = await this.safeQuery(sql, [productId]);
+    return Number(bidCount[0]?.bid_count ?? 0) ;
+  }
+
+  async getCurrentPrice(productId: number) {
+    const sql = `  
+    SELECT MAX(bl.price) AS current_price
+    FROM auction.bid_logs bl 
+    WHERE bl.product_id = $1
+    `;
+    const currentPrice: {current_price: number | null}[] = await this.safeQuery(sql, [productId]);
+    return currentPrice[0]?.current_price ? Number(currentPrice[0].current_price) : null;
+  }
+
+  async getStatus(productId: number){
+    const sql = `
+    SELECT 
+      ao.status
+    FROM auction.orders ao
+    WHERE ao.product_id = $1
+    `
+    const status: {status: string}[] = await this.safeQuery(sql, [productId]);
+    return status[0]?.status ?? "available"  
+  }
+
+  async getProductType(productId: number) {
+    const result = await Promise.all([
+      this.getTopBidder(productId),
+      this.getBidCount(productId),
+      this.getCurrentPrice(productId),
+      this.getStatus(productId),
+    ]);
+
+    const top_bidder = result[0];
+    const bid_count =  result[1];
+    const current_price = result[2];
+    const status = result[3];
+    const sql = `
+    SELECT 
+      p.id, 
+      p.slug,
+      json_build_object(
+        'id', u.id,
+        'name', u.name,
+        'profile_img', u.profile_img
+      ) AS seller,
+      p.category_id,
+      p.main_image,
+      p.extra_images,
+      p.name,
+      p.initial_price,
+      p.buy_now_price,
+      p.end_time,
+      p.description,
+      p.auto_extend,
+      p.price_increment,
+      p.created_at,
+      p.updated_at
+
+    FROM product.products p 
+    JOIN admin.users u on u.id = p.seller_id 
+    WHERE p.id = $1
+    `;
+
+    let products: any = await this.safeQuery(sql, [productId]);
+    products[0].id = products[0].id ? Number(products[0].id) : null
+    products[0].initial_price = products[0].initial_price ? Number(products[0].initial_price) : null
+    products[0].buy_now_price = products[0].buy_now_price ? Number(products[0].buy_now_price) : null
+    products[0].price_increment = products[0].price_increment ? Number(products[0].price_increment) : null
+
+
+    products = {
+      ...products[0],
+      top_bidder: top_bidder,
+      current_price: current_price,
+      bid_count: bid_count,
+      status: status
+
+
+    }
+    return products;
+  }
+
   async getProducts() {
-    const sql = `SELECT * FROM product.products`;
-    const products = await this.safeQuery(sql);
+    const sql = `SELECT id FROM product.products order by id asc  LIMIT 5 `;
+    let products = await this.safeQuery(sql);
+
+    const newProducts = await Promise.all(
+      products.map(async (item: any) => {
+        const productType = this.getProductType(item.id);
+        return productType
+      })
+    );
+
+    return newProducts;
     // const result = await this.safeQuery<User>(sql, [id]); (cung duoc)
     // const users = await this.safeQuery(sql, params);
-    return products;
   }
 
   // Ko chuyen limit cung
@@ -70,13 +181,20 @@ export class ProductService extends BaseService {
     const productId = req.params.productId;
 
     const sql = `
-    SELECT * 
+    SELECT id
     FROM product.products 
     WHERE id = $1
     `;
 
     const product = await this.safeQuery(sql, [productId]);
-    return product;
+
+    const newProduct = await Promise.all(
+      product.map(async (item: any) => {
+        const productType = this.getProductType(item.id);
+        return productType
+      })
+    );
+    return newProduct[0];
   }
 
   async createProduct(req: Request) {
@@ -84,8 +202,8 @@ export class ProductService extends BaseService {
     //   ...req.body,
     //   seller_id: req.body.seller.id
     // }
-    const keys = Object.keys(req.body);
-    const values = Object.values(req.body);
+    const keys = await getProductColumns();
+    const values = getProductValue(req.body);
     const params = keys.map((_, i) => `$${i + 1}`);
 
     const sql = `
@@ -125,21 +243,42 @@ export class ProductService extends BaseService {
   }
 
   async getQuestions(req: Request) {
-    const productId = req.params.productId;
+    const productId = Number(req.params.productId);
     const sql = `
-    SELECT
-  jsonb_set(
-    to_jsonb(questions),
-    '{answer}',
-    to_jsonb(answers)
-  ) AS questions
-    FROM feedback.product_questions AS questions 
-    JOIN feedback.product_answers AS answers on questions.id = answers.question_id
-    WHERE product_id = $1
+    SELECT 
+          pq.id, 
+          pq.product_id, 
+          json_build_object(
+              'id', u.id,
+              'name', u.name,
+              'profile_img', u.profile_img
+          ) AS user,
+          pq.comment,
+          pq.created_at,
+          (
+            SELECT 
+                json_build_object(
+                    'id', pa.id,
+                    'question_id', pa.question_id,
+                    'user', json_build_object(
+                        'id', u2.id,
+                        'name', u2.name,
+                        'profile_img', u2.profile_img
+                    )
+                )
+            FROM feedback.product_answers pa
+            JOIN admin.users u2 ON u2.id = pa.user_id
+            WHERE pa.question_id = pq.id
+          ) AS answers
+      FROM feedback.product_questions pq
+      JOIN admin.users u ON u.id = pq.user_id
+      WHERE pq.product_id = $1;
+
     `;
     const questions: any[] = await this.safeQuery(sql, [productId]);
-    console.log("This is question", questions);
-    return questions[0].questions;
+
+  
+    return questions;
   }
 
   async createQuestion(req: Request) {
@@ -176,9 +315,8 @@ export class ProductService extends BaseService {
     return question;
   }
 
-
-  async updateProductExtend(req: Request){
-    const productId = req.params.productId
+  async updateProductExtend(req: Request) {
+    const productId = req.params.productId;
     const auto_extend = req.body.auto_extend;
     const sql = `
     UPDATE product.products
@@ -186,7 +324,7 @@ export class ProductService extends BaseService {
     WHERE id = $2
 
     RETURNING * 
-    `
+    `;
 
     const productExtend = await this.safeQuery(sql, [auto_extend, productId]);
     return productExtend;
@@ -194,9 +332,47 @@ export class ProductService extends BaseService {
 }
 
 /*
-row_to_json: chuyển row trên sql thành json 
+- Can tim hieu async, await , Promise.all
+*/
 
-to_jsonb() = chuyển một row (bản ghi) thành JSONB
 
-jsonb_set(json_origin, {path}, new_value) --> Từ json_origin thêm key là path với data của path đó là new_value
+/*
+{
+  "slug": "Tri-ne",
+  "seller": {
+    "id": 1,
+    "name": "Tri"
+  },
+  "main_image": "Tri",
+  "extra_images": ["123"],
+  "description": "Hello ba",
+  "auto_extend": true,
+  "price_increment": 30,
+  "initial_price": 10,
+  "buy_now_price": 10,
+  "category_id": 1,
+  "name": "Do da banh",
+  "status": true,
+  "top_bidder": {
+    "id": 1
+  }
+}
+*/
+
+
+/*
+⚡ Async / Await — Ý chính
+async luôn trả về Promise (dù bạn return gì).
+await chỉ tạm “pause” trong hàm async, không block event loop.
+await làm code tuần tự → dễ đọc nhưng chậm nếu không cần phụ thuộc.
+Lỗi khi await ném ra → throw như lỗi bình thường, bắt bằng try/catch.
+await trong vòng lặp lớn (forEach/map) → dễ tạo vấn đề performance.
+⚡ Promise.all — Ý chính
+Chạy song song nhiều Promise → nhanh nhất khi các tác vụ độc lập.
+Nếu một Promise reject → tất cả reject.
+Không phù hợp nếu bạn muốn xử lý lỗi từng phần.
+Tốt nhất dùng với:
+Gọi nhiều API độc lập
+Query DB song song
+Nhiều tác vụ async không phụ thuộc nhau
 */
