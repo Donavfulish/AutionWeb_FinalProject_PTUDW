@@ -1,4 +1,5 @@
 const BASE_API = "http://localhost:8080/api";
+const PRODUCT_API = `${BASE_API}/bid`;
 const CATEGORY_API = `${BASE_API}/category`;
 const BID_API = `${BASE_API}/bid`;
 import { Pagination } from "../types/Pagination";
@@ -24,6 +25,18 @@ const API_ROUTES = {
     createBid: `${BID_API}`, //POST
     createReject: `${BID_API}/reject`, //POST
   },
+  product: {
+    getProducts: `${PRODUCT_API}`, // GET
+    getProductTop: `${PRODUCT_API}/top`, // GET 
+    getProductById: (id: number) => `${PRODUCT_API}/:${id}`, // GET
+    createProduct: `${PRODUCT_API}`, // POST
+    updateProductDescription: (id: number) => `${PRODUCT_API}/${id}/description`, // PATCH
+    deleteProductById: (id: number) => `${PRODUCT_API}/${id}`, // DELETE
+    geProductQuestion: (id: number) => `${PRODUCT_API}/${id}/questions`, // GET
+    createProductQuestion: (id: number) => `${PRODUCT_API}/${id}/questions`, // POST
+    createProductAnswer: (idProduct: number, idQuestion: number) => `${PRODUCT_API}/${idProduct}/${idQuestion}/answers`, // POST
+    updateProductExtend: (id: number) => `${PRODUCT_API}/${id}/extend`, // PATCH
+  }
 };
 
 export default API_ROUTES;

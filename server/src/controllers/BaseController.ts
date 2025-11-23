@@ -26,7 +26,6 @@ export class BaseController {
         });
       } catch (error: any) {
         console.error("Controller Error:", error);
-
         const statusCode = error.statusCode || 500;
         const message = error.message || "Internal Server Error";
 

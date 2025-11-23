@@ -1,3 +1,4 @@
+import { Order } from "./Order";
 import { User } from "./User";
 
 export type Product = {
@@ -16,7 +17,7 @@ export type Product = {
   end_time?: Date;
   description?: string;
   auto_extend?: boolean;
-  status?: "available" | "sold_out"
+  status?: Pick<Order, 'status'> | "available";
   price_increment?: number;
   created_at?: Date;
   updated_at?: Date | null;
@@ -45,16 +46,16 @@ export type ProductCategoryTree = {
   parent_id?: number;
   children?: ProductCategoryTree[];
   created_at?: Date;
-  updated_at?: Date;
-};
+  updated_at?: Date | null;
+}
 
 export type ProductAnswer = {
   id: number;
   question_id: number;
   user: Pick<User, "id" | "name" | "profile_img">;
   comment: string;
-  created_at: Date;
-};
+  created_at?: Date;
+}
 
 export type ProductQuestion = {
   id: number;
@@ -62,5 +63,5 @@ export type ProductQuestion = {
   user: Pick<User, "id" | "name" | "profile_img">;
   comment: string;
   answer?: ProductAnswer;
-  created_at: Date;
-};
+  created_at?: Date;
+}

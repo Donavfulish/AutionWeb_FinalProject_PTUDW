@@ -44,23 +44,20 @@ PATCH /upgrade/:id/reject Từ chối yêu cầu
 ---
 
 ## 2: PRODUCT API (Trí)
-
---> product.routes.ts
-GET /product Lấy danh sách tất cả sản phẩm
-GET /product?query&category&sort Tìm kiếm full-text theo tên, danh mục, sắp xếp theo thời gian, giá...
-GET /product/top Top 5 sản phẩm sắp kết thúc / nhiều lượt ra giá / giá cao nhất
-GET /product/:id Xem chi tiết sản phẩm
-POST /product Seller đăng sản phẩm mới
-PATCH /product/:id/description Seller bổ sung mô tả
-DELETE /product/:id Gỡ sản phẩm
-GET /product/:productId/questions Lấy danh sách câu hỏi & trả lời
-POST /product/:productId/questions Đặt câu hỏi
-POST /product/:productId/:questionsId/answers Người bán trả lời câu hỏi
-GET /product/:productId/status Kiểm tra tình trạng (đang diễn ra / kết thúc / gia hạn)
-POST /product/:productId/extend Tự động gia hạn (trigger nội bộ hoặc admin chỉnh config)
-
----
-
+ --> product.routes.ts
+    GET	    /product	                                Lấy danh sách tất cả sản phẩm 
+    GET	    /product?query&category&sort	                        Tìm kiếm full-text theo tên, danh mục, sắp xếp theo thời gian, giá...	
+    GET	    /product/top	                            Top 5 sản phẩm sắp kết thúc / nhiều lượt ra giá / giá cao nhất
+    GET	    /product/:productId	                            Xem chi tiết sản phẩm	
+    POST	/product	                                Seller đăng sản phẩm mới	 --> check --> ok 
+    PATCH	/product/:productId/description	                Seller bổ sung mô tả	--> ok
+    DELETE	/product/:productId	                            Gỡ sản phẩm	 --> ok
+    GET	    /product/:productId/questions	            Lấy danh sách câu hỏi & trả lời  --> ok	
+    POST	/product/:productId/questions	            Đặt câu hỏi	
+    POST	/product/:productId/:questionsId/answers	Người bán trả lời câu hỏi	
+    GET	    /product/:productId/status	        Kiểm tra tình trạng (đang diễn ra / kết thúc / gia hạn)	
+    PATCH	/product/:productId/extend	        Tự động gia hạn 
+----------------------------
 ## 3: CATEGORY API (Luân)
 
 --> ategory.routes.ts
@@ -123,6 +120,7 @@ src/
 │ ├── validator.ts # Request validation
 │ └── auth.ts # Authentication (implement sau)
 ├── utils/
+<<<<<<< HEAD
 │ ├── Logger.ts # Logger utility (Winston/Pino)
 │ ├── ApiResponse.ts # Standardized API response
 │ └── ApiError.ts # Custom error classes
@@ -134,3 +132,19 @@ src/
 │ ├── user.repository.ts
 │ └── user.model.ts
 └── app.ts # Express app setup
+=======
+│   ├── Logger.ts            # Logger utility (Winston/Pino)
+│   ├── ApiResponse.ts       # Standardized API response
+│   └── ApiError.ts          # Custom error classes
+├── modules/                 # Feature-based organization
+│   └── user/
+│       ├── user.routes.ts
+│       ├── user.controller.ts
+│       ├── user.service.ts
+│       ├── user.repository.ts
+│       └── user.model.ts
+└── app.ts                   # Express app setup
+
+
+
+>>>>>>> origin/api/products
