@@ -12,33 +12,33 @@ export type Product = {
   initial_price?: number;
   buy_now_price?: number;
   current_price?: number;
-  top_bidder?: Pick<User, 'id' | 'name' | 'profile_img'> | null;
+  top_bidder?: Pick<User, "id" | "name" | "profile_img"> | null;
   bid_count?: number;
   end_time?: Date;
   description?: string;
   auto_extend?: boolean;
-  status?: Pick<Order, 'status'> | "available";
+  status?: Pick<Order, "status"> | "available";
   price_increment?: number;
   created_at?: Date;
   updated_at?: Date | null;
-}
+};
 
-export type ProductPreview = Pick<Product,
-  'id' |
-  'slug' |
-  'category_id' |
-  'main_image' |
-  'name' |
-  'current_price' |
-  'buy_now_price' |
-  'bid_count' |
-  'end_time' |
-  'auto_extend' | 
-  'created_at'
+export type ProductPreview = Pick<
+  Product,
+  | "id"
+  | "slug"
+  | "category_id"
+  | "main_image"
+  | "name"
+  | "current_price"
+  | "buy_now_price"
+  | "bid_count"
+  | "end_time"
+  | "auto_extend"
+  | "created_at"
 > & {
-  top_bidder_name: string
-}
-
+  top_bidder_name: string;
+};
 
 export type ProductCategoryTree = {
   id: number;
@@ -48,7 +48,7 @@ export type ProductCategoryTree = {
   children?: ProductCategoryTree[];
   created_at?: Date;
   updated_at?: Date | null;
-}
+};
 
 export type ProductAnswer = {
   id: number;
@@ -56,7 +56,7 @@ export type ProductAnswer = {
   user: Pick<User, "id" | "name" | "profile_img">;
   comment: string;
   created_at?: Date;
-}
+};
 
 export type ProductQuestion = {
   id: number;
@@ -65,4 +65,10 @@ export type ProductQuestion = {
   comment: string;
   answer?: ProductAnswer;
   created_at?: Date;
-}
+};
+export type ProductPagination = {
+  page: number;
+  limit: number;
+  total: number;
+  products: Product[];
+};
