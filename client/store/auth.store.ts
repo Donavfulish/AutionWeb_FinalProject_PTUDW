@@ -20,7 +20,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     mockLogin: () =>
         set({
             user: {
-                id: "123",
+                id: "1",
                 email: "mock@example.com",
             },
         }),
