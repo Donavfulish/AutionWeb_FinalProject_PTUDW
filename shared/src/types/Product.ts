@@ -73,3 +73,11 @@ export type ProductPagination = {
   total: number;
   products: Product[];
 };
+export type CreateCategory = {
+  name: string;
+  parent_id?: number;
+};
+export type UpdateCategory = {
+  id: number;
+  name: string;
+};
