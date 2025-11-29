@@ -1,11 +1,17 @@
 import React from "react";
 import FavoriteButton from "../FavoriteButton";
-import { Product, ProductPreview } from "../../../shared/src/types";
+import { Product } from "../../../shared/src/types";
 import { getTimeDifference } from "@/app/utils";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function ProductCard({ product }: { product: ProductPreview }) {
+export default function ProductCard({
+  product,
+  isFavorite,
+}: {
+  product: Product;
+  isFavorite: boolean;
+}) {
   return (
     <div className="group relative w-full h-123 rounded-lg border-2 border-gray-200 bg-white shadow-md hover:shadow-2xl hover:border-blue-500 transition-all duration-200 select-none">
       <Image
@@ -54,10 +60,10 @@ export default function ProductCard({ product }: { product: ProductPreview }) {
           </div>
 
           <div className="mt-3 h-10">
-            {product.top_bidder_name ? (
+            {product.top_bidder?.name ? (
               <div>
                 <p className="text-sm">Người trả giá cao nhất</p>
-                <p className="font-medium">{product.top_bidder_name}</p>
+                <p className="font-medium">{product.top_bidder?.name}</p>
               </div>
             ) : (
               <div>
@@ -69,10 +75,7 @@ export default function ProductCard({ product }: { product: ProductPreview }) {
         <hr className="border-t border-solid border-gray-300 mt-3 mb-1.5" />
         <section className="flex flex-col gap-1.5">
           <p className="text-sm text-gray-500">
-            Ngày bắt đầu:{" "}
-            {product.created_at
-              ? new Date(product.created_at).toLocaleDateString("en-GB")
-              : "N/A"}
+            Ngày bắt đầu: {product.created_at.toLocaleDateString("en-GB")}
           </p>
           <div className="flex flex-row gap-2 items-center">
             <svg
