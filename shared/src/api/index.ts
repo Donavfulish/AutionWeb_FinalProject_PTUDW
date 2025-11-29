@@ -45,15 +45,18 @@ const API_ROUTES = {
   },
   product: {
     getProducts: `${PRODUCT_API}`, // GET
-    getProductTop: `${PRODUCT_API}/top`, // GET 
+    getProductTop: `${PRODUCT_API}/top`, // GET
     getProductById: (id: number) => `${PRODUCT_API}/${id}`, // GET
-    getSoldProduct:   `${PRODUCT_API}/sold`, // GET
+    getSoldProduct: `${PRODUCT_API}/sold`, // GET
+    getTopEndingSoonProduct: (limit: number, page: number) => `${PRODUCT_API}/top_end?limit=${limit}&page=${page}`, // GET
+    getTopBiddingProduct: `${PRODUCT_API}/top_bid`, // GET
+    getTopPriceProduct: `${PRODUCT_API}/top_price`, // GET
     createProduct: `${PRODUCT_API}`, // POST
-    updateProductDescription: (id: number) => `${PRODUCT_API}/${id}/description`, // PATCH
+    updateProductDescription: (id: number) =>`${PRODUCT_API}/${id}/description`, // PATCH
     deleteProductById: (id: number) => `${PRODUCT_API}/${id}`, // DELETE
     geProductQuestion: (id: number) => `${PRODUCT_API}/${id}/questions`, // GET
     createProductQuestion: (id: number) => `${PRODUCT_API}/${id}/questions`, // POST
-    createProductAnswer: (idProduct: number, idQuestion: number) => `${PRODUCT_API}/${idProduct}/${idQuestion}/answers`, // POST
+    createProductAnswer: (idProduct: number, idQuestion: number) =>`${PRODUCT_API}/${idProduct}/${idQuestion}/answers`, // POST
     updateProductExtend: (id: number) => `${PRODUCT_API}/${id}/extend`, // PATCH
   },
   favorite: {
@@ -65,12 +68,11 @@ const API_ROUTES = {
     getOrder: ORDER_API, // GET
     getOrderById: (productId: number) => `${ORDER_API}/${productId}`, // GET
     createOrder: ORDER_API, // POST
-    updateOrderStatus: (productId: number, status: string) => `/${ORDER_API}/${productId}/${status}`, // PATCH
+    updateOrderStatus: (productId: number, status: string) =>
+      `/${ORDER_API}/${productId}/${status}`, // PATCH
     getOrderChat: (productId: number) => `${ORDER_API}/${productId}/chat`, // GET
-    createOrderChat: (productId: number) =>  `${ORDER_API}/${productId}/chat` // POST
-  }
+    createOrderChat: (productId: number) => `${ORDER_API}/${productId}/chat`, // POST
+  },
 };
 
 export default API_ROUTES;
-
-

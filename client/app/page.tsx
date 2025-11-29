@@ -1,99 +1,109 @@
-"use client";
-import { SearchBar } from "@/components/SearchBar";
-import { SearchItem } from "@/components/SearchBar";
-import { ArrowRight } from "@/components/icons";
-import Link from "next/link";
-import { Product, ProductCategoryTree } from "../../shared/src/types";
-import ProductCard from "@/components/ProductCard";
-import CategoryHook from "@/hooks/useCategory";
-import { Pagination } from "../../shared/src/types/Pagination";
-import AuctionHook from "@/hooks/useBid";
-import { BidLog } from "../../shared/src/types";
-import ProductHook from "@/hooks/useProduct";
-import FavoriteHook from "@/hooks/useFavorite";
+// "use client";
+// import { ArrowRight } from "@/components/icons";
+// import Link from "next/link";
+// import { Product } from "../../shared/src/types";
+// import ProductCard from "@/components/ProductCard";
+// import ProductHook from "@/hooks/useProduct";
+// import LoadingSpinner from "@/components/LoadingSpinner";
 
-interface PageItem {
-  title: string;
-  href?: string;
-  products: Product[];
-}
+// interface PageItem {
+//   title: string;
+//   href?: string;
+//   products: Product[];
+// }
 
-const pageItems: PageItem[] = [
-  {
-    title: "Sản phẩm sắp kết thúc",
-    href: "/category",
-    products: [],
-  },
-  {
-    title: "Sản phẩm nhiều lượt đấu giá nhất",
-    href: "/category",
-    products: [],
-  },
-  {
-    title: "Sản phẩm giá cao nhất",
-    href: "/category",
-    products: [],
-  },
-];
+// function Page() {
+//   const {
+//     data: productTop,
+//     isLoading: isLoadingTopProduct,
+//     error: errorTopProduct,
+//   } = ProductHook.useGetProductTop();
 
-function Page() {
-  // const { data: category, isLoading: loa } = CategoryHook.useCategories();
-  // const {data, isLoading} = FavoriteHook.useFavorite();
-  const { data, isLoading, error } = ProductHook.useGetSoldProduct();
+//   if (isLoadingTopProduct)
+//     return (
+//       <>
+//         <LoadingSpinner />
+//       </>
+//     );
+//   if (errorTopProduct) {
+//     return <>{errorTopProduct.message};</>;
+//   }
 
-  // if (isLoading) return <p>Loading...</p>;
-  // if (error) return <p>Error!</p>;
+//   console.log(productTop);
 
-  if (isLoading) return <p>Loading...</p>;
-  console.log(data);
+//   const pageItems: PageItem[] = [
+//     {
+//       title: "Sản phẩm sắp kết thúc",
+//       href: "/top_end_product",
+//       products: productTop.topEndingSoonProducts,
+//     },
+//     {
+//       title: "Sản phẩm nhiều lượt đấu giá nhất",
+//       href: "/top_bid_product",
+//       products: productTop.topBiddingProducts,
+//     },
+//     {
+//       title: "Sản phẩm giá cao nhất",
+//       href: "/top_price_product",
+//       products: productTop.topPriceProducts,
+//     },
+//   ];
 
-  return (
-    <>
-      <div>
-        <div className="text-center w-full">
-          <h1 className="text-4xl">Chào mừng đến AuctionHub</h1>
-          <div className="mt-2 text-gray-500">
-            Tìm kiếm và đấu giá hàng triệu sản phẩm từ những người bán uy tín
-          </div>
-        </div>
-        {pageItems.map((item, index) => {
-          return (
-            <div key={index}>
-              <div className="mt-15">
-                <div className="flex justify-between font-medium">
-                  <div className=" text-2xl">{item.title}</div>
-                  <Link
-                    href={item.href || "/"}
-                    className="text-blue-500 flex items-center  gap-2"
-                  >
-                    <div className="text-[15px]">Xem tất cả</div>
-                    <ArrowRight className="w-5 h-5 mt-0.5" />
-                  </Link>
-                </div>
-              </div>
-              <div className="mt-2 grid grid-cols-5 gap-3">
-                {item.products.map((item, index) => {
-                  return (
-                    <div key={index} className="mt-3">
-                      <ProductCard key={index} product={item} />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </>
-  );
-}
-export default Page;
-// "/category/[:...category_slugs]/product/[:product_slug]"
-// "/user/info"
-// "/user/rating"
-// "/user/favourite_products"
-// "/user/bidding_products"
-// "/user/winning_products"
-// "/user/seller_role"
-// "/user/selling_products"
-// "/user/sold_products"
+//   return (
+//     <>
+//       <div>
+//         <div className="text-center w-full">
+//           <h1 className="text-4xl">Chào mừng đến AuctionHub</h1>
+//           <div className="mt-2 text-gray-500">
+//             Tìm kiếm và đấu giá hàng triệu sản phẩm từ những người bán uy tín
+//           </div>
+//         </div>
+//         {pageItems.map((item, index) => {
+//           return (
+//             <div key={index}>
+//               <div className="mt-15">
+//                 <div className="flex justify-between font-medium">
+//                   <div className=" text-2xl">{item.title}</div>
+//                   <Link
+//                     href={item.href || "/"}
+//                     className="text-blue-500 flex items-center  gap-2"
+//                   >
+//                     <div className="text-[15px]">Xem tất cả</div>
+//                     <ArrowRight className="w-5 h-5 mt-0.5" />
+//                   </Link>
+//                 </div>
+//               </div>
+//               <div className="mt-2 grid grid-cols-5 gap-3">
+//                 {item.products.map((item, index) => {
+//                   return (
+//                     <div key={index} className="mt-3">
+//                       <ProductCard key={index} product={item} />
+//                     </div>
+//                   );
+//                 })}
+//               </div>
+//             </div>
+//           );
+//         })}
+//       </div>
+//     </>
+//   );
+// }
+// export default Page;
+// // "/category/[:...category_slugs]/product/[:product_slug]"
+// // "/user/info"
+// // "/user/rating"
+// // "/user/favourite_products"
+// // "/user/bidding_products"
+// // "/user/winning_products"
+// // "/user/seller_role"
+// // "/user/selling_products"
+// // "/user/sold_products"
+
+import React from "react";
+
+const page = () => {
+  return <div>page</div>;
+};
+
+export default page;

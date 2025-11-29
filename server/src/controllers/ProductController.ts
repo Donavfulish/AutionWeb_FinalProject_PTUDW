@@ -11,10 +11,38 @@ export class ProductController extends BaseController {
     return { products: products };
   }
 
+  async getTopEndingSoonProducts(req: Request, res: Response) {
+    const page = Number(req.query.page) || null;
+    const limit = Number(req.query.limit) || null;
+    const topEndingSoonProducts = await this.service.getTopEndingSoonProducts(limit, page);
+
+    return {
+      topEndingSoonProducts: topEndingSoonProducts,
+      totalProducts: topEndingSoonProducts?.length
+    };
+  }
+
+  
+  async getTopBiddingProducts(req: Request, res: Response) {
+    const topBiddingProducts = await this.service.getTopBiddingProducts();
+
+    return {
+      topBiddingProducts: topBiddingProducts,
+    };
+  }
+
+
+  async getTopPriceProducts(req: Request, res: Response) {
+    const topPriceProducts = await this.service.getTopPriceProducts();
+
+    return {
+      topPriceProducts: topPriceProducts,
+    };
+  }
+
+
   async getTopProduct(req: Request, res: Response) {
-    const topEndingSoonProducts = await this.service.getTopEndingSoonProducts(
-      5
-    );
+    const topEndingSoonProducts = await this.service.getTopEndingSoonProducts(5);
     const topBiddingProducts = await this.service.getTopBiddingProducts(5);
     const topPriceProducts = await this.service.getTopPriceProducts(5);
 
@@ -32,7 +60,6 @@ export class ProductController extends BaseController {
     };
   }
   async getSoldProducts(req: Request, res: Response) {
-    console.log("ABC");
     const soldProducts = await this.service.getSoldProducts();
     return {
       soldProducts: soldProducts,

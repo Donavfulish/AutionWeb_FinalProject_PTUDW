@@ -22,7 +22,7 @@ class ProductHook {
       // Transform data tại Hook (select)
       select: (data) => {
         // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
-        return data;
+        return data.data.products;
       },
     });
   }
@@ -38,7 +38,7 @@ class ProductHook {
       // Transform data tại Hook (select)
       select: (data) => {
         // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
-        return data;
+        return data.data;
       },
     });
   }
@@ -56,7 +56,7 @@ class ProductHook {
       // Transform data tại Hook (select)
       select: (data) => {
         // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
-        return data;
+        return data.data.product;
       },
     });
   }
@@ -73,6 +73,54 @@ class ProductHook {
       select: (data) => {
         // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
         return data.data.soldProducts;
+      },
+    });
+  }
+
+  static useGetTopEndingSoonProduct(limit: number, page: number) {
+    return useQuery({
+      queryKey: ["product_top_ending_soon", limit, page],
+
+      queryFn: () => ProductService.getTopEndingSoonProduct(limit, page),
+
+      staleTime: STALE_10_MIN,
+
+      // Transform data tại Hook (select)
+      select: (data) => {
+        // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
+        return data.data.topEndingSoonProducts;
+      },
+    });
+  }
+
+  static useGetTopBiddingProduct() {
+    return useQuery({
+      queryKey: ["product_top_bidding"],
+
+      queryFn: () => ProductService.getTopBiddingProduct(),
+
+      staleTime: STALE_10_MIN,
+
+      // Transform data tại Hook (select)
+      select: (data) => {
+        // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
+        return data;
+      },
+    });
+  }
+
+  static useGetTopPriceProduct() {
+    return useQuery({
+      queryKey: ["product_top_price"],
+
+      queryFn: () => ProductService.getTopPriceProduct(),
+
+      staleTime: STALE_10_MIN,
+
+      // Transform data tại Hook (select)
+      select: (data) => {
+        // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
+        return data;
       },
     });
   }
@@ -130,7 +178,7 @@ class ProductHook {
       // Transform data tại Hook (select)
       select: (data) => {
         // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
-        return data;
+        return data.data.questions;
       },
     });
   }
@@ -183,22 +231,6 @@ class ProductHook {
       },
     });
   }
-
-  // useUpdateProduct() {
-  //   const queryClient = useQueryClient();
-
-  //   return useMutation({
-  //     mutationFn: (id: string) =>
-  //       ProductService.updateX(params.id, params.payload),
-
-  //     onSuccess: (_, params) => {
-  //       // Invalidate cache của dữ liệu
-  //       queryClient.invalidateQueries({
-  //         queryKey: ["x_by_something"],
-  //       });
-  //     }
-  //   });
-  // }
 }
 
 export default ProductHook;
