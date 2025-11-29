@@ -62,8 +62,8 @@ export class OrderService extends BaseService {
       status: order.status,
       shipping_address: order.shipping_address,
       payment_invoice: order.payment_invoice,
-      created_at: order.created_at,
-      updated_at: order.updated_at,
+      created_at: new Date(order.created_at),
+      updated_at: order.updated_at && new Date(order.updated_at),
     };
   }
 
@@ -118,7 +118,10 @@ export class OrderService extends BaseService {
 
     return {
       product_id: productId,
-      messages: orderMessages,
+      messages: orderMessages.map((message) => ({
+        ...message,
+        created_at: new Date(message.created_at),
+      })),
     };
   }
 

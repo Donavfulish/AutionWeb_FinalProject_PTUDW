@@ -45,7 +45,11 @@ export class FavoriteService extends BaseService {
       userId,
     ]);
 
-    return favoriteProducts;
+    return favoriteProducts.map((item) => ({
+      ...item,
+      new_time: new Date(item.end_time),
+      created_at: new Date(item.created_at),
+    }));
   }
 
   async addFavorite(
