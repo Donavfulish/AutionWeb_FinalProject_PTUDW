@@ -13,8 +13,8 @@ export class UserController extends BaseController {
     }
 
     async getProfile(req: Request, res: Response) {
-        const {id} = req.params;
-        const profile = await this.service.getProfile(id);
+        const userId = req.headers["user-id"]
+        const profile = await this.service.getProfile(userId);
         return { profile }
     }
 

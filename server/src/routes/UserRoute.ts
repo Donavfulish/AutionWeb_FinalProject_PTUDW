@@ -12,7 +12,7 @@ export class UserRoute extends BaseRoute {
 
     initRoutes() {
         this.router.get("/", BaseController.handleRequest(this.controller.getUsers.bind(this.controller)));
-        this.router.get("/profile/:id", BaseController.handleRequest(this.controller.getProfile.bind(this.controller)));
+        this.router.get("/profile", BaseController.handleRequest(this.controller.getProfile.bind(this.controller)));
         this.router.patch("/profile", BaseController.handleRequest(this.controller.updateProfile.bind(this.controller)))
     }
 }

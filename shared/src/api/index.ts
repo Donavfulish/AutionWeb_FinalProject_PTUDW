@@ -16,13 +16,13 @@ const API_ROUTES = {
     updateUser: (id: number) => `${BASE_API}/users${id}`,
     deleteUser: (id: number) => `${BASE_API}/users${id}`,
     createUSer: `${BASE_API}/users`,
-    getProfile: (id: number) => `${USER_API}/profile/${id}`, //GET
+    getProfile: () => `${USER_API}/profile`, //GET
     updateProfile: `${USER_API}/profile`, //PATCH
     updatePassword: `${USER_API}/password`, //PATCH 
   },
   upgrade: {
     createSellerRequest: `${UPGRADE_API}/request`, //POST
-    getRequestStatus:(id: string) =>  `${UPGRADE_API}/status`, //GET
+    getRequestStatus:(id: string) =>  `${UPGRADE_API}/status/${id}`, //GET
     updateApproveRequest: `${UPGRADE_API}/approve`, //PATCH
     updateRejectRequest: `${UPGRADE_API}/reject`, //PATCH
   },

@@ -20,7 +20,7 @@ export class UpgradeRequestRoute extends BaseRoute {
                 )));
 
         this.router.get(
-            "/status", 
+            "/status/:id", 
             BaseController.handleRequest(
                 this.controller.getRequestStatus.bind(
                     this.controller
