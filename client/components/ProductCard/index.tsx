@@ -10,7 +10,7 @@ import FavoriteHook from "@/hooks/useFavorite";
 
 export default function ProductCard({
   product,
-  isFavorite,
+  isFavorite=false,
 }: {
   product: ProductPreview;
   isFavorite: boolean;
