@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
@@ -24,6 +27,3 @@ app.use((req, res, next) => {
 // app.use("/user", userRoute.router); // ← mount router vào /user
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-
-

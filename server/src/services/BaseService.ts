@@ -1,4 +1,5 @@
 import Database from "../config/db";
+
 export class BaseService {
   protected pool = Database.getInstance();
 
