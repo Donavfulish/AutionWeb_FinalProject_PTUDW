@@ -19,6 +19,7 @@ import { Request, Response, NextFunction } from "express";
 import { ShortUser, User } from "../../../shared/src/types";
 
 import { createSlugUnique } from "../utils";
+import { R2Service } from "./R2Service";
 
 export class ProductService extends BaseService {
   private static instance: ProductService;
@@ -104,7 +105,9 @@ export class ProductService extends BaseService {
       json_build_object(
         'id', u.id,
         'name', u.name,
-        'profile_img', u.profile_img
+        'profile_img', u.profile_img,
+        'positive_points', u.positive_points,
+        'negative_points', u.negative_points
       ) AS seller,
       p.category_id,
       p.main_image,
@@ -117,10 +120,11 @@ export class ProductService extends BaseService {
       p.auto_extend,
       p.price_increment,
       p.created_at,
-      p.updated_at
-
+      p.updated_at,
+      c.name as category_name
     FROM product.products p 
     JOIN admin.users u on u.id = p.seller_id 
+    JOIN product.product_categories c on c.id = p.category_id
     WHERE p.id = $1
     `;
 
@@ -423,7 +427,23 @@ export class ProductService extends BaseService {
     );
     return newProduct[0];
   }
+  async getProductBySlug(slug: string): Promise<Product | undefined> {
+    const sql = `
+    SELECT id
+    FROM product.products 
+    WHERE slug = $1
+    `;
+    const product = await this.safeQuery<Product>(sql, [slug]);
 
+    const newProduct = await Promise.all(
+      product.map(async (item: any) => {
+        const productType = this.getProductType(item.id);
+        return productType;
+      })
+    );
+
+    return newProduct[0];
+  }
   async getSoldProducts(): Promise<ProductPreview[] | undefined> {
     const sql = `
    SELECT o.product_id as id
@@ -442,8 +462,19 @@ export class ProductService extends BaseService {
     return soldProduct;
   }
 
-  async createProduct(product: CreateProduct, userId: number) {
-    const slug = createSlugUnique(product.name);
+  async createProduct(
+    payload: CreateProduct,
+    mainImage: Express.Multer.File,
+    extraImages: Express.Multer.File[],
+    userId: number
+  ) {
+    const r2 = R2Service.getInstance();
+    const [mainImageUrl, ...extraImageUrls] = await r2.uploadFilesToR2(
+      [mainImage, ...extraImages],
+      "product"
+    ); // Upload lên R2 và lấy link ảnh R2
+
+    const slug = createSlugUnique(payload.name);
     const sql = `
     INSERT INTO product.products(
     slug, 
@@ -466,16 +497,16 @@ export class ProductService extends BaseService {
     const newProduct = await this.safeQuery(sql, [
       slug,
       userId,
-      product.category_id,
-      null,
-      null,
-      product.name,
-      product.initial_price,
-      product.buy_now_price,
-      product.end_time,
-      product.description,
-      product.auto_extend,
-      product.price_increment,
+      payload.category_id,
+      mainImageUrl,
+      extraImageUrls,
+      payload.name,
+      payload.initial_price,
+      payload.buy_now_price,
+      payload.end_time,
+      payload.description,
+      payload.auto_extend,
+      payload.price_increment,
     ]);
     return newProduct;
   }
@@ -488,7 +519,7 @@ export class ProductService extends BaseService {
             WHEN description IS NULL THEN $1
             ELSE description || E'\n\n' || $1
         END,
-        updated = NOW()
+        updated_at = NOW()
     WHERE id = $2
     RETURNING *;
     `;
@@ -499,10 +530,22 @@ export class ProductService extends BaseService {
     const sql = `
     DELETE FROM product.products 
     WHERE id = $1
-    RETURNING *
+    RETURNING MAIN_IMAGE, EXTRA_IMAGES
     `;
-    const deleteProduct = await this.safeQuery(sql, [productId]);
-    return deleteProduct;
+    const result = await this.safeQuery<{
+      main_image: string;
+      extra_images: string[];
+    }>(sql, [productId]);
+
+    if (result.length == 0) {
+      throw new Error(`Không thể tìm thấy sản phẩm có id = ${productId}`);
+    }
+
+    const { main_image, extra_images = [] } = result[0]!;
+    const r2 = R2Service.getInstance();
+    await r2.deleteFilesFromR2([main_image, ...extra_images]);
+
+    return result;
   }
 
   async getQuestions(productId: number): Promise<ProductQuestion[]> {
@@ -521,6 +564,7 @@ export class ProductService extends BaseService {
             SELECT 
                 json_build_object(
                     'id', pa.id,
+                    'comment', pq.comment,
                     'question_id', pa.question_id,
                     'user', json_build_object(
                         'id', u2.id,
@@ -531,7 +575,7 @@ export class ProductService extends BaseService {
             FROM feedback.product_answers pa
             JOIN admin.users u2 ON u2.id = pa.user_id
             WHERE pa.question_id = pq.id
-          ) AS answers
+          ) AS answer
       FROM feedback.product_questions pq
       JOIN admin.users u ON u.id = pq.user_id
       WHERE pq.product_id = $1;

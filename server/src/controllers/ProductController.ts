@@ -101,6 +101,13 @@ export class ProductController extends BaseController {
       product: product,
     };
   }
+  async getProductBySlug(req: Request, res: Response) {
+    const slug = req.params.slug;
+    const product = await this.service.getProductBySlug(slug);
+    return {
+      product: product,
+    };
+  }
   async getSoldProducts(req: Request, res: Response) {
     const soldProducts = await this.service.getSoldProducts();
     return {
@@ -109,10 +116,30 @@ export class ProductController extends BaseController {
   }
 
   async createProduct(req: Request, res: Response) {
-    const product: CreateProduct = req.body;
     const userId = req.headers["user-id"];
-    console.log("this is req: ", req.headers);
-    const newProduct = await this.service.createProduct(product, userId);
+
+    const files = req.files as Express.Multer.File[];
+    if (!files) {
+      throw new Error("No files were delivered");
+    }
+    const mainImage = files.find((f) => f.fieldname === "main-image");
+    const extraImages = files.filter((f) =>
+      f.fieldname.startsWith("extra-image-")
+    );
+
+    const payloadStr = req.body.payload;
+    if (!payloadStr) {
+      throw new Error("No payload were delivered");
+    }
+
+    const payload: CreateProduct = JSON.parse(payloadStr);
+
+    const newProduct = await this.service.createProduct(
+      payload,
+      mainImage,
+      extraImages,
+      userId
+    );
     return {
       newProduct: newProduct,
     };

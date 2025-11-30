@@ -66,6 +66,7 @@ const API_ROUTES = {
       `${PRODUCT_API}/top_bid?limit=${limit}&page=${page}`, // GET
     getTopPriceProduct: (limit: number, page: number) =>
       `${PRODUCT_API}/top_price?limit=${limit}&page=${page}`, // GET
+    getProductBySlug: (slug: string) => `${PRODUCT_API}/slug/${slug}`, // GET
     createProduct: `${PRODUCT_API}`, // POST
     updateProductDescription: (id: number) =>
       `${PRODUCT_API}/${id}/description`, // PATCH

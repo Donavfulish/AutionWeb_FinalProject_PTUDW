@@ -21,3 +21,8 @@ export default function RootLayout({
     </html>
   );
 }
+
+/*
+- Dien thoai --> sp3 , sp4  
++ Iphone: Sp1 , sp2 
+*/

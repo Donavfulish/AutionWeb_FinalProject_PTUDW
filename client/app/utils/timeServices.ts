@@ -1,4 +1,6 @@
 export function getTimeDifference(start: Date, end: Date): string {
+  if (start > end) return "Đã kết thúc";
+
   const diffMs = end.getTime() - start.getTime(); // milliseconds
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMinutes / 60);

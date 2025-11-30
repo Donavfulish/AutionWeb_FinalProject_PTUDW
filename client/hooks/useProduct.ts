@@ -59,7 +59,23 @@ class ProductHook {
       },
     });
   }
+  static useGetProductBySlug(slug: string) {
+    return useQuery({
+      queryKey: ["product_by_slug", slug],
 
+      queryFn: () => ProductService.getProductBySlug(slug),
+
+      staleTime: STALE_10_MIN,
+
+      enabled: !!slug,
+
+      // Transform data tại Hook (select)
+      select: (data) => {
+        // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
+        return data.data.product;
+      },
+    });
+  }
   static useGetSoldProduct() {
     return useQuery({
       queryKey: ["product_sold"],
@@ -127,12 +143,16 @@ class ProductHook {
   static useCreateProduct() {
     const queryClient = useQueryClient();
     return useMutation({
-      mutationFn: (data: CreateProduct) => ProductService.createProduct(data),
+      mutationFn: (formData: FormData) =>
+        ProductService.createProduct(formData),
       onSuccess: () => {
         // Invalidate cache của dữ liệu
         queryClient.invalidateQueries({
           queryKey: ["products"],
         });
+
+        alert("Đăng sản phẩm thành công!");
+        window.location.reload();
       },
     });
   }
@@ -147,6 +167,8 @@ class ProductHook {
         queryClient.invalidateQueries({
           queryKey: ["products"],
         });
+
+        alert("Cập nhật sản phẩm thành công!");
       },
     });
   }
