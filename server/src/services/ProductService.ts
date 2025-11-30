@@ -105,7 +105,9 @@ export class ProductService extends BaseService {
       json_build_object(
         'id', u.id,
         'name', u.name,
-        'profile_img', u.profile_img
+        'profile_img', u.profile_img,
+        'positive_points', u.positive_points,
+        'negative_points', u.negative_points
       ) AS seller,
       p.category_id,
       p.main_image,
@@ -118,10 +120,11 @@ export class ProductService extends BaseService {
       p.auto_extend,
       p.price_increment,
       p.created_at,
-      p.updated_at
-
+      p.updated_at,
+      c.name as category_name
     FROM product.products p 
     JOIN admin.users u on u.id = p.seller_id 
+    JOIN product.product_categories c on c.id = p.category_id
     WHERE p.id = $1
     `;
 
@@ -333,7 +336,23 @@ export class ProductService extends BaseService {
     );
     return newProduct[0];
   }
+  async getProductBySlug(slug: string): Promise<Product | undefined> {
+    const sql = `
+    SELECT id
+    FROM product.products 
+    WHERE slug = $1
+    `;
+    const product = await this.safeQuery<Product>(sql, [slug]);
 
+    const newProduct = await Promise.all(
+      product.map(async (item: any) => {
+        const productType = this.getProductType(item.id);
+        return productType;
+      })
+    );
+
+    return newProduct[0];
+  }
   async getSoldProducts(): Promise<ProductPreview[] | undefined> {
     const sql = `
    SELECT o.product_id as id
@@ -454,6 +473,7 @@ export class ProductService extends BaseService {
             SELECT 
                 json_build_object(
                     'id', pa.id,
+                    'comment', pq.comment,
                     'question_id', pa.question_id,
                     'user', json_build_object(
                         'id', u2.id,
@@ -464,7 +484,7 @@ export class ProductService extends BaseService {
             FROM feedback.product_answers pa
             JOIN admin.users u2 ON u2.id = pa.user_id
             WHERE pa.question_id = pq.id
-          ) AS answers
+          ) AS answer
       FROM feedback.product_questions pq
       JOIN admin.users u ON u.id = pq.user_id
       WHERE pq.product_id = $1;

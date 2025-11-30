@@ -1,4 +1,3 @@
-import { error } from "console";
 import {
   CreateAnswer,
   CreateProduct,
@@ -65,6 +64,13 @@ export class ProductController extends BaseController {
   async getProductById(req: Request, res: Response) {
     const productId = req.params.productId;
     const product = await this.service.getProductById(productId);
+    return {
+      product: product,
+    };
+  }
+  async getProductBySlug(req: Request, res: Response) {
+    const slug = req.params.slug;
+    const product = await this.service.getProductBySlug(slug);
     return {
       product: product,
     };

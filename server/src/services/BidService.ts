@@ -15,14 +15,23 @@ export class BidService extends BaseService {
     return BidService.instance;
   }
   async getBidLogs(id: number): Promise<BidLog[]> {
-    const sql = `SELECT * FROM auction.bid_logs as l WHERE l.product_id = $1 ORDER BY l.created_at DESC `;
+    const sql = `SELECT *, json_build_object(
+                            'id', u.id,
+                            'name', u.name
+                            ) AS user
+    FROM auction.bid_logs as l, admin.users as u
+     WHERE l.product_id = $1 AND u.id = l.user_id ORDER BY l.created_at DESC `;
     const logs: BidLog[] = await this.safeQuery(sql, [id]);
     return logs;
   }
   async createBid(bid: CreateBidLog): Promise<MutationResult> {
+    console.log(bid);
     let sql = `SELECT COUNT(*) as total FROM auction.black_list as bl WHERE bl.user_id = $1 AND bl.product_id = $2`;
-    const totalBl = await this.safeQuery(sql, [bid.user_id, bid.product_id]);
-    if (totalBl.length > 0) return { success: false };
+    const totalBl: any[] = await this.safeQuery(sql, [
+      bid.user_id,
+      bid.product_id,
+    ]);
+    if (totalBl[0].total > 0) return { success: false };
     sql = `INSERT INTO auction.bid_logs (user_id, product_id, price, created_at, updated_at)
                 VALUES
                 ($1, $2, $3, NOW(), NOW() )`;

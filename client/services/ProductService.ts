@@ -62,7 +62,12 @@ export class ProductService {
       return res.data;
     });
   }
-
+  static async getProductBySlug(slug: string): Promise<any> {
+    return safeRequest(async () => {
+      const res = await api.get(API_ROUTES.product.getProductBySlug(slug));
+      return res.data;
+    });
+  }
   static async getSoldProduct(): Promise<any> {
     return safeRequest(async () => {
       const res = await api.get(API_ROUTES.product.getSoldProduct);

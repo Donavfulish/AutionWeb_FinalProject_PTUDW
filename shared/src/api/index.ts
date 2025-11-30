@@ -1,6 +1,6 @@
 const BASE_API = "http://localhost:8080/api";
 const USER_API = `${BASE_API}/user`;
-const UPGRADE_API =`${BASE_API}/upgrade`;
+const UPGRADE_API = `${BASE_API}/upgrade`;
 const RATING_API = `${BASE_API}/rating`;
 const PRODUCT_API = `${BASE_API}/product`;
 const CATEGORY_API = `${BASE_API}/category`;
@@ -18,11 +18,11 @@ const API_ROUTES = {
     createUSer: `${BASE_API}/users`,
     getProfile: () => `${USER_API}/profile`, //GET
     updateProfile: `${USER_API}/profile`, //PATCH
-    updatePassword: `${USER_API}/password`, //PATCH 
+    updatePassword: `${USER_API}/password`, //PATCH
   },
   upgrade: {
     createSellerRequest: `${UPGRADE_API}/request`, //POST
-    getRequestStatus:(id: string) =>  `${UPGRADE_API}/status/${id}`, //GET
+    getRequestStatus: (id: string) => `${UPGRADE_API}/status/${id}`, //GET
     updateApproveRequest: `${UPGRADE_API}/approve`, //PATCH
     updateRejectRequest: `${UPGRADE_API}/reject`, //PATCH
   },
@@ -47,16 +47,20 @@ const API_ROUTES = {
     getProducts: `${PRODUCT_API}`, // GET
     getProductTop: `${PRODUCT_API}/top`, // GET
     getProductById: (id: number) => `${PRODUCT_API}/${id}`, // GET
+    getProductBySlug: (slug: string) => `${PRODUCT_API}/slug/${slug}`, // GET
     getSoldProduct: `${PRODUCT_API}/sold`, // GET
-    getTopEndingSoonProduct: (limit: number, page: number) => `${PRODUCT_API}/top_end?limit=${limit}&page=${page}`, // GET
+    getTopEndingSoonProduct: (limit: number, page: number) =>
+      `${PRODUCT_API}/top_end?limit=${limit}&page=${page}`, // GET
     getTopBiddingProduct: `${PRODUCT_API}/top_bid`, // GET
     getTopPriceProduct: `${PRODUCT_API}/top_price`, // GET
     createProduct: `${PRODUCT_API}`, // POST
-    updateProductDescription: (id: number) =>`${PRODUCT_API}/${id}/description`, // PATCH
+    updateProductDescription: (id: number) =>
+      `${PRODUCT_API}/${id}/description`, // PATCH
     deleteProductById: (id: number) => `${PRODUCT_API}/${id}`, // DELETE
     geProductQuestion: (id: number) => `${PRODUCT_API}/${id}/questions`, // GET
     createProductQuestion: (id: number) => `${PRODUCT_API}/${id}/questions`, // POST
-    createProductAnswer: (idProduct: number, idQuestion: number) =>`${PRODUCT_API}/${idProduct}/${idQuestion}/answers`, // POST
+    createProductAnswer: (idProduct: number, idQuestion: number) =>
+      `${PRODUCT_API}/${idProduct}/${idQuestion}/answers`, // POST
     updateProductExtend: (id: number) => `${PRODUCT_API}/${id}/extend`, // PATCH
   },
   favorite: {

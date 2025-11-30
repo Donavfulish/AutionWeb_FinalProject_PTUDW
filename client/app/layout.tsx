@@ -1,5 +1,6 @@
 "use client";
 import "./globals.css";
+import "flowbite";
 import Header from "@/components/Header";
 import { ProductCategoryTree } from "../../shared/src/types";
 import ProductCategoryTable from "@/components/ProductCategoryTable";

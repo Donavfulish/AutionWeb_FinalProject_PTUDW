@@ -3,14 +3,10 @@
 import { useState } from "react";
 import Image from "next/image";
 
-const images = [
-  //"https://flowbite.s3.amazonaws.com/docs/gallery/featured/image.jpg",
-  "https://tse3.mm.bing.net/th/id/OIP.IaM8CpqbgQeegBKYt6P1JwHaHa?pid=Api",
-  "https://tse4.mm.bing.net/th/id/OIP.SzZxoYZazNktjqd9SgRpvAHaLH?pid=Api",
-  "https://tse4.mm.bing.net/th/id/OIP.RuFeLPm3iUIxSx5JH9JJKwHaCe?pid=Api",
-];
-
-export const ImageCarousel = () => {
+interface ImageProps {
+  images: string[];
+}
+export const ImageCarousel = ({ images }: ImageProps) => {
   const [currentImage, setCurrentImage] = useState(0);
 
   const [isModalOpen, setIsModalOpen] = useState(false);

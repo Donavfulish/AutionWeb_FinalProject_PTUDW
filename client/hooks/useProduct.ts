@@ -59,7 +59,23 @@ class ProductHook {
       },
     });
   }
+  static useGetProductBySlug(slug: string) {
+    return useQuery({
+      queryKey: ["product_by_slug", slug],
 
+      queryFn: () => ProductService.getProductBySlug(slug),
+
+      staleTime: STALE_10_MIN,
+
+      enabled: !!slug,
+
+      // Transform data tại Hook (select)
+      select: (data) => {
+        // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
+        return data.data.product;
+      },
+    });
+  }
   static useGetSoldProduct() {
     return useQuery({
       queryKey: ["product_sold"],
