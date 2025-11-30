@@ -5,8 +5,11 @@ export type R2DirectoryType = "product" | "user";
 
 export class R2Service {
   private readonly r2Client = CloudflareR2.getInstance();
-  private static _instance: R2Service;
+  private readonly devUrl: string =
+    process.env.R2_PUBLIC_DEV_URL ||
+    "https://pub-ab2f2215803443f7bc2b22fed45d0aa1.r2.dev";
 
+  private static _instance: R2Service;
   private constructor() {}
 
   static getInstance(): R2Service {
@@ -43,9 +46,7 @@ export class R2Service {
     } catch (e) {
       console.error("Fail to upload file", e);
     } finally {
-      return key
-        ? `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${process.env.R2_BUCKET_NAME}/${key}`
-        : "";
+      return key ? `${this.devUrl}/${key}` : "";
     }
   }
 
@@ -112,12 +113,10 @@ export class R2Service {
     const bucketName = process.env.R2_BUCKET_NAME!;
     const accountId = process.env.R2_ACCOUNT_ID!;
 
-    const baseUrl = `https://${accountId}.r2.cloudflarestorage.com/${bucketName}/`;
-
-    if (!filePath.startsWith(baseUrl)) {
+    if (!filePath.startsWith(this.devUrl)) {
       throw new Error(`Invalid R2 file path: ${filePath}`);
     }
 
-    return filePath.substring(baseUrl.length);
+    return filePath.substring(this.devUrl.length);
   }
 }
