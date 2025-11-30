@@ -9,22 +9,23 @@ import { LogoutIcon } from '@/components/icons'
 import EditDetail from './EditDetail'
 import { useAuth } from '@/hooks/useAuth'
 import UserHook from '@/hooks/useUser'
+import LoadingSpinner from '@/components/LoadingSpinner'
 
 const InfoPage = () => {
 
     // Define variables
     const [inEditMode, setInEditMode] = useState<boolean>(false);
-    const user = useAuth().user;
     const {
             data: userProfile, 
             isLoading: isUserProfileLoading, 
             error
-        } = UserHook.useGetProfile(Number(user?.id));
-       
+        } = UserHook.useGetProfile();
+
     // React Hook
     useEffect(() => {
-        
+
     })
+
     function handleEditButton() {
         setInEditMode(true);
     }
@@ -41,13 +42,17 @@ const InfoPage = () => {
         setInEditMode(false);
     }
 
+    if (isUserProfileLoading) return <LoadingSpinner/>;
+    if (error) return <p>Lỗi tải dữ liệu</p>;
+    if (!userProfile) return <p>Không tìm thấy thông tin người dùng</p>;
+
     return <div className="bg-white w-full h-full border-2 border-gray-200 shadow-md rounded-lg p-7">
         <p className="text-2xl font-medium">Thông tin tài khoản</p>
         <div>
             {inEditMode ? <div>
                 <EditDetail />
             </div> : <div>
-                <ViewDetail />
+                <ViewDetail user={userProfile}/>
             </div>}
 
             {inEditMode ? <div>

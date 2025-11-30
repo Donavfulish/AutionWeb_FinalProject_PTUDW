@@ -1,145 +1,31 @@
-"use client";
+// app/layout.tsx
 import "./globals.css";
 import Header from "@/components/Header";
-import { ProductCategoryTree } from "../../shared/src/types";
-import ProductCategoryTable from "@/components/ProductCategoryTable";
-import UserCategoryTable from "@/components/UserCategoryTable";
-import { userCategories } from "./const";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-const queryClient = new QueryClient();
-import { usePathname } from "next/navigation";
 import { Footer } from "@/components/Footer/Footer";
-const productCategories: ProductCategoryTree[] = [
-  {
-    id: 1,
-    slug: "điện-tử",
-    name: "Điện tử",
-    children: [
-      {
-        id: 11,
-        slug: "điện-thoại-di-động",
-        name: "Điện thoại di động",
-        parent_id: 1,
-        created_at: new Date("2025-11-10T10:00:00Z"),
-      },
-      {
-        id: 12,
-        slug: "máy-tính-xách-tay",
-        name: "Máy tính xách tay",
-        parent_id: 1,
-        created_at: new Date("2025-11-10T10:00:00Z"),
-      },
-      {
-        id: 13,
-        slug: "máy-tính-bảng",
-        name: "Máy tính bảng",
-        parent_id: 1,
-        created_at: new Date("2025-11-10T10:00:00Z"),
-      },
-    ],
-    created_at: new Date("2025-11-10T10:00:00Z"),
-  },
-  {
-    id: 2,
-    slug: "thời-trang",
-    name: "Thời trang",
-    children: [
-      {
-        id: 21,
-        slug: "giày",
-        name: "Giày",
-        parent_id: 2,
-        created_at: new Date("2025-11-10T10:00:00Z"),
-      },
-      {
-        id: 22,
-        slug: "đồng-hồ",
-        name: "Đồng hồ",
-        parent_id: 2,
-        created_at: new Date("2025-11-10T10:00:00Z"),
-      },
-      {
-        id: 23,
-        slug: "quần-áo",
-        name: "Quần áo",
-        parent_id: 2,
-        created_at: new Date("2025-11-10T10:00:00Z"),
-      },
-    ],
-    created_at: new Date("2025-11-10T10:00:00Z"),
-  },
-  {
-    id: 3,
-    slug: "nhà-gia-đình",
-    name: "Nhà & Gia đình",
-    children: [
-      {
-        id: 31,
-        slug: "nội-thất",
-        name: "Nội thất",
-        parent_id: 3,
-        created_at: new Date("2025-11-10T10:00:00Z"),
-      },
-      {
-        id: 32,
-        slug: "trang-trí",
-        name: "Trang trí",
-        parent_id: 3,
-        created_at: new Date("2025-11-10T10:00:00Z"),
-      },
-    ],
-    created_at: new Date("2025-11-10T10:00:00Z"),
-  },
-  {
-    id: 4,
-    slug: "sưu-tầm",
-    name: "Sưu tầm",
-    children: [
-      {
-        id: 41,
-        slug: "đồ-cổ",
-        name: "Đồ cổ",
-        parent_id: 4,
-        created_at: new Date("2025-11-10T10:00:00Z"),
-      },
-      {
-        id: 42,
-        slug: "nghệ-thuật",
-        name: "Nghệ thuật",
-        parent_id: 4,
-        created_at: new Date("2025-11-10T10:00:00Z"),
-      },
-    ],
-    created_at: new Date("2025-11-10T10:00:00Z"),
-  },
-];
+import UserSidebarWrapper from "@/components/UserSidebarWrapper";
+import Providers from "./provider";
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const pathname = usePathname();
-  const isUserRoute = pathname.startsWith("/user");
+}) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <html lang="en">
-        <body>
+    <html lang="en">
+      <body>
+        {/* Client Query Provider */}
+        <Providers>
           <Header />
           <div className="mt-[100px] flex container gap-8 mb-[50px]">
             <aside>
-              {isUserRoute ? (
-                <UserCategoryTable userCategories={userCategories} />
-              ) : (
-                <ProductCategoryTable productCategories={productCategories} />
-              )}
+              {/* Client component kiểm tra route */}
+              <UserSidebarWrapper />
             </aside>
             <main className="w-full">{children}</main>
           </div>
           <Footer />
-        </body>
-      </html>
-    </QueryClientProvider>
+        </Providers>
+      </body>
+    </html>
   );
 }

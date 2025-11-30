@@ -12,18 +12,16 @@ interface UpdateUserPayload extends User {
 }
 
 class UserHook {
-    static useGetProfile(id: number) {
+    static useGetProfile() {
         return useQuery({
             queryKey: ["user_profile"],
 
-            queryFn: () => UserService.getProfile(id),
+            queryFn: () => UserService.getProfile(),
 
             staleTime: STALE_10_MIN,
 
-            enabled: !!id,
-
             select: (data) => {
-                return data.data;
+                return data.data.profile;
             }
         });
     }
