@@ -7,7 +7,7 @@ export class RatingController extends BaseController {
     }
 
     async getRating(req: Request, res: Response) {
-        const {userId} = req.params
+        const { userId } = req.params
         const result = await this.service.getRating(userId);
         return { result };
     }

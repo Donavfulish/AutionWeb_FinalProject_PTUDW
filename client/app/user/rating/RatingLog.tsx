@@ -23,7 +23,7 @@ export default function RatingLog({ ratingLog }: { ratingLog: UserRating }) {
         />
         <div className="flex flex-col">
           <p className="text-black font-medium">{rater.name}</p>
-          <p className="text-sm text-gray-500">{date.toLocaleDateString("en-GB")}</p>
+          <p className="text-sm text-gray-500">{new Date(date).toLocaleDateString("en-GB")}</p>
         </div>
       </div>  
       <div className={`rounded-full w-10 h-10 flex justify-center items-center select-none ${goodRating ? "bg-green-200" : "bg-red-200"}`}>
