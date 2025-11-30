@@ -351,8 +351,13 @@ export class ProductService extends BaseService {
     return soldProduct;
   }
 
-  async createProduct(product: CreateProduct, userId: number) {
-    const slug = createSlugUnique(product.name);
+  async createProduct(
+    payload: CreateProduct,
+    mainImage: Express.Multer.File,
+    extraImages: Express.Multer.File[],
+    userId: number
+  ) {
+    const slug = createSlugUnique(payload.name);
     const sql = `
     INSERT INTO product.products(
     slug, 
@@ -375,16 +380,16 @@ export class ProductService extends BaseService {
     const newProduct = await this.safeQuery(sql, [
       slug,
       userId,
-      product.category_id,
+      payload.category_id,
       null,
       null,
-      product.name,
-      product.initial_price,
-      product.buy_now_price,
-      product.end_time,
-      product.description,
-      product.auto_extend,
-      product.price_increment,
+      payload.name,
+      payload.initial_price,
+      payload.buy_now_price,
+      payload.end_time,
+      payload.description,
+      payload.auto_extend,
+      payload.price_increment,
     ]);
     return newProduct;
   }

@@ -1,14 +1,21 @@
 "use client";
-import React from "react";
+import React, { useMemo } from "react";
 import { useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Editor as TinyMCEEditor } from "@tinymce/tinymce-react";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import ProductHook from "@/hooks/useProduct";
 
 import { api } from "@/config/axios.config";
+import {
+  CreateProduct,
+  ProductCategoryTree,
+} from "../../../../../shared/src/types";
+import ErrorMessage from "./ErrorMessage";
+import CategoryHook from "@/hooks/useCategory";
+import { formatPrice, parseNumber } from "@/app/utils";
 const Editor = dynamic(
   () =>
     import("@tinymce/tinymce-react").then(
@@ -24,12 +31,38 @@ const CreateProductPage = () => {
   const [extraImages, setExtraImages] = useState<File[] | null>(null);
   const [previewExtras, setPreviewExtras] = useState<string[] | null>(null);
 
-  const [content, setContent] = useState("");
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, "0");
   const minDateTime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(
     now.getDate()
   )}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+  const {
+    data: categories,
+    isLoading: isLoadingCategories,
+    error: loadingCategoriesError,
+  } = CategoryHook.useCategories() as {
+    data: ProductCategoryTree[];
+    isLoading: boolean;
+    error: any;
+  };
+
+  const categoryList = useMemo(() => {
+    const list: ProductCategoryTree[] = [];
+    categories?.forEach(({ children, ...category }) => {
+      list.push(category);
+
+      const parentName = category.name;
+      children?.forEach(({ children, name, ...category }) => {
+        list.push({
+          ...category,
+          name: parentName + " > " + name,
+        });
+      });
+    });
+
+    return list;
+  }, [categories]);
 
   const { mutate: createProduct, isPending } = ProductHook.useCreateProduct();
 
@@ -42,12 +75,31 @@ const CreateProductPage = () => {
     price_increment: z
       .number({ message: "Vui lòng nhập bước giá" })
       .min(0, { message: "Bước giá không được âm" }),
-    buy_now_price: z.number().min(0, { message: "Giá mua ngay không được âm" }),
+    buy_now_price: z
+      .number()
+      .min(0, { message: "Giá mua ngay không được âm" })
+      .optional(),
     end_time: z.date({ message: "Vui lòng chọn ngày kết thúc" }),
-    desription: z.string(),
+    description: z.string(),
+    auto_extend: z.boolean(),
   });
 
-  const {} = useForm();
+  type NewProductType = z.infer<typeof newProductSchema>;
+
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+    setValue,
+    watch,
+    resetField,
+    control,
+  } = useForm({
+    resolver: zodResolver(newProductSchema),
+    defaultValues: {
+      description: "",
+    },
+  });
 
   const handleChangeMainImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) {
@@ -77,9 +129,7 @@ const CreateProductPage = () => {
     const previews = files.map((file) => URL.createObjectURL(file));
     setPreviewExtras(previews);
   };
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = (payload: NewProductType) => {
     if (!mainImage) {
       alert("Yêu cầu có ảnh chính");
       return;
@@ -93,6 +143,16 @@ const CreateProductPage = () => {
       return;
     }
 
+    if (
+      payload.buy_now_price &&
+      payload.buy_now_price <= payload.initial_price
+    ) {
+      alert("Giá mua ngay phải cao hơn giá khởi điểm.");
+      return;
+    }
+
+    console.log(payload);
+
     const formData = new FormData();
     formData.append("main-image", mainImage);
     formData.append("extra-images-count", String(extraImages.length));
@@ -102,55 +162,9 @@ const CreateProductPage = () => {
       });
     }
 
-    // const form = e.target as HTMLFormElement;
-    // if (!previewMain) {
-    //   alert("Yêu cầu có ảnh chính");
-    //   return;
-    // }
-    // if (
-    //   (previewExtras && previewExtras.length < 2) ||
-    //   (previewExtras && previewExtras.length > 4) ||
-    //   !previewExtras
-    // ) {
-    //   alert("Số lượng ảnh phụ không phù hợp");
-    //   return;
-    // }
-    // const name = (form.elements.namedItem("name") as HTMLInputElement).value;
-    // const category = (form.elements.namedItem("category") as HTMLInputElement)
-    //   .value;
-    // const initPrice = (form.elements.namedItem("initPrice") as HTMLInputElement)
-    //   .value;
-    // const increPrice = (
-    //   form.elements.namedItem("increPrice") as HTMLInputElement
-    // ).value;
-    // const buyNowPrice = (
-    //   form.elements.namedItem("buyNowPrice") as HTMLInputElement
-    // ).value;
-    // const endTime = (form.elements.namedItem("endTime") as HTMLInputElement)
-    //   .value;
-    // const isExtend = (form.elements.namedItem("isExtend") as HTMLInputElement)
-    //   .checked;
-    // if (buyNowPrice <= initPrice) {
-    //   alert("Giá mua ngay phải lớn hơn giá khởi điểm");
-    //   return;
-    // }
+    formData.append("payload", JSON.stringify(payload));
 
-    // console.log(
-    //   minDateTime,
-    //   name,
-    //   category,
-    //   initPrice,
-    //   increPrice,
-    //   buyNowPrice,
-    //   endTime,
-    //   isExtend,
-    //   content
-    // );
-
-    createProduct();
-  };
-  const handleEditorChange = (content: string, editor: any) => {
-    setContent(content);
+    createProduct(formData);
   };
 
   const handleSubmitUpload = (e: React.FormEvent) => {
@@ -177,11 +191,10 @@ const CreateProductPage = () => {
     });
     console.log(res);
   };
-
   return (
     <div className="w-full bg-[#F8FAFC] lg:px-32">
       {/* GIAO DIỆN TẠM - NÚT UPLOAD & XÓA ẢNH TRONG CLOUDFLARE R2 */}
-      <div className="h-50 grid grid-cols-2 gap-2">
+      <div className="h-50 grid grid-cols-3 gap-2">
         <button
           onClick={handleSubmitUpload}
           className="bg-gray-500 border border-gray-300 cursor-pointer text-white"
@@ -205,7 +218,7 @@ const CreateProductPage = () => {
       </p>
       <form
         className="bg-white rounded-lg p-8 space-y-8 border border-gray-200"
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
       >
         <div>
           <h3 className="text-lg font-bold text-gray-900 mb-4">
@@ -301,8 +314,9 @@ const CreateProductPage = () => {
               required
               type="text"
               maxLength={255}
-              name="name"
+              {...register("name")}
             />
+            {errors.name && <ErrorMessage message={errors.name.message} />}
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -311,27 +325,24 @@ const CreateProductPage = () => {
             <select
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
-              name="category"
+              {...register("category_id", { valueAsNumber: true })}
             >
               <option value="">Chọn danh mục</option>
-              <option value="electronics">Điện tử</option>
-              <option value="phones">Điện tử &gt; Điện thoại di động</option>
-              <option value="laptops">Điện tử &gt; Máy tính xách tay</option>
-              <option value="tablets">Điện tử &gt; Máy tính bảng</option>
-              <option value="fashion">Thời trang</option>
-              <option value="shoes">Thời trang &gt; Giày</option>
-              <option value="watches">Thời trang &gt; Đồng hồ</option>
-              <option value="clothing">Thời trang &gt; Quần áo</option>
-              <option value="home">Nhà &amp; Gia đình</option>
-              <option value="furniture">
-                Nhà &amp; Gia đình &gt; Nội thất
-              </option>
-              <option value="decor">Nhà &amp; Gia đình &gt; Trang trí</option>
-              <option value="collectibles">Sưu tầm</option>
+              {categoryList.map((category) => (
+                <option
+                  key={category.id}
+                  value={category.id}
+                  className={!category.parent_id ? `font-medium` : ""}
+                >
+                  {category.name}
+                </option>
+              ))}
 
-              <option value="vintage">Sưu tầm &gt; Đồ cổ</option>
-              <option value="art">Sưu tầm &gt; Nghệ thuật</option>
+              <option value="14">Sưu tầm &gt; Nghệ thuật</option>
             </select>
+            {errors.category_id && (
+              <ErrorMessage message={errors.category_id.message} />
+            )}
           </div>
         </div>
         <div className="space-y-4">
@@ -341,13 +352,20 @@ const CreateProductPage = () => {
                 Giá khởi điểm (VND) <span className="text-red-500">*</span>
               </label>
               <input
-                placeholder={"Gía khởi điểm"}
+                type="text"
+                placeholder="Giá khởi điểm"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
-                type="number"
-                name="initPrice"
-                min={0}
+                {...register("initial_price", { valueAsNumber: true })}
+                // value={formatPrice(watch("initial_price"))}
+                // onChange={(e) => {
+                //   const parsed = parseNumber(e.target.value);
+                //   setValue("initial_price", parsed || 0);
+                // }}
               />
+              {errors.initial_price && (
+                <ErrorMessage message={errors.initial_price.message} />
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -357,10 +375,17 @@ const CreateProductPage = () => {
                 placeholder={"Bước giá"}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
-                type="number"
-                name="increPrice"
-                min={1}
+                type="text"
+                {...register("price_increment", { valueAsNumber: true })}
+                // value={formatPrice(watch("price_increment"))}
+                // onChange={(e) => {
+                //   const parsed = parseNumber(e.target.value);
+                //   setValue("price_increment", parsed || 0);
+                // }}
               />
+              {errors.price_increment && (
+                <ErrorMessage message={errors.price_increment.message} />
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -369,10 +394,17 @@ const CreateProductPage = () => {
               <input
                 placeholder="Tuỳ chọn"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                type="number"
-                name="buyNowPrice"
-                min={1}
+                type="text"
+                {...register("buy_now_price", { valueAsNumber: true })}
+                // value={formatPrice(watch("buy_now_price"))}
+                // onChange={(e) => {
+                //   const parsed = parseNumber(e.target.value);
+                //   setValue("buy_now_price", parsed);
+                // }}
               />
+              {errors.buy_now_price && (
+                <ErrorMessage message={errors.buy_now_price.message} />
+              )}
             </div>
           </div>
         </div>
@@ -384,35 +416,52 @@ const CreateProductPage = () => {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
             type="datetime-local"
-            name="endTime"
+            {...register("end_time", { valueAsDate: true })}
             min={minDateTime}
           />
+          {errors.end_time && (
+            <ErrorMessage message={errors.end_time.message} />
+          )}
         </div>
         <div>
           <h3 className="text-lg font-bold text-gray-900 mb-4">
             Mô tả sản phẩm
           </h3>
-
-          <Editor
-            apiKey="211n6cxarxlvaqsl12amn3gpqw2r8urx8llspg5k7b1q77my"
-            initialValue=""
-            init={{
-              height: 500,
-              menubar: false,
-              skin: "oxide",
-              content_css: "oxide",
-              readonly: false,
-              plugins: [
-                "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen",
-                "insertdatetime media table paste code help wordcount",
-              ],
-              toolbar:
-                "undo redo | blocks fontfamily fontsize backcolor forecolor  | bold italic underline strikethrough | link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
-            }}
-            onEditorChange={handleEditorChange}
-            disabled={false}
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <Editor
+                apiKey="211n6cxarxlvaqsl12amn3gpqw2r8urx8llspg5k7b1q77my"
+                value={field.value || ""}
+                init={{
+                  height: 500,
+                  menubar: false,
+                  skin: "oxide",
+                  content_css: "oxide",
+                  readonly: false,
+                  plugins: [
+                    "advlist autolink lists link image charmap print preview anchor",
+                    "searchreplace visualblocks code fullscreen",
+                    "insertdatetime media table paste code help wordcount",
+                  ],
+                  toolbar:
+                    "undo redo | blocks fontfamily fontsize backcolor forecolor  | bold italic underline strikethrough | link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+                }}
+                onEditorChange={(content: string) => {
+                  setValue("description", content, {
+                    shouldValidate: true, // Tùy chọn: kích hoạt validation
+                    shouldDirty: true, // Tùy chọn: đánh dấu trường đã thay đổi
+                  });
+                }}
+                onBlur={field.onBlur}
+                disabled={false}
+              />
+            )}
           />
+          {errors.description && (
+            <ErrorMessage message={errors.description.message} />
+          )}
 
           <p className="text-xs text-gray-600 mt-2">
             💡 Bạn có thể chỉnh sửa mô tả sau khi đăng (nội dung sẽ được thêm
@@ -421,7 +470,11 @@ const CreateProductPage = () => {
         </div>
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <label className="flex items-center gap-3 cursor-pointer">
-            <input className="w-4 h-4" type="checkbox" name="isExtend" />
+            <input
+              className="w-4 h-4"
+              type="checkbox"
+              {...register("auto_extend")}
+            />
             <div>
               <p className="font-semibold text-blue-900">Tự động gia hạn</p>
               <p className="text-xs text-blue-700">
@@ -430,6 +483,9 @@ const CreateProductPage = () => {
               </p>
             </div>
           </label>
+          {errors.auto_extend && (
+            <ErrorMessage message={errors.auto_extend.message} />
+          )}
         </div>
         <div className="flex gap-3 pt-6 border-t border-gray-200">
           <button

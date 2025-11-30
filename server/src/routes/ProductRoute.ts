@@ -2,6 +2,11 @@ import { BaseRoute } from "./BaseRoute";
 import { ProductController } from "../controllers/ProductController";
 import { ProductService } from "../services/ProductService";
 import { BaseController } from "../controllers/BaseController";
+import multer from "multer";
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
 export class ProductRoute extends BaseRoute {
   private controller: ProductController;
   constructor() {
@@ -18,7 +23,7 @@ export class ProductRoute extends BaseRoute {
     this.router.get("/top_bid",BaseController.handleRequest(this.controller.getTopBiddingProducts.bind(this.controller)));
     this.router.get("/top_price",BaseController.handleRequest(this.controller.getTopPriceProducts.bind(this.controller)));
     this.router.get("/:productId",BaseController.handleRequest(this.controller.getProductById.bind(this.controller)));
-    this.router.post("/",BaseController.handleRequest(this.controller.createProduct.bind(this.controller)));
+    this.router.post("/", upload.any(), BaseController.handleRequest(this.controller.createProduct.bind(this.controller)));
     this.router.delete("/:productId",BaseController.handleRequest(this.controller.deleteProductById.bind(this.controller)));
     this.router.patch("/:productId/description",BaseController.handleRequest(this.controller.updateProductDescription.bind(this.controller)));
     this.router.get("/:productId/questions",BaseController.handleRequest(this.controller.getQuestions.bind(this.controller)));

@@ -70,9 +70,13 @@ export class ProductService {
     });
   }
 
-  static async createProduct(payload: CreateProduct): Promise<any> {
+  static async createProduct(formData: FormData): Promise<any> {
     return safeRequest(async () => {
-      const res = await api.post(API_ROUTES.product.createProduct, payload);
+      const res = await api.post(API_ROUTES.product.createProduct, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return res.data;
     });
   }

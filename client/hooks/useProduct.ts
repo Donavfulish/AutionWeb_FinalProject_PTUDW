@@ -128,7 +128,8 @@ class ProductHook {
   static useCreateProduct() {
     const queryClient = useQueryClient();
     return useMutation({
-      mutationFn: (data: CreateProduct) => ProductService.createProduct(data),
+      mutationFn: (formData: FormData) =>
+        ProductService.createProduct(formData),
       onSuccess: () => {
         // Invalidate cache của dữ liệu
         queryClient.invalidateQueries({

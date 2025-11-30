@@ -1,4 +1,9 @@
-import { CreateAnswer, CreateProduct, CreateQuestion } from "../../../shared/src/types";
+import { error } from "console";
+import {
+  CreateAnswer,
+  CreateProduct,
+  CreateQuestion,
+} from "../../../shared/src/types";
 import { BaseController } from "./BaseController";
 import { Request, Response, NextFunction } from "express";
 
@@ -72,10 +77,34 @@ export class ProductController extends BaseController {
   }
 
   async createProduct(req: Request, res: Response) {
-    const product: CreateProduct = req.body;
     const userId = req.headers["user-id"];
-    console.log("this is req: ", req.headers);
-    const newProduct = await this.service.createProduct(product, userId);
+
+    const files = req.files as Express.Multer.File[];
+    if (!files) {
+      throw new Error("No files were delivered");
+    }
+    const mainImage = files.find((f) => f.fieldname === "main-image");
+    const extraImages = files.filter((f) =>
+      f.fieldname.startsWith("extra-image-")
+    );
+
+    const payloadStr = req.body.payload;
+    if (!payloadStr) {
+      throw new Error("No payload were delivered");
+    }
+
+    const payload: CreateProduct = JSON.parse(payloadStr);
+
+    console.log(mainImage);
+    console.log(extraImages);
+    console.log("payload", payload);
+
+    const newProduct = await this.service.createProduct(
+      payload,
+      mainImage,
+      extraImages,
+      userId
+    );
     return {
       newProduct: newProduct,
     };
@@ -113,7 +142,11 @@ export class ProductController extends BaseController {
     const userId = req.headers["user-id"];
     const productId = req.params.productId;
     const createQuestion: CreateQuestion = req.body;
-    const question = await this.service.createQuestion(createQuestion, userId, productId);
+    const question = await this.service.createQuestion(
+      createQuestion,
+      userId,
+      productId
+    );
     return {
       question: question,
     };
@@ -121,9 +154,13 @@ export class ProductController extends BaseController {
 
   async createAnswer(req: Request, res: Response) {
     const userId = req.headers["user-id"];
-    const questionId = req.params.questionId;;
+    const questionId = req.params.questionId;
     const createAnswer: CreateAnswer = req.body;
-    const answer = await this.service.createAnswer(createAnswer, userId, questionId);
+    const answer = await this.service.createAnswer(
+      createAnswer,
+      userId,
+      questionId
+    );
     return {
       answer: answer,
     };
