@@ -212,6 +212,22 @@ export class ProductController extends BaseController {
       productExtend: productExtend,
     };
   }
+  async getWinningProducts(req: Request, res: Response) {
+    const userId = req.headers["user-id"];
+
+    const products = await this.service.getWinningProducts(1);
+    return {
+      products: products,
+    };
+  }
+  async getBiddingProducts(req: Request, res: Response) {
+    const userId = req.headers["user-id"];
+
+    const products = await this.service.getBiddingProducts(1);
+    return {
+      products: products,
+    };
+  }
 }
 
 // user/

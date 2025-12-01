@@ -60,6 +60,8 @@ const API_ROUTES = {
       sort: string
     ) => `${CATEGORY_API}/${slug}?page${page}&limit=${limit}&sort=${sort}`, //GET
     getSoldProduct: `${PRODUCT_API}/sold`, // GET
+    getBiddingProduct: `${PRODUCT_API}/bidding`, // GET
+    getWinningProduct: `${PRODUCT_API}/winning`, // GET
     getTopEndingSoonProduct: (limit: number, page: number) =>
       `${PRODUCT_API}/top_end?limit=${limit}&page=${page}`, // GET
     getTopBiddingProduct: (limit: number, page: number) =>

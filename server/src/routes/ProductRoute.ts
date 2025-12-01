@@ -53,6 +53,18 @@ export class ProductRoute extends BaseRoute {
       )
     );
     this.router.get(
+      "/winning",
+      BaseController.handleRequest(
+        this.controller.getWinningProducts.bind(this.controller)
+      )
+    );
+    this.router.get(
+      "/bidding",
+      BaseController.handleRequest(
+        this.controller.getBiddingProducts.bind(this.controller)
+      )
+    );
+    this.router.get(
       "/:productId",
       BaseController.handleRequest(
         this.controller.getProductById.bind(this.controller)

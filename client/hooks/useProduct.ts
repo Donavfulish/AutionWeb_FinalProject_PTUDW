@@ -91,7 +91,36 @@ class ProductHook {
       },
     });
   }
+  static useGetBiddingProduct() {
+    return useQuery({
+      queryKey: ["product_bidding"],
 
+      queryFn: () => ProductService.getBiddingProduct(),
+
+      staleTime: STALE_10_MIN,
+
+      // Transform data tại Hook (select)
+      select: (data) => {
+        // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
+        return data.data.products;
+      },
+    });
+  }
+  static useGetWinningProduct() {
+    return useQuery({
+      queryKey: ["product_winning"],
+
+      queryFn: () => ProductService.getWinningProduct(),
+
+      staleTime: STALE_10_MIN,
+
+      // Transform data tại Hook (select)
+      select: (data) => {
+        // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
+        return data.data.products;
+      },
+    });
+  }
   static useGetTopEndingSoonProduct(limit: number, page: number) {
     return useQuery({
       queryKey: ["product_top_ending_soon", limit, page],

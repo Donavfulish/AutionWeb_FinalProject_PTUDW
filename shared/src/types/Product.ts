@@ -96,6 +96,12 @@ export type CreateProduct = Pick<
   | "description"
   | "auto_extend"
 >;
-
+export type WinningProduct = Pick<
+  Product,
+  "id" | "name" | "slug" | "current_price" | "main_image"
+>;
+export type BiddingProduct = WinningProduct & {
+  your_price: number;
+};
 export type CreateQuestion = Pick<ProductQuestion, "comment">;
 export type CreateAnswer = Pick<ProductAnswer, "comment">;

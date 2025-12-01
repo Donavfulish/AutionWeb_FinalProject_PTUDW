@@ -1,10 +1,12 @@
 import {
+  BiddingProduct,
   CreateAnswer,
   CreateProduct,
   CreateQuestion,
   Product,
   ProductPreview,
   ProductQuestion,
+  WinningProduct,
 } from "./../../../shared/src/types/Product";
 import {
   getProductAnswerColumns,
@@ -20,6 +22,7 @@ import { ShortUser, User } from "../../../shared/src/types";
 
 import { createSlugUnique } from "../utils";
 import { R2Service } from "./R2Service";
+import { use } from "react";
 
 export class ProductService extends BaseService {
   private static instance: ProductService;
@@ -644,5 +647,54 @@ export class ProductService extends BaseService {
 
     const productExtend = await this.safeQuery(sql, [auto_extend, productId]);
     return productExtend;
+  }
+
+  async getWinningProducts(userId: number): Promise<WinningProduct[]> {
+    const status = "completed";
+    const sql = `SELECT  p.id, p.name, p.slug, p.main_image
+                FROM auction.orders as o
+                JOIN product.products as p ON p.id = o.product_id
+                WHERE o.winner_id =$1 AND o.status = $2`;
+    const productsNotPrice: WinningProduct[] = await this.safeQuery(sql, [
+      userId,
+      status,
+    ]);
+
+    const productHavePrice = await Promise.all(
+      productsNotPrice.map(async (p) => {
+        const current_price = await this.getCurrentPrice(p.id);
+        if (current_price === undefined) {
+          return { ...p, current_price: null };
+        }
+        return { ...p, current_price };
+      })
+    );
+    return productHavePrice;
+  }
+
+  async getBiddingProducts(userId: number): Promise<BiddingProduct[]> {
+    const status = "completed";
+    const sql = `SELECT DISTINCT p.id, p.name, p.slug, p.main_image, b.price as your_price
+                FROM auction.bid_logs as b
+                JOIN product.products as p ON p.id = b.product_id
+                WHERE b.user_id =$1 AND b.price = (
+                    SELECT MAX(price)
+                    FROM auction.bid_logs as c
+                    WHERE c.user_id = $1 AND c.product_id = b.product_id
+                  ); `;
+    const productsNotPrice: BiddingProduct[] = await this.safeQuery(sql, [
+      userId,
+    ]);
+
+    const productHavePrice = await Promise.all(
+      productsNotPrice.map(async (p) => {
+        const current_price = await this.getCurrentPrice(p.id);
+        if (current_price === undefined) {
+          return { ...p, current_price: null };
+        }
+        return { ...p, current_price };
+      })
+    );
+    return productHavePrice;
   }
 }

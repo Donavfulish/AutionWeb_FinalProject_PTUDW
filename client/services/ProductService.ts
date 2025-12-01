@@ -53,7 +53,9 @@ export class ProductService {
 
   static async getTopPriceProduct(limit: number, page: number): Promise<any> {
     return safeRequest(async () => {
-      const res = await api.get(API_ROUTES.product.getTopPriceProduct(limit, page));
+      const res = await api.get(
+        API_ROUTES.product.getTopPriceProduct(limit, page)
+      );
       return res.data;
     });
   }
@@ -73,6 +75,18 @@ export class ProductService {
   static async getSoldProduct(): Promise<any> {
     return safeRequest(async () => {
       const res = await api.get(API_ROUTES.product.getSoldProduct);
+      return res.data;
+    });
+  }
+  static async getBiddingProduct(): Promise<any> {
+    return safeRequest(async () => {
+      const res = await api.get(API_ROUTES.product.getBiddingProduct);
+      return res.data;
+    });
+  }
+  static async getWinningProduct(): Promise<any> {
+    return safeRequest(async () => {
+      const res = await api.get(API_ROUTES.product.getWinningProduct);
       return res.data;
     });
   }
