@@ -3,6 +3,13 @@ import API_ROUTES from "../../shared/src/api";
 import { Pagination } from "../../shared/src/types/Pagination";
 
 export class FavoriteService {
+  static async getAllFavorite(): Promise<any> {
+    return safeRequest(async () => {
+      const res = await api.get(API_ROUTES.favorite.getAllFavorite);
+      return res.data;
+    });
+  }
+
   static async getFavorite(pagination: Pagination): Promise<any> {
     return safeRequest(async () => {
       const res = await api.get(API_ROUTES.favorite.getFavorite(pagination));

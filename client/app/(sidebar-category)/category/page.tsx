@@ -29,7 +29,7 @@ function Page() {
     data: favoriteProductData,
     isLoading: isLoadingFavoriteProduct,
     error: errorFavoriteProduct,
-  } = FavoriteHook.useFavorite();
+  } = FavoriteHook.useAllFavorite();
 
   return (
     <>

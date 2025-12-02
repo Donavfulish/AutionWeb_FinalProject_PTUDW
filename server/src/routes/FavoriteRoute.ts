@@ -18,6 +18,7 @@ export class FavoriteRoute extends BaseRoute {
   
   initRoutes() {
     this.router.get("/", BaseController.handleRequest(this.controller.getFavorite.bind(this.controller)));
+    this.router.get("/all", BaseController.handleRequest(this.controller.getAllFavorite.bind(this.controller)));
     this.router.post("/upload-test", upload.single("image"), BaseController.handleRequest(this.controller.uploadTest.bind(this.controller)));
     this.router.delete("/delete-test", BaseController.handleRequest(this.controller.deleteTest.bind(this.controller)));
     this.router.post("/:productId", BaseController.handleRequest(this.controller.addFavorite.bind(this.controller)));

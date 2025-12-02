@@ -10,7 +10,7 @@ const FavoriteProductPage = () => {
     data: favoriteProducts = [],
     isLoading,
     error,
-  } = FavoriteHook.useFavorite() as {
+  } = FavoriteHook.useAllFavorite() as {
     data: ProductPreview[];
     isLoading: boolean;
     error: any;
@@ -28,11 +28,7 @@ const FavoriteProductPage = () => {
           {favoriteProducts.map((item) => {
             return (
               <div key={item.id} className="mt-3">
-                <ProductCard
-                  key={item.id}
-                  product={item}
-                  isFavorite={false}
-                />
+                <ProductCard key={item.id} product={item} isFavorite={false} />
               </div>
             );
           })}

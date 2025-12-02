@@ -27,7 +27,7 @@ function SearchPage() {
     data: favoriteProductData,
     isLoading: isLoadingFavoriteProduct,
     error: errorFavoriteProduct,
-  } = FavoriteHook.useFavorite();
+  } = FavoriteHook.useAllFavorite();
 
   const totalProducts = data?.totalProducts ?? 0;
   const products = data?.products ?? [];
@@ -70,7 +70,7 @@ function SearchPage() {
               />
             </svg>
 
-            <span className="text-xl font-medium">Từ khóa tìm kiếm {" "}</span>
+            <span className="text-xl font-medium">Từ khóa tìm kiếm </span>
             <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md font-semibold">
               "{query}"
             </span>
