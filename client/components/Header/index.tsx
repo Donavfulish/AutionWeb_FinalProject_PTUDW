@@ -1,13 +1,16 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Menu, X, ShoppingCart, User } from "lucide-react"
-// import SearchBar
+import { useState } from "react";
+import Link from "next/link";
+import { Menu, X, ShoppingCart, User } from "lucide-react";
+import { SearchBar } from "../SearchBar";
+
 
 const Header = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
+  
+
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 shadow-sm z-50">
@@ -19,10 +22,9 @@ const Header = () => {
             </div>
           </Link>
 
-          {/* Search Bar - Desktop
           <div className="hidden md:flex flex-1 max-w-md mx-8 relative">
-            <SearchDropdown />
-          </div> */}
+            <SearchBar/>
+          </div>
 
           <div className="hidden md:flex items-center gap-6">
             <Link
@@ -56,17 +58,23 @@ const Header = () => {
             {/* <div className="py-4">
               <SearchDropdown />
             </div> */}
-            <Link href="/user/favorite_products" className="block py-2 text-sm text-gray-600 hover:text-blue-600 font-medium">
+            <Link
+              href="/user/favorite_products"
+              className="block py-2 text-sm text-gray-600 hover:text-blue-600 font-medium"
+            >
               Watch List
             </Link>
-            <Link href="/user/info" className="block py-2 text-sm text-gray-600 hover:text-blue-600 font-medium">
+            <Link
+              href="/user/info"
+              className="block py-2 text-sm text-gray-600 hover:text-blue-600 font-medium"
+            >
               Profile
             </Link>
           </div>
         )}
       </div>
     </header>
-  )
-}
+  );
+};
 
 export default Header;

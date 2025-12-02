@@ -50,8 +50,10 @@ const API_ROUTES = {
     createRating: `${RATING_API}`, //POST
   },
   product: {
-    getProducts: `${PRODUCT_API}`, // GET
+    getCategoryProductList: `${PRODUCT_API}/category`,
     getProductTop: `${PRODUCT_API}/top`, // GET
+    getProductsBySearch: (query: string, limit: number, page: number) =>  `${PRODUCT_API}/search?page=${page}&limit=${limit}&query=${query}`, // GET
+    getProductsBySearchSuggestion: (query: string, limit: number) =>  `${PRODUCT_API}/search-suggestion?query=${query}&limit=${limit}`, // GET
     getProductById: (id: number) => `${PRODUCT_API}/${id}`, // GET
     getProductsByCategory: (
       slug: string,
@@ -60,6 +62,10 @@ const API_ROUTES = {
       sort: string
     ) => `${CATEGORY_API}/${slug}?page${page}&limit=${limit}&sort=${sort}`, //GET
     getSoldProduct: `${PRODUCT_API}/sold`, // GET
+    getBiddingProduct: (limit: number, page: number) =>
+      `${PRODUCT_API}/bidding?limit=${limit}&page=${page}`, // GET
+    getWinningProduct: (limit: number, page: number) =>
+      `${PRODUCT_API}/winning?limit=${limit}&page=${page}`, // GET
     getTopEndingSoonProduct: (limit: number, page: number) =>
       `${PRODUCT_API}/top_end?limit=${limit}&page=${page}`, // GET
     getTopBiddingProduct: (limit: number, page: number) =>

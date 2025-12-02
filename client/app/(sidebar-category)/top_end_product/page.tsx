@@ -73,10 +73,10 @@ export default function Page() {
             <div className="mt-2 grid grid-cols-5 gap-3">
               {dataResult.map((item, index) => {
                 const favoriteIds = new Set(
-                  favoriteProductData.map((f: ProductPreview) => f.id)
+                  favoriteProductData.map((f: ProductPreview) => Number(f.id))
                 );
                 const isFavoriteProduct = (item: ProductPreview) =>
-                  favoriteIds.has(item.id);
+                  favoriteIds.has(Number(item.id));
                 return (
                   <div key={index} className="mt-3">
                     <ProductCard

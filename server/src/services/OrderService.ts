@@ -113,7 +113,6 @@ export class OrderService extends BaseService {
     `;
 
     const orderMessages = await this.safeQuery<OrderMessage>(sql, [productId]);
-    console.log(orderMessages);
     if (!orderMessages) return undefined;
 
     return {

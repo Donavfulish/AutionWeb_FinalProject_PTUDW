@@ -1,66 +1,66 @@
-"use client"
+"use client";
 
-import WinningProduct from "@/components/WinningProduct";
-import ProductType from "@/types/product"
-import { useState } from "react"
+import { useSearchParams, useRouter } from "next/navigation";
+import ProductHook from "@/hooks/useProduct";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import WinProduct from "@/components/WinProduct";
+import { WinningProduct } from "../../../../shared/src/types";
+import Pagination from "@/components/Pagination";
 
-const mockProducts = [
-  {
-    id: 1,
-    name: "Patek Philippe Nautilus - Rose Gold",
-    main_image: "https://binhminhdigital.com/storedata/images/product/camera/fujifilm/may-anh-fujifilm-instax-mini-12-blossom-pink-chinh-hang.jpg",
-    bidding_price: "91.000.000",
-  },
-  {
-    id: 2,
-    name: "Rolex Datejust - Stainless Steel",
-    main_image: "https://binhminhdigital.com/storedata/images/product/camera/fujifilm/may-anh-fujifilm-instax-mini-12-blossom-pink-chinh-hang.jpg",
-    bidding_price: "52.000.000",
-  },
-  {
-    id: 3,
-    name: "Vintage Omega Seamaster 300",
-    main_image: "https://binhminhdigital.com/storedata/images/product/camera/fujifilm/may-anh-fujifilm-instax-mini-12-blossom-pink-chinh-hang.jpg",
-    bidding_price: "42.000.000",
-  },
-  {
-    id: 4,
-    name: "MacBook Pro 16 inch M3 Max",
-    main_image: "https://binhminhdigital.com/storedata/images/product/camera/fujifilm/may-anh-fujifilm-instax-mini-12-blossom-pink-chinh-hang.jpg",
-    bidding_price: "37.500.000",
-  },
-  {
-    id: 5,
-    name: "Canon EOS R5 - Mirrorless Camera",
-    main_image: "https://binhminhdigital.com/storedata/images/product/camera/fujifilm/may-anh-fujifilm-instax-mini-12-blossom-pink-chinh-hang.jpg",
-    bidding_price: "28.500.000",
-  },
-];
+const WinningProductPage = () => {
+  const per_page = 5;
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const page = searchParams.get("page") || "1";
+  let totalPages = 1;
+  let dataResult = null;
+  const {
+    data,
+    isLoading: isLoadingWinningProduct,
+    error: isErrorWinningProduct,
+  } = ProductHook.useGetWinningProduct(per_page, Number(page));
 
-for (let i = 6; i <= 30; i++) {
-  mockProducts.push({
-    id: i,
-    name: `Sản phẩm đấu giá #${i}`,
-    main_image: "https://binhminhdigital.com/storedata/images/product/camera/fujifilm/may-anh-fujifilm-instax-mini-12-blossom-pink-chinh-hang.jpg",
-    bidding_price: `${10_000_000 + i * 100_000} `
-  });
-}
+  const totalProducts = data?.totalProducts ?? 0;
+  const products = data?.products ?? [];
 
-const BiddingProductPage = () => {
-    const [biddingProduct, setBiddingProduct] = useState<ProductType.WinningProduct[]>(mockProducts)
-    
-    return (
-        <div className='bg-card shadow-sm rounded-lg p-8'>
-            <div className="text-3xl text-[#1e293b] font-semibold mb-7">
-                Sản phẩm đã thắng
-            </div>
-            <div className="flex flex-col gap-5">
-                {biddingProduct.map((bP, index) => (
-                    <WinningProduct product={bP} key={index}/>
-                ))}
-            </div>
+  const handlePageChange = (value: number) => {
+    const next = new URLSearchParams(searchParams);
+    next.set("page", String(value));
+    router.replace(`?${next.toString()}`);
+  };
+
+  if (data) {
+    totalPages = Math.ceil(Number(totalProducts) / per_page);
+    dataResult = products as WinningProduct[];
+  }
+
+  return (
+    <>
+      {isLoadingWinningProduct && <LoadingSpinner />}
+      {isErrorWinningProduct && <> Error...</>}
+      {dataResult && dataResult.length > 0 ? (
+        <div className="bg-card shadow-sm rounded-lg p-8">
+          <div className="text-3xl text-[#1e293b] font-semibold mb-7">
+            Sản phẩm đã thắng
+          </div>
+          <div className="flex flex-col gap-5">
+            {dataResult.map((bP, index) => (
+              <WinProduct product={bP} key={index} />
+            ))}
+          </div>
+          <div className="mt-10 flex justify-center">
+            <Pagination
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              currentPage={Number(page)}
+            />
+          </div>
         </div>
-    )
-}
+      ) : (
+        <div>Không có sản phẩm thuộc loại này...</div>
+      )}
+    </>
+  );
+};
 
-export default BiddingProductPage
+export default WinningProductPage;

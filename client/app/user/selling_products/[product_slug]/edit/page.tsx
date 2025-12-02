@@ -52,8 +52,6 @@ const EditProductPage = () => {
   const handleAddDes = (productId: number, description: string) => {
     updateProductDescription({ id: productId, description: description });
   };
-  console.log(loadingProductError);
-  console.log(product);
   return (
     <div className="bg-[#F8FAFC] w-full">
       <div className="mb-4">

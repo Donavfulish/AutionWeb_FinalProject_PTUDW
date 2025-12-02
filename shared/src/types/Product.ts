@@ -43,7 +43,7 @@ export type ProductPreview = Pick<
   top_bidder_name: string | null;
 };
 
-export type SearchProduct = Pick<Product, 'id'| 'name' | 'main_image'| 'current_price'>;
+export type SearchProduct = Pick<Product, 'id'| 'slug' | 'name' | 'main_image'| 'current_price'>;
 
 export type ProductCategoryTree = {
   id: number;
@@ -59,6 +59,7 @@ export type ProductCategoryTree = {
 export type CategoryProduct = {
   category_id: ProductCategoryTree['id'];
   category_slug: ProductCategoryTree['slug'];
+  category_name: ProductCategoryTree['name'];
   products: ProductPreview[] | null;
 }
 
@@ -109,6 +110,12 @@ export type CreateProduct = Pick<
   | "description"
   | "auto_extend"
 >;
-
+export type WinningProduct = Pick<
+  Product,
+  "id" | "name" | "slug" | "current_price" | "main_image"
+>;
+export type BiddingProduct = WinningProduct & {
+  user_price: number;
+};
 export type CreateQuestion = Pick<ProductQuestion, "comment">;
 export type CreateAnswer = Pick<ProductAnswer, "comment">;

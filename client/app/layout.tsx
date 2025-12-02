@@ -12,11 +12,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Header />
-        <div className="mt-[100px] flex container gap-8 mb-[50px]">
-          <Providers>{children}</Providers>
-        </div>
-        <Footer />
+        <Providers>
+          <Header />
+          <div className="mt-[100px] flex container gap-8 mb-[50px]">
+            {children}
+          </div>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

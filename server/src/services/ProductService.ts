@@ -1,5 +1,6 @@
 import {
   CategoryProduct,
+  BiddingProduct,
   CreateAnswer,
   CreateProduct,
   CreateQuestion,
@@ -7,6 +8,7 @@ import {
   ProductPreview,
   ProductQuestion,
   SearchProduct,
+  WinningProduct,
 } from "./../../../shared/src/types/Product";
 import { BaseService } from "./BaseService";
 import { ShortUser } from "../../../shared/src/types";
@@ -62,9 +64,6 @@ export class ProductService extends BaseService {
     `;
     const currentPrice: { current_price: number | null }[] =
       await this.safeQuery(sql, [productId]);
-    // return currentPrice[0]?.current_price
-    //   ? Number(currentPrice[0].current_price)
-    //   : null;
     return currentPrice[0]?.current_price;
   }
 
@@ -86,7 +85,6 @@ export class ProductService extends BaseService {
       this.getCurrentPrice(productId),
       this.getStatus(productId),
     ]);
-
     const top_bidder = result[0];
     const bid_count = result[1];
     let current_price = result[2];
@@ -179,6 +177,25 @@ export class ProductService extends BaseService {
     return products;
   }
 
+    async getTotalProductsBySearch(
+    query: string,
+  ): Promise<number | undefined> {
+    let sql = `
+       SELECT COUNT(*) as total
+       FROM product.products pp
+       WHERE to_tsvector('simple', unaccent(pp.name))
+             @@ websearch_to_tsquery('simple', unaccent($1))
+    `;
+    const params: any[] = [query];
+
+
+    let totalProducts: {total: number}[] = await this.safeQuery(sql, params);
+
+   
+
+    return totalProducts[0]?.total;
+  }
+
   async getProductsBySearch(
     query: string,
     limit: number,
@@ -241,7 +258,7 @@ export class ProductService extends BaseService {
     let totalProducts: { total: number }[] = await this.safeQuery(sql);
     return totalProducts[0]?.total;
   }
-  // Ko chuyen limit cung
+
   async getTopEndingSoonProducts(
     limit?: number,
     page?: number
@@ -458,9 +475,9 @@ export class ProductService extends BaseService {
   async getCategoryProductList(): Promise<CategoryProduct[]> {
     let sql = `
 SELECT 
-  pc.id,
-  pc.slug,
-  pc.name,
+  pc.id as category_id,
+  pc.slug as category_slug,
+  pc.name as category_name,
   (
       SELECT json_agg(
         json_build_object(
@@ -482,37 +499,39 @@ SELECT
         )
       ) as products
       FROM (
-        SELECT *, 
-        (
-          SELECT COALESCE(MAX(bl.price), pp.initial_price)
-          FROM auction.bid_logs bl
-          WHERE bl.product_id = pp.id
-        ) as current_price,
+            SELECT *, 
+            (
+              SELECT COALESCE(MAX(bl.price), pp.initial_price)
+              FROM auction.bid_logs bl
+              WHERE bl.product_id = pp.id
+            ) as current_price,
 
-        (
-          SELECT COALESCE(COUNT(DISTINCT(bl.user_id)), 0)
-          FROM auction.bid_logs bl 
-          WHERE bl.product_id = pp.id
-        ) as bid_count,
+            (
+              SELECT COALESCE(COUNT(DISTINCT(bl.user_id)), 0)
+              FROM auction.bid_logs bl 
+              WHERE bl.product_id = pp.id
+            ) as bid_count,
 
-         (
-           SELECT u.name as bidder
-           FROM auction.bid_logs bl 
-           JOIN admin.users u on bl.user_id = u.id 
-           WHERE bl.product_id = pp.id 
-           ORDER BY bl.price DESC 
-           LIMIT 1 
-               ) as top_bidder_name, 
-                   (
-                    SELECT COALESCE(MAX(ao.status), 'available') 
-           FROM auction.orders ao
-           WHERE ao.product_id = pp.id 
-               ) as status
-               FROM product.products pp 
-               WHERE pp.category_id = pc.id 
-               ORDER by pp.id 
-               LIMIT 5
-             ) pp 
+           (
+             SELECT u.name as bidder
+             FROM auction.bid_logs bl 
+             JOIN admin.users u on bl.user_id = u.id 
+             WHERE bl.product_id = pp.id 
+             ORDER BY bl.price DESC 
+             LIMIT 1 
+            ) as top_bidder_name, 
+
+            (
+              SELECT COALESCE(MAX(ao.status), 'available') 
+              FROM auction.orders ao
+              WHERE ao.product_id = pp.id 
+              ) as status
+
+            FROM product.products pp 
+            WHERE pp.category_id = pc.id 
+            ORDER by pp.id 
+            LIMIT 5
+          ) pp 
   )
 FROM product.product_categories pc 
 WHERE pc.parent_id is not null
@@ -524,13 +543,16 @@ WHERE pc.parent_id is not null
   }
 
   async getProductsBySearchSuggestion(
-    query: string
+    query: string,
+    limit: number
   ): Promise<SearchProduct[] | undefined> {
-    const sql = `
+    let params: any[] = [query];
+    let sql = `
    SELECT 
     pp.id,
     pp.name,
     pp.main_image,
+    pp.slug,
     (
     SELECT (GREATEST(MAX(bl.price), pp.initial_price) )  as current_price
     FROM auction.bid_logs bl 
@@ -543,10 +565,14 @@ WHERE pc.parent_id is not null
       to_tsvector('simple', unaccent(pp.name)),
       websearch_to_tsquery('simple', unaccent($1))
     ) DESC
-     LIMIT 7
     `;
 
-    const product: SearchProduct[] = await this.safeQuery(sql, [query]);
+    if (limit){
+      sql += 'LIMIT $2';
+      params.push(limit)
+    }
+
+    const product: SearchProduct[] = await this.safeQuery(sql, params);
 
     return product;
   }
@@ -732,5 +758,119 @@ WHERE pc.parent_id is not null
 
     const productExtend = await this.safeQuery(sql, [auto_extend, productId]);
     return productExtend;
+  }
+
+  async getTotalWinningProductsByUser(
+    userId: number
+  ): Promise<number | undefined> {
+    const status = "completed";
+    const sql = `
+    SELECT COUNT (*) as total
+     FROM auction.orders o  
+     WHERE o.winner_id = $1 AND o.status = $2
+          `;
+    const totalProducts: { total: number }[] = await this.safeQuery(sql, [
+      userId,
+      status,
+    ]);
+
+    return totalProducts[0]?.total;
+  }
+
+  async getWinningProducts(
+    userId: number,
+    limit: number,
+    page: number
+  ): Promise<WinningProduct[]> {
+    const status = "completed";
+    const params: any[] = [userId, status];
+    let sql = `
+    SELECT  p.id, p.name, p.slug, p.main_image
+                FROM auction.orders as o
+                JOIN product.products as p ON p.id = o.product_id
+                WHERE o.winner_id =$1 AND o.status = $2
+                `;
+
+    if (limit) {
+      sql += `LIMIT $3 \n`;
+      params.push(limit);
+    }
+    if (page && limit) {
+      const offset = (page - 1) * limit;
+      sql += "OFFSET $4 \n";
+      params.push(offset);
+    }
+    const productsNotPrice: WinningProduct[] = await this.safeQuery(
+      sql,
+      params
+    );
+
+    const productHavePrice = await Promise.all(
+      productsNotPrice.map(async (p) => {
+        const current_price = await this.getCurrentPrice(p.id);
+        if (current_price === undefined) {
+          return { ...p, current_price: null };
+        }
+        return { ...p, current_price };
+      })
+    );
+    return productHavePrice;
+  }
+
+  async getTotalBiddingProductsByUser(
+    userId: number
+  ): Promise<number | undefined> {
+    const sql = `
+    SELECT COUNT (DISTINCT bl.product_id) as total
+     FROM auction.bid_logs bl 
+     WHERE bl.user_id = $1
+          `;
+    const totalProducts: { total: number }[] = await this.safeQuery(sql, [
+      userId,
+    ]);
+
+    return totalProducts[0]?.total;
+  }
+
+  async getBiddingProducts(
+    userId: number,
+    limit: number,
+    page: number
+  ): Promise<BiddingProduct[]> {
+    const params: any[] = [userId];
+    let sql = `
+    SELECT DISTINCT p.id, p.name, p.slug, p.main_image, b.price as user_price
+                FROM auction.bid_logs as b
+                JOIN product.products as p ON p.id = b.product_id
+                WHERE b.user_id =$1 AND b.price = (
+                    SELECT MAX(price)
+                    FROM auction.bid_logs as c
+                    WHERE c.user_id = $1 AND c.product_id = b.product_id
+                  )
+                   `;
+    if (limit) {
+      sql += `LIMIT $2 \n`;
+      params.push(limit);
+    }
+    if (page && limit) {
+      const offset = (page - 1) * limit;
+      sql += "OFFSET $3 \n";
+      params.push(offset);
+    }
+    const productsNotPrice: BiddingProduct[] = await this.safeQuery(
+      sql,
+      params
+    );
+
+    const productHavePrice = await Promise.all(
+      productsNotPrice.map(async (p) => {
+        const current_price = await this.getCurrentPrice(p.id);
+        if (current_price === undefined) {
+          return { ...p, current_price: null };
+        }
+        return { ...p, current_price };
+      })
+    );
+    return productHavePrice;
   }
 }

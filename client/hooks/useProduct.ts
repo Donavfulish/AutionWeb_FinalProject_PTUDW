@@ -10,18 +10,18 @@ import {
 // Một hàm xử lý logic REACT, và chỉ được biết tới REACT(FRONT END) thôi
 // Nó không được biết về api
 class ProductHook {
-  static useGetProducts() {
+  static useGetCategoryProductList() {
     return useQuery({
-      queryKey: ["products"],
+      queryKey: ["category_product_list"],
 
-      queryFn: () => ProductService.getProducts(),
+      queryFn: () => ProductService.getCategoryProductList(),
 
       staleTime: STALE_10_MIN,
 
       // Transform data tại Hook (select)
       select: (data) => {
         // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
-        return data.data.products;
+        return data.data.categoryProducts;
       },
     });
   }
@@ -91,7 +91,67 @@ class ProductHook {
       },
     });
   }
+  static useGetBiddingProduct(limit: number, page: number) {
+    return useQuery({
+      queryKey: ["product_bidding", limit, page],
 
+      queryFn: () => ProductService.getBiddingProduct(limit, page),
+
+      staleTime: STALE_10_MIN,
+
+      // Transform data tại Hook (select)
+      select: (data) => {
+        // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
+        return data.data;
+      },
+    });
+  }
+    static useGetProductsBySearch(query: string, limit: number, page: number) {
+    return useQuery({
+      queryKey: ["product_by_search", query, limit, page],
+
+      queryFn: () => ProductService.getProductsBySearch(query, limit, page),
+
+      staleTime: STALE_10_MIN,
+
+      // Transform data tại Hook (select)
+      select: (data) => {
+        // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
+        return data.data;
+      },
+    });
+  }
+
+    static useGetProductsBySearchSuggestion(query: string, limit: number) {
+    return useQuery({
+      queryKey: ["product_by_search_suggestion", query, limit],
+
+      queryFn: () => ProductService.getProductsBySearchSuggestion(query, limit),
+
+      staleTime: STALE_10_MIN,
+
+      // Transform data tại Hook (select)
+      select: (data) => {
+        // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
+        return data.data.products;
+      },
+    });
+  }
+  static useGetWinningProduct(limit: number, page: number) {
+    return useQuery({
+      queryKey: ["product_winning", limit, page],
+
+      queryFn: () => ProductService.getWinningProduct(limit, page),
+
+      staleTime: STALE_10_MIN,
+
+      // Transform data tại Hook (select)
+      select: (data) => {
+        // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
+        return data.data;
+      },
+    });
+  }
   static useGetTopEndingSoonProduct(limit: number, page: number) {
     return useQuery({
       queryKey: ["product_top_ending_soon", limit, page],

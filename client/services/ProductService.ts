@@ -1,14 +1,8 @@
-import axios from "axios";
 import { api, safeRequest } from "../config/axios.config";
 import API_ROUTES from "../../shared/src/api";
 import {
   CreateAnswer,
-  CreateProduct,
   CreateQuestion,
-  Product,
-  ProductAnswer,
-  ProductPreview,
-  ProductQuestion,
 } from "../../shared/src/types";
 
 // Một hàm để tạo kết nối tới endpoint bên backend
@@ -16,12 +10,27 @@ import {
 // NO COUPLING
 
 export class ProductService {
-  static async getProducts(): Promise<any> {
+  static async getCategoryProductList(): Promise<any> {
     return safeRequest(async () => {
-      const res = await api.get(API_ROUTES.product.getProducts);
+      const res = await api.get(API_ROUTES.product.getCategoryProductList);
       return res.data;
     });
   }
+
+   static async getProductsBySearch(query: string, limit: number, page: number): Promise<any> {
+    return safeRequest(async () => {
+      const res = await api.get(API_ROUTES.product.getProductsBySearch(query, limit, page));
+      return res.data;
+    });
+  }
+
+   static async getProductsBySearchSuggestion(query: string, limit: number): Promise<any> {
+    return safeRequest(async () => {
+      const res = await api.get(API_ROUTES.product.getProductsBySearchSuggestion(query, limit));
+      return res.data;
+    });
+  }
+
 
   static async getProductTop(): Promise<any> {
     return safeRequest(async () => {
@@ -53,7 +62,9 @@ export class ProductService {
 
   static async getTopPriceProduct(limit: number, page: number): Promise<any> {
     return safeRequest(async () => {
-      const res = await api.get(API_ROUTES.product.getTopPriceProduct(limit, page));
+      const res = await api.get(
+        API_ROUTES.product.getTopPriceProduct(limit, page)
+      );
       return res.data;
     });
   }
@@ -73,6 +84,18 @@ export class ProductService {
   static async getSoldProduct(): Promise<any> {
     return safeRequest(async () => {
       const res = await api.get(API_ROUTES.product.getSoldProduct);
+      return res.data;
+    });
+  }
+  static async getBiddingProduct(limit: number, page: number): Promise<any> {
+    return safeRequest(async () => {
+      const res = await api.get(API_ROUTES.product.getBiddingProduct(limit, page));
+      return res.data;
+    });
+  }
+  static async getWinningProduct(limit: number, page: number): Promise<any> {
+    return safeRequest(async () => {
+      const res = await api.get(API_ROUTES.product.getWinningProduct(limit, page));
       return res.data;
     });
   }

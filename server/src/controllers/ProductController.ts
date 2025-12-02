@@ -11,12 +11,22 @@ export class ProductController extends BaseController {
     super(service); // inject service
   }
 
+  async getCategoryProductList(req: Request, res: Response) {
+    const products = await this.service.getCategoryProductList();
+    console.log(products);
+    return {
+      categoryProducts: products,
+    };
+  }
+
   async getProductsBySearch(req: Request, res: Response) {
     const page = Number(req.query.page) || null;
     const limit = Number(req.query.limit) || null;
     const query = req.query.query;
-    const products = await this.service.getProductsBySearch(query, limit, page);
-    const totalProducts = await this.service.getTotalProducts();
+    const [products, totalProducts] = await Promise.all([
+      this.service.getProductsBySearch(query, limit, page),
+      this.service.getTotalProductsBySearch(query),
+    ]);
 
     return {
       products: products,
@@ -44,7 +54,11 @@ export class ProductController extends BaseController {
 
   async getProductsBySearchSuggestion(req: Request, res: Response) {
     const query = req.query.query;
-    const products = await this.service.getProductsBySearchSuggestion(query);
+    const limit = Number(req.query.limit);
+    const products = await this.service.getProductsBySearchSuggestion(
+      query,
+      limit
+    );
     return {
       products: products,
     };
@@ -226,6 +240,33 @@ export class ProductController extends BaseController {
     );
     return {
       productExtend: productExtend,
+    };
+  }
+  async getWinningProducts(req: Request, res: Response) {
+    const userId = req.headers["user-id"];
+    const page = Number(req.query.page) || null;
+    const limit = Number(req.query.limit) || null;
+
+    const products = await this.service.getWinningProducts(userId, limit, page);
+    const totalProducts = await this.service.getTotalWinningProductsByUser(
+      userId
+    );
+    return {
+      products: products,
+      totalProducts: totalProducts,
+    };
+  }
+  async getBiddingProducts(req: Request, res: Response) {
+    const userId = req.headers["user-id"];
+    const limit = Number(req.query.limit) || null;
+    const page = Number(req.query.page) || null;
+    const products = await this.service.getBiddingProducts(userId, limit, page);
+    const totalProducts = await this.service.getTotalBiddingProductsByUser(
+      userId
+    );
+    return {
+      products: products,
+      totalProducts: totalProducts,
     };
   }
 }

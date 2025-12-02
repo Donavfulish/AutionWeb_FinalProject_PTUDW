@@ -17,6 +17,12 @@ export class ProductRoute extends BaseRoute {
 
   initRoutes() {
     this.router.get(
+      "/category",
+      BaseController.handleRequest(
+        this.controller.getCategoryProductList.bind(this.controller)
+      )
+    );
+    this.router.get(
       "/search",
       BaseController.handleRequest(
         this.controller.getProductsBySearch.bind(this.controller)
@@ -56,6 +62,18 @@ export class ProductRoute extends BaseRoute {
       "/search-suggestion",
       BaseController.handleRequest(
         this.controller.getProductsBySearchSuggestion.bind(this.controller)
+      )
+    );
+      this.router.get(
+        "/winning",
+      BaseController.handleRequest(
+        this.controller.getWinningProducts.bind(this.controller)
+      )
+    );
+    this.router.get(
+      "/bidding",
+      BaseController.handleRequest(
+        this.controller.getBiddingProducts.bind(this.controller)
       )
     );
     this.router.get(

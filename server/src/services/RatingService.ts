@@ -23,7 +23,6 @@ export class RatingService extends BaseService {
 
   async createRating(payload: CreateRating) {
     const { rater_id, ratee, comment, rating } = payload;
-    console.log(payload);
     const sql = `
                 INSERT INTO feedback.user_ratings (rater_id, ratee_id, comment, rating, created_at, updated_at)
                 VALUES ( $1, $2, $3, $4, NOW(), NOW() )

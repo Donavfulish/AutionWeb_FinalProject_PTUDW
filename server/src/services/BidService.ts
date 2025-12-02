@@ -25,7 +25,6 @@ export class BidService extends BaseService {
     return logs;
   }
   async createBid(bid: CreateBidLog): Promise<MutationResult> {
-    console.log(bid);
     let sql = `SELECT COUNT(*) as total FROM auction.black_list as bl WHERE bl.user_id = $1 AND bl.product_id = $2`;
     const totalBl: any[] = await this.safeQuery(sql, [
       bid.user_id,

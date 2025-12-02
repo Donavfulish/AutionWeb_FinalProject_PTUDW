@@ -1,10 +1,10 @@
 import Image from "next/image";
-import ProductType from "@/types/product";
+import { WinningProduct } from "../../../shared/src/types";
 
-const WinningProduct = ({
+const WinProduct = ({
   product,
 }: {
-  product: ProductType.WinningProduct;
+  product: WinningProduct;
 }) => {
   return (
     <div className="flex items-center justify-between bg-white border border-gray-100 rounded-lg shadow-xs p-4 w-full">
@@ -27,11 +27,11 @@ const WinningProduct = ({
           Giá đấu của bạn:
         </span>
         <span className="text-[#0D9488] font-bold text-md">
-          {product.bidding_price} đ
+          {product.current_price} đ
         </span>
       </div>
     </div>
   );
 };
 
-export default WinningProduct;
+export default WinProduct;
