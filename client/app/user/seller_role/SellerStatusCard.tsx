@@ -26,7 +26,7 @@ const SellerStatusCard: React.FC<SellerStatusCardProps> = ({
             </div>
             {expiryDate && (
               <p className="text-gray-700">
-                Hạn hết: <span className="font-semibold">{new Date(expiryDate).toLocaleDateString('vi-VN')}</span>
+                Hạn hết: <span className="font-semibold">{new Date(expiryDate   ).toLocaleDateString('vi-VN')}</span>
               </p>
             )}
           </div>

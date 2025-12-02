@@ -4,4 +4,5 @@ export type UpgradeRequest = {
     status: "approved" | "pending" | "rejected",
     created_at: Date;
     updated_at: Date | null;
+    expired_at: Date;
 }

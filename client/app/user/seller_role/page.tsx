@@ -36,7 +36,7 @@ const SellerRolePage: React.FC = () => {
 
           <SellerStatusCard
             status={request ? request.status : 'none'}
-            expiryDate={expirateDate}
+            expiryDate={request.expired_at}
             onAction={handleRequestSeller}
             isLoading={isUpgradePending}
           />
