@@ -1,22 +1,15 @@
 import {
+  CategoryProduct,
   CreateAnswer,
   CreateProduct,
   CreateQuestion,
   Product,
   ProductPreview,
   ProductQuestion,
+  SearchProduct,
 } from "./../../../shared/src/types/Product";
-import {
-  getProductAnswerColumns,
-  getProductAnswerValue,
-  getProductColumns,
-  getProductQuestionColumns,
-  getProductQuestionValue,
-  getProductValue,
-} from "../utils";
 import { BaseService } from "./BaseService";
-import { Request, Response, NextFunction } from "express";
-import { ShortUser, User } from "../../../shared/src/types";
+import { ShortUser } from "../../../shared/src/types";
 
 import { createSlugUnique } from "../utils";
 import { R2Service } from "./R2Service";
@@ -58,7 +51,7 @@ export class ProductService extends BaseService {
       productId,
     ]);
     // return Number(bidCount[0]?.bid_count ?? 0);
-    return bidCount[0]?.bid_count;
+    return bidCount[0]?.bid_count ?? 0;
   }
 
   async getCurrentPrice(productId: number): Promise<number | undefined | null> {
@@ -129,16 +122,6 @@ export class ProductService extends BaseService {
     `;
 
     let products: any = await this.safeQuery<Product>(sql, [productId]);
-    // products[0].id = products[0].id ? Number(products[0].id) : null;
-    // products[0].initial_price = products[0].initial_price
-    //   ? Number(products[0].initial_price)
-    //   : null;
-    // products[0].buy_now_price = products[0].buy_now_price
-    //   ? Number(products[0].buy_now_price)
-    //   : null;
-    // products[0].price_increment = products[0].price_increment
-    //   ? Number(products[0].price_increment)
-    //   : null;
     if (current_price == null) {
       current_price = products[0].initial_price;
     }
@@ -158,11 +141,13 @@ export class ProductService extends BaseService {
       this.getTopBidder(productId),
       this.getBidCount(productId),
       this.getCurrentPrice(productId),
+      this.getStatus(productId),
     ]);
 
     const top_bidder: any = result[0];
     const bid_count = result[1];
     let current_price = result[2];
+    let status: string = result[3];
     const sql = `
     SELECT 
       p.id, 
@@ -182,34 +167,41 @@ export class ProductService extends BaseService {
     `;
 
     let products: any = await this.safeQuery<ProductPreview>(sql, [productId]);
-    // products[0].id = products[0].id ? Number(products[0].id) : null;
-    // products[0].initial_price = products[0].initial_price
-    //   ? Number(products[0].initial_price)
-    //   : null;
-    // products[0].buy_now_price = products[0].buy_now_price
-    //   ? Number(products[0].buy_now_price)
-    //   : null;
-    // products[0].price_increment = products[0].price_increment
-    //   ? Number(products[0].price_increment)
-    //   : null;
-    if (current_price == null) {
-      current_price = products[0].initial_price;
-    }
 
     products = {
       ...products[0],
-      top_bidder: top_bidder,
       top_bidder_name: top_bidder ? top_bidder.name : null,
-      current_price: current_price,
+      current_price: current_price ? current_price : products[0].initial_price,
       bid_count: bid_count,
+      status: status,
     };
 
     return products;
   }
 
-  async getProducts(): Promise<ProductPreview[]> {
-    const sql = `SELECT id FROM product.products order by id asc  `;
-    let products: ProductPreview[] = await this.safeQuery(sql);
+  async getProductsBySearch(
+    query: string,
+    limit: number,
+    page: number
+  ): Promise<ProductPreview[]> {
+    let sql = `
+       SELECT pp.id
+       FROM product.products pp
+       WHERE to_tsvector('simple', unaccent(pp.name))
+             @@ websearch_to_tsquery('simple', unaccent($1))
+    `;
+    const params: any[] = [query];
+    if (limit) {
+      sql += `LIMIT $2 \n`;
+      params.push(limit);
+    }
+    if (page && limit) {
+      const offset = (page - 1) * limit;
+      sql += "OFFSET $3 \n";
+      params.push(offset);
+    }
+
+    let products: ProductPreview[] = await this.safeQuery(sql, params);
 
     const newProducts = await Promise.all(
       products.map(async (item: any) => {
@@ -449,7 +441,7 @@ export class ProductService extends BaseService {
     const sql = `
    SELECT o.product_id as id
   FROM auction.orders o 
-  where  o.status = 'completed'
+  WHERE  o.status = 'completed'
     `;
 
     const product = await this.safeQuery<ProductPreview>(sql);
@@ -461,6 +453,102 @@ export class ProductService extends BaseService {
       })
     );
     return soldProduct;
+  }
+
+  async getCategoryProductList(): Promise<CategoryProduct[]> {
+    let sql = `
+SELECT 
+  pc.id,
+  pc.slug,
+  pc.name,
+  (
+      SELECT json_agg(
+        json_build_object(
+          'id', pp.id,
+          'slug', pp.slug,
+          'category_id', pp.category_id,
+          'main_image', pp.main_image,
+          'name', pp.name,
+          'current_price', pp.current_price,
+          'buy_now_price', pp.buy_now_price,
+          'bid_count', pp.bid_count,
+          'end_time', pp.end_time,
+          'auto_extend', pp.auto_extend,
+          'created_at', pp.created_at,
+          'initial_price', pp.initial_price,
+          'status', pp.status,
+          'top_bidder_name', pp.top_bidder_name
+
+        )
+      ) as products
+      FROM (
+        SELECT *, 
+        (
+          SELECT COALESCE(MAX(bl.price), pp.initial_price)
+          FROM auction.bid_logs bl
+          WHERE bl.product_id = pp.id
+        ) as current_price,
+
+        (
+          SELECT COALESCE(COUNT(DISTINCT(bl.user_id)), 0)
+          FROM auction.bid_logs bl 
+          WHERE bl.product_id = pp.id
+        ) as bid_count,
+
+         (
+           SELECT u.name as bidder
+           FROM auction.bid_logs bl 
+           JOIN admin.users u on bl.user_id = u.id 
+           WHERE bl.product_id = pp.id 
+           ORDER BY bl.price DESC 
+           LIMIT 1 
+               ) as top_bidder_name, 
+                   (
+                    SELECT COALESCE(MAX(ao.status), 'available') 
+           FROM auction.orders ao
+           WHERE ao.product_id = pp.id 
+               ) as status
+               FROM product.products pp 
+               WHERE pp.category_id = pc.id 
+               ORDER by pp.id 
+               LIMIT 5
+             ) pp 
+  )
+FROM product.product_categories pc 
+WHERE pc.parent_id is not null
+
+  `;
+
+    const categoryProduct: CategoryProduct[] = await this.safeQuery(sql);
+    return categoryProduct;
+  }
+
+  async getProductsBySearchSuggestion(
+    query: string
+  ): Promise<SearchProduct[] | undefined> {
+    const sql = `
+   SELECT 
+    pp.id,
+    pp.name,
+    pp.main_image,
+    (
+    SELECT (GREATEST(MAX(bl.price), pp.initial_price) )  as current_price
+    FROM auction.bid_logs bl 
+    WHERE bl.product_id = pp.id
+    )
+  FROM product.products pp
+  WHERE to_tsvector('simple', unaccent(pp.name))
+        @@ websearch_to_tsquery('simple', unaccent($1))
+  ORDER BY ts_rank(
+      to_tsvector('simple', unaccent(pp.name)),
+      websearch_to_tsquery('simple', unaccent($1))
+    ) DESC
+     LIMIT 7
+    `;
+
+    const product: SearchProduct[] = await this.safeQuery(sql, [query]);
+
+    return product;
   }
 
   async createProduct(

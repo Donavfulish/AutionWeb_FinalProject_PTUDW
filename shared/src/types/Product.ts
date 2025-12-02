@@ -23,6 +23,7 @@ export type Product = {
   updated_at: Date | null;
 };
 
+
 export type ProductPreview = Pick<
   Product,
   | "id"
@@ -37,9 +38,12 @@ export type ProductPreview = Pick<
   | "auto_extend"
   | "created_at"
   | "initial_price"
+  | 'status'
 > & {
   top_bidder_name: string | null;
 };
+
+export type SearchProduct = Pick<Product, 'id'| 'name' | 'main_image'| 'current_price'>;
 
 export type ProductCategoryTree = {
   id: number;
@@ -50,6 +54,15 @@ export type ProductCategoryTree = {
   created_at?: Date;
   updated_at?: Date | null;
 };
+
+
+export type CategoryProduct = {
+  category_id: ProductCategoryTree['id'];
+  category_slug: ProductCategoryTree['slug'];
+  products: ProductPreview[] | null;
+}
+
+
 
 export type ProductAnswer = {
   id: number;

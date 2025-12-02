@@ -11,9 +11,17 @@ export class ProductController extends BaseController {
     super(service); // inject service
   }
 
-  async getProducts(req: Request, res: Response) {
-    const products = await this.service.getProducts();
-    return { products: products };
+  async getProductsBySearch(req: Request, res: Response) {
+    const page = Number(req.query.page) || null;
+    const limit = Number(req.query.limit) || null;
+    const query = req.query.query;
+    const products = await this.service.getProductsBySearch(query, limit, page);
+    const totalProducts = await this.service.getTotalProducts();
+
+    return {
+      products: products,
+      totalProducts: totalProducts,
+    };
   }
 
   async getProductsByCategory(req: Request, res: Response) {
@@ -31,6 +39,14 @@ export class ProductController extends BaseController {
     return {
       products: products,
       totalProducts: totalProducts,
+    };
+  }
+
+  async getProductsBySearchSuggestion(req: Request, res: Response) {
+    const query = req.query.query;
+    const products = await this.service.getProductsBySearchSuggestion(query);
+    return {
+      products: products,
     };
   }
 

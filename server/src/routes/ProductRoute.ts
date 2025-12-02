@@ -17,9 +17,9 @@ export class ProductRoute extends BaseRoute {
 
   initRoutes() {
     this.router.get(
-      "/",
+      "/search",
       BaseController.handleRequest(
-        this.controller.getProducts.bind(this.controller)
+        this.controller.getProductsBySearch.bind(this.controller)
       )
     );
     this.router.get(
@@ -50,6 +50,12 @@ export class ProductRoute extends BaseRoute {
       "/top_price",
       BaseController.handleRequest(
         this.controller.getTopPriceProducts.bind(this.controller)
+      )
+    );
+    this.router.get(
+      "/search-suggestion",
+      BaseController.handleRequest(
+        this.controller.getProductsBySearchSuggestion.bind(this.controller)
       )
     );
     this.router.get(
