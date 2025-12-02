@@ -68,6 +68,42 @@ export class FavoriteService extends BaseService {
     };
   }
 
+  async getAllFavorite(userId: number): Promise<ProductPreview[]> {
+    const sql = `
+      SELECT 
+        P.*,
+        BID.NAME AS TOP_BIDDER_NAME,
+        COUNT(LOG.ID) AS BID_COUNT,
+        (
+          SELECT L.PRICE
+          FROM AUCTION.BID_LOGS L
+          WHERE L.PRODUCT_ID = P.ID
+          ORDER BY L.CREATED_AT DESC
+          LIMIT 1
+        ) AS CURRENT_PRICE
+      FROM AUCTION.FAVORITE_PRODUCTS FP
+      JOIN PRODUCT.PRODUCTS P ON P.ID = FP.PRODUCT_ID 
+      LEFT JOIN ADMIN.USERS BID ON BID.ID = P.TOP_BIDDER_ID
+      LEFT JOIN AUCTION.BID_LOGS LOG ON LOG.PRODUCT_ID = P.ID
+      WHERE FP.USER_ID = $1
+      GROUP BY
+        P.ID, P.SLUG, P.CATEGORY_ID, P.MAIN_IMAGE, P.NAME,
+        P.BUY_NOW_PRICE, P.END_TIME, P.AUTO_EXTEND, P.CREATED_AT,
+        BID.NAME, FP.CREATED_AT
+      ORDER BY FP.CREATED_AT DESC
+    `;
+
+    const res = await this.safeQuery<ProductPreview>(sql, [userId]);
+
+    const favoriteProducts = res.map((item) => ({
+      ...item,
+      new_time: new Date(item.end_time),
+      created_at: new Date(item.created_at),
+    }));
+
+    return favoriteProducts;
+  }
+
   async addFavorite(
     userId: number,
     productId: number

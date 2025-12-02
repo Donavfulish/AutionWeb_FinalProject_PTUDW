@@ -88,7 +88,7 @@ export default function ProductPage() {
   const { data: product, isLoading: isLoadingProduct } =
     ProductHook.useGetProductBySlug(product_slug as string);
   const { data: favorite_producs, isLoading: isLoadingFavoriteProducts } =
-    FavoriteHook.useFavorite();
+    FavoriteHook.useAllFavorite();
 
   const { mutate: createBid, isPending: isCreatingBid } =
     BidHook.useCreateBid();

@@ -26,7 +26,7 @@ export default function Page() {
     data: favoriteProductData,
     isLoading: isLoadingFavoriteProduct,
     error: errorFavoriteProduct,
-  } = FavoriteHook.useFavorite();
+  } = FavoriteHook.useAllFavorite();
 
   const totalPriceProducts = data?.totalProducts ?? 0;
   const topPriceProducts = data?.topPriceProducts ?? [];

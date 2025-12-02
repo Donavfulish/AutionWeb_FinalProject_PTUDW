@@ -26,7 +26,7 @@ export default function Page() {
     data: favoriteProductData,
     isLoading: isLoadingFavoriteProduct,
     error: errorFavoriteProduct,
-  } = FavoriteHook.useFavorite();
+  } = FavoriteHook.useAllFavorite();
 
   const totalBiddingProducts = topBiddingProductData?.totalBiddingProducts ?? 0;
   const topBiddingProducts = topBiddingProductData?.topBiddingProducts ?? [];
@@ -77,7 +77,7 @@ export default function Page() {
                   favoriteProductData.map((f: ProductPreview) => Number(f.id))
                 );
                 const isFavoriteProduct = (item: ProductPreview) =>
-                 favoriteIds.has(Number(item.id));
+                  favoriteIds.has(Number(item.id));
                 return (
                   <div key={index} className="mt-3">
                     <ProductCard

@@ -53,8 +53,10 @@ const API_ROUTES = {
   product: {
     getCategoryProductList: `${PRODUCT_API}/category`,
     getProductTop: `${PRODUCT_API}/top`, // GET
-    getProductsBySearch: (query: string, limit: number, page: number) =>  `${PRODUCT_API}/search?page=${page}&limit=${limit}&query=${query}`, // GET
-    getProductsBySearchSuggestion: (query: string, limit: number) =>  `${PRODUCT_API}/search-suggestion?query=${query}&limit=${limit}`, // GET
+    getProductsBySearch: (query: string, limit: number, page: number) =>
+      `${PRODUCT_API}/search?page=${page}&limit=${limit}&query=${query}`, // GET
+    getProductsBySearchSuggestion: (query: string, limit: number) =>
+      `${PRODUCT_API}/search-suggestion?query=${query}&limit=${limit}`, // GET
     getProductById: (id: number) => `${PRODUCT_API}/${id}`, // GET
     getProductsByCategory: (
       slug: string,
@@ -85,6 +87,7 @@ const API_ROUTES = {
     updateProductExtend: (id: number) => `${PRODUCT_API}/${id}/extend`, // PATCH
   },
   favorite: {
+    getAllFavorite: `${FAVORITE_API}/all`, // get
     getFavorite: (pagination: Pagination) =>
       `${FAVORITE_API}?page=${pagination.page}&limit=${pagination.limit}`, // GET
     addFavorite: (productId: number) => `${FAVORITE_API}/${productId}`, // POST

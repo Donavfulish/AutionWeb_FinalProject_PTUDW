@@ -5,6 +5,20 @@ import { Product } from "../../shared/src/types";
 import { Pagination } from "../../shared/src/types/Pagination";
 
 class FavoriteHook {
+  static useAllFavorite() {
+    return useQuery({
+      queryKey: ["favorite_product"],
+
+      queryFn: () => FavoriteService.getAllFavorite(),
+
+      staleTime: STALE_10_MIN,
+
+      select: (data) => {
+        return data.data;
+      },
+    });
+  }
+
   static useFavorite(pagination: Pagination) {
     return useQuery({
       queryKey: ["favorite_product", pagination.page, pagination.limit],
