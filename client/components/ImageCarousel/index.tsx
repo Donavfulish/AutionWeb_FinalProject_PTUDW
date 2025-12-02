@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { defaultImage } from "@/app/const";
 
 interface ImageProps {
   images: string[];
@@ -43,7 +44,7 @@ export const ImageCarousel = ({ images }: ImageProps) => {
           onClick={() => openModal(images[currentImage])}
         >
           <Image
-            src={images[currentImage]}
+            src={images[currentImage] || defaultImage}
             width={800}
             height={800}
             alt="..."
@@ -116,7 +117,7 @@ export const ImageCarousel = ({ images }: ImageProps) => {
               }`}
               onClick={() => hanldeSwitchImage(index)}
             >
-              <Image src={link} width={200} height={200} alt="..." />
+              <Image src={link || defaultImage} width={200} height={200} alt="..." />
             </div>
           );
         })}
@@ -132,7 +133,7 @@ export const ImageCarousel = ({ images }: ImageProps) => {
               onClick={(e) => e.stopPropagation()}
             >
               <Image
-                src={selectedImage}
+                src={selectedImage || defaultImage}
                 alt="Selected View"
                 className="max-w-full max-h-[80vh]  "
                 width={1200}

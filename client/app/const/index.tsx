@@ -65,3 +65,6 @@ export const userCategories: UserCategory[] = [
     icon: SoldProductIcon,
   },
 ];
+
+export const defaultImage =
+  "https://img.freepik.com/premium-photo/white-colors-podium-abstract-background-minimal-geometric-shape-3d-rendering_48946-113.jpg?semt=ais_hybrid&w=740&q=80";

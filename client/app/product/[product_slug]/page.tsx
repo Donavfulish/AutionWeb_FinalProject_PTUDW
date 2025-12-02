@@ -79,7 +79,6 @@ function EndTime({ endTime }: Time) {
   );
 }
 
-
 export default function ProductPage() {
   const { product_slug } = useParams();
   const { user } = useAuth();
@@ -88,7 +87,7 @@ export default function ProductPage() {
 
   const { data: product, isLoading: isLoadingProduct } =
     ProductHook.useGetProductBySlug(product_slug as string);
-  const { data: favorite_producs, isLoading: isLoadingFavoriteProducts } =
+  const { data: favorite_products, isLoading: isLoadingFavoriteProducts } =
     FavoriteHook.useAllFavorite();
 
   const { mutate: createBid, isPending: isCreatingBid } =
@@ -100,9 +99,10 @@ export default function ProductPage() {
     FavoriteHook.useRemoveFavorite();
 
   useEffect(() => {
-    if (favorite_producs && product) {
+    if (favorite_products && product) {
+      console.log("123", favorite_products);
       const newSetFavorites: Set<number> = new Set(
-        favorite_producs.map((p: Product) => p.id)
+        favorite_products.map((p: Product) => p.id)
       );
 
       setSetFavorites(newSetFavorites);
@@ -112,7 +112,7 @@ export default function ProductPage() {
         setIsFavorite(false);
       }
     }
-  }, [favorite_producs, product]);
+  }, [favorite_products, product]);
 
   const [isBid, setIsBid] = useState(false);
 
@@ -122,7 +122,7 @@ export default function ProductPage() {
   const handleOnclickCancleBid = () => {
     setIsBid(false);
   };
-  if (favorite_producs) console.log(favorite_producs);
+  if (favorite_products) console.log(favorite_products);
 
   const handleBid: SubmitHandler<{ price: number }> = (data) => {
     const bid: CreateBidLog = {
@@ -195,7 +195,7 @@ export default function ProductPage() {
             <div className="flex flex-col md:flex-row gap-12 mb-12 ">
               <div className="p-8 md:p-0 md:w-1/2 ">
                 <ImageCarousel
-                  images={[product.main_image, ...product.extra_images]}
+                  images={[product.main_image, ...(product.extra_images || [])]}
                 />
               </div>
               <div className="bg-white border  border-gray-200 rounded-lg p-4 sm:p-8 w-full">

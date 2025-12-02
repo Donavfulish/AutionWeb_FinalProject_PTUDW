@@ -18,7 +18,9 @@ export class FavoriteController extends BaseController {
   async getAllFavorite(req: Request, res: Response) {
     const userId = req.headers["user-id"];
     const data = await this.service.getAllFavorite(userId);
-    return data;
+    return {
+      allFavorite: data,
+    };
   }
 
   async addFavorite(req: Request, res: Response) {
