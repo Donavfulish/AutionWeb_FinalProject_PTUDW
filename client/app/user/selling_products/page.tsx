@@ -20,7 +20,7 @@ const FavoriteProductPage = () => {
 
   return (
     <div className="background-user">
-      <div className="text-2xl font-medium">Sản phẩm yêu thích</div>
+      <div className="text-2xl font-medium">Sản phẩm đã bán</div>
       {isLoading && <div>Loading</div>}
       {error && <div>{error.message}</div>}
       {!isLoading && !error && (
