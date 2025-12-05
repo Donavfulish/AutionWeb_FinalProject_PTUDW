@@ -111,7 +111,7 @@ export class FavoriteService extends BaseService {
     const sql = `
       INSERT INTO AUCTION.FAVORITE_PRODUCTS (PRODUCT_ID, USER_ID, CREATED_AT, UPDATED_AT)
       VALUES ($1, $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-      ON CONFLICT DO NOTHING
+      
     `;
 
     await this.safeQuery(sql, [productId, userId]);
@@ -127,7 +127,7 @@ export class FavoriteService extends BaseService {
     const sql = `
       DELETE FROM AUCTION.FAVORITE_PRODUCTS
       WHERE PRODUCT_ID = $1 AND USER_ID = $2
-      ON CONFLICT DO NOTHING
+      
     `;
 
     await this.safeQuery(sql, [productId, userId]);
