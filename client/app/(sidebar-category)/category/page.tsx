@@ -33,7 +33,7 @@ function Page() {
 
   return (
     <>
-      {isLoadingCategoryProduct && isLoadingFavoriteProduct && (
+      {(isLoadingCategoryProduct || isLoadingFavoriteProduct) && (
         <LoadingSpinner />
       )}
       {errorCategoryProduct && <>Error...</>}

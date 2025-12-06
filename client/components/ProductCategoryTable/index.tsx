@@ -83,15 +83,15 @@ export default function ProductCategoryTable({
             item.children.length > 0;
           return (
             <ul key={item.id}>
-              <div className="flex flex-row items-center gap-2 mt-3 font-medium">
+              <div className="flex flex-row items-center gap-2 mt-3 font-medium hover:text-blue-500 transition-all duration-200 select-none">
                 <svg
-                  className="w-2.5 h-2.5 cursor-pointer hover:text-blue-500 transition-all duration-200 select-none"
+                  className="w-2.5 h-2.5 cursor-pointer transition-all duration-200"
                   onClick={() => toggleCategory(item.id)}
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 10 6"
-                  style={{ transform: isExpanded ? "rotate(-90deg)" : "none" }}
+                  style={{ transform: isExpanded ? "none" : "rotate(-90deg)" }}
                 >
                   <path
                     stroke="currentColor"
@@ -101,12 +101,7 @@ export default function ProductCategoryTable({
                     d="m1 1 4 4 4-4"
                   />
                 </svg>
-                <Link
-                  href={`/category/${item.slug}`}
-                  className="hover:text-blue-500 transition:all duration-200 select-none"
-                >
-                  {item.name}
-                </Link>
+                <p className="select-none">{item.name}</p>
               </div>
               {isExpanded && (
                 <div className="relative pl-6">

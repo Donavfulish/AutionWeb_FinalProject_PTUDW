@@ -43,7 +43,7 @@ function SearchPage() {
   }
   return (
     <>
-      {isLoadingProducts && isLoadingFavoriteProduct && <LoadingSpinner />}
+      {(isLoadingProducts || isLoadingFavoriteProduct) && <LoadingSpinner />}
       {errorProducts && <> Error...</>}
       {errorFavoriteProduct && <> Error...</>}
       {dataResult && favoriteProductData ? (

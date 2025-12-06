@@ -43,7 +43,7 @@ export default function Page() {
   }
   return (
     <>
-      {isLoadingTopEndingSoonProduct && isLoadingFavoriteProduct && (
+      {(isLoadingTopEndingSoonProduct || isLoadingFavoriteProduct) && (
         <LoadingSpinner />
       )}
       {errorTopEndingSoonProduct && <> Error.... </>}

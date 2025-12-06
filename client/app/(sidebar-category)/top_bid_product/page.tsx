@@ -44,7 +44,7 @@ export default function Page() {
 
   return (
     <>
-      {isLoadingTopBiddingProduct && isLoadingFavoriteProduct && (
+      {(isLoadingTopBiddingProduct || isLoadingFavoriteProduct) && (
         <LoadingSpinner />
       )}
       {errorTopBiddingProduct && <> Error.... </>}
