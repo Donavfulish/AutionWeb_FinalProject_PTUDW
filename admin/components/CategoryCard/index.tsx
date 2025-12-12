@@ -2,31 +2,74 @@
 
 import React, { useState } from "react";
 import { ChevronRight, Eye, Pencil, Trash2 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { EditCategoryModal } from "./EditCategoryModal";
+import { DeleteCategoryModal } from "./DeleteCategoryModal";
 import { ProductCategoryTree } from "../../../shared/src/types/Product";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import CategoryHook from "@/hooks/useCategory";
+import { error } from "console";
 
 const CategoryCard = ({ category }: { category: ProductCategoryTree }) => {
-  const router = useRouter();  
+  const router = useRouter();
   const [openChildren, setOpenChildren] = useState<boolean>(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+
+  // Hooks
+  const updateCategoryMutation = CategoryHook.useUpdateCategory();
+  const deleteCategoryMutation = CategoryHook.useDeleteCategory();
 
   const handleView = (categoryId: number) => {
-    router.push(`/product/${categoryId}`)
+    router.push(`/product/${categoryId}`);
   };
 
-  const handleEdit = (categoryId: number) => {
-    // TODO
-    alert("Đây là edit");
+  const handleEdit = (categoryId: number, categoryName: string) => {
+    setSelectedCategory({ id: categoryId, name: categoryName });
+    setEditModalOpen(true);
   };
 
-  const handleDelete = (categoryId: number) => {
-    // TODO
-    alert("Nút xóa này sẽ được thay thể bởi component của Trí");
+  const handleDelete = (categoryId: number, categoryName: string) => {
+    setSelectedCategory({ id: categoryId, name: categoryName });
+    setDeleteModalOpen(true);
+  };
+
+  const handleEditSubmit = (id: number, name: string) => {
+    updateCategoryMutation.mutate(
+      { id, name },
+      {
+        onSuccess: () => {
+          setEditModalOpen(false);
+          setSelectedCategory(null);
+          alert("Chinh sua thanh cong")
+        },
+        onError: (error) => {
+            console.log(error);
+            alert("Chinh sua that bai")
+        }
+      }
+    );
+  };
+
+  const handleDeleteConfirm = (id: number) => {
+    deleteCategoryMutation.mutate(id, {
+      onSuccess: () => {
+        setDeleteModalOpen(false);
+        setSelectedCategory(null);
+        alert("Xoa thanh cong")
+      },
+      onError: (error) => {
+        console.log(error);
+        alert("Xoa that bai")
+      }
+    });
   };
 
   const handleAddSubCategory = (parentId: number) => {
-    //setOpenChildren(!openChildren);
     alert(`Thêm danh mục con cho danh mục ${parentId}`);
   };
 
@@ -52,22 +95,26 @@ const CategoryCard = ({ category }: { category: ProductCategoryTree }) => {
         <div className="flex flex-row gap-2 justify-center items-center">
           <Eye
             onClick={() => handleView(category.id)}
-            className="h-8 w-8 p-1 text-blue-600 hover:bg-blue-600/20 rounded-md transitions-colors duration-200"
+            className="h-8 w-8 p-1 text-blue-600 hover:bg-blue-600/20 rounded-md transitions-colors duration-200 cursor-pointer"
           />
           <Pencil
-            onClick={() => handleEdit(category.id)}
-            className="h-8 w-8 p-1 text-orange-500 hover:bg-orange-500/20 rounded-md transitions-colors duration-200"
+            onClick={() => handleEdit(category.id, category.name)}
+            className="h-8 w-8 p-1 text-orange-500 hover:bg-orange-500/20 rounded-md transitions-colors duration-200 cursor-pointer"
           />
           <Trash2
-            onClick={() => handleDelete(category.id)}
-            className="h-8 w-8 p-1 text-red-500 hover:bg-red-500/20 rounded-md transitions-colors duration-200"
+            onClick={() => handleDelete(category.id, category.name)}
+            className="h-8 w-8 p-1 text-red-500 hover:bg-red-500/20 rounded-md transitions-colors duration-200 cursor-pointer"
           />
         </div>
       </div>
+
       {openChildren && (
         <div className="flex flex-col gap-1 mt-1 mb-2 select-none">
           {category.children?.map((child) => (
-            <div className="ml-10 h-10 border border-gray-300 rounded-md shadow-md flex flex-row gap-1 pl-5 pr-3 py-1 justify-between items-center hover:border-blue-500 transition-colors duration-200">
+            <div
+              key={child.id}
+              className="ml-10 h-10 border border-gray-300 rounded-md shadow-md flex flex-row gap-1 pl-5 pr-3 py-1 justify-between items-center hover:border-blue-500 transition-colors duration-200"
+            >
               <p className="flex grow pt-0.5">
                 {child.name}
                 <span className="ml-2 px-2 py-1 text-xs font-semibold bg-blue-300 text-white rounded-full">
@@ -77,15 +124,15 @@ const CategoryCard = ({ category }: { category: ProductCategoryTree }) => {
               <div className="flex flex-row gap-2 justify-center items-center">
                 <Eye
                   onClick={() => handleView(child.id)}
-                  className="h-7 w-7 p-1 text-blue-600 hover:bg-blue-600/20 rounded-md transitions-colors duration-200"
+                  className="h-7 w-7 p-1 text-blue-600 hover:bg-blue-600/20 rounded-md transitions-colors duration-200 cursor-pointer"
                 />
                 <Pencil
-                  onClick={() => handleEdit(child.id)}
-                  className="h-7 w-7 p-1 text-orange-500 hover:bg-orange-500/20 rounded-md transitions-colors duration-200"
+                  onClick={() => handleEdit(child.id, child.name)}
+                  className="h-7 w-7 p-1 text-orange-500 hover:bg-orange-500/20 rounded-md transitions-colors duration-200 cursor-pointer"
                 />
                 <Trash2
-                  onClick={() => handleDelete(child.id)}
-                  className="h-7 w-7 p-1 text-red-500 hover:bg-red-500/20 rounded-md transitions-colors duration-200"
+                  onClick={() => handleDelete(child.id, child.name)}
+                  className="h-7 w-7 p-1 text-red-500 hover:bg-red-500/20 rounded-md transitions-colors duration-200 cursor-pointer"
                 />
               </div>
             </div>
@@ -100,6 +147,24 @@ const CategoryCard = ({ category }: { category: ProductCategoryTree }) => {
             </span>
           </button>
         </div>
+      )}
+
+      {/* Modals */}
+      {selectedCategory && (
+        <>
+          <EditCategoryModal
+            isOpen={editModalOpen}
+            onClose={() => setEditModalOpen(false)}
+            category={selectedCategory}
+            onSubmit={handleEditSubmit}
+          />
+          <DeleteCategoryModal
+            isOpen={deleteModalOpen}
+            onClose={() => setDeleteModalOpen(false)}
+            category={selectedCategory}
+            onConfirm={handleDeleteConfirm}
+          />
+        </>
       )}
     </div>
   );
