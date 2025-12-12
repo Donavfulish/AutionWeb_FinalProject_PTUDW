@@ -42,7 +42,12 @@ const CategoryCard = ({ category }: { category: ProductCategoryTree }) => {
         >
           <ChevronRight className="hover:text-blue-500 transition-colors duration-200" />
         </div>
-        <p className="flex grow pt-0.5 font-bold">{category.name}</p>
+        <p className="flex grow pt-0.5 font-bold">
+          {category.name}
+          <span className="ml-2 px-2 py-1 text-xs font-semibold bg-blue-500 text-white rounded-full">
+            {100}
+          </span>
+        </p>
         <div className="flex flex-row gap-2 justify-center items-center">
           <Eye
             onClick={() => handleView(category.id)}
@@ -62,7 +67,12 @@ const CategoryCard = ({ category }: { category: ProductCategoryTree }) => {
         <div className="flex flex-col gap-1 mt-1 mb-2 select-none">
           {category.children?.map((child) => (
             <div className="ml-10 h-10 border border-gray-300 rounded-md shadow-md flex flex-row gap-1 pl-5 pr-3 py-1 justify-between items-center hover:border-blue-500 transition-colors duration-200">
-              <p className="flex grow pt-0.5">{child.name}</p>
+              <p className="flex grow pt-0.5">
+                {child.name}
+                <span className="ml-2 px-2 py-1 text-xs font-semibold bg-blue-300 text-white rounded-full">
+                  {100}
+                </span>
+              </p>
               <div className="flex flex-row gap-2 justify-center items-center">
                 <Eye
                   onClick={() => handleView(category.id)}
