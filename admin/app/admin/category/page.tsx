@@ -37,9 +37,9 @@ const page = () => {
         const page = Number(currentPage);
         const start = limit * (page - 1);
         const end = Math.min(categoriesData.length, start + limit);
-        
+
         return filterData.slice(start, end);
-    }, [currentPage, limit, categoriesData])
+    }, [currentPage, limit, categoriesData, searchQuery])
 
     const totalPages = useMemo(() => {
         if (!categoriesData) return 0;
