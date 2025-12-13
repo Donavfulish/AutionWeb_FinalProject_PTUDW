@@ -69,7 +69,7 @@ export default function ProductCard({
           <div className="mt-3">
             <p className="text-sm">Giá hiện tại</p>
             <p>
-              <span className="text-2xl font-medium text-red-500">
+              <span className="text-2xl font-medium text-blue-600">
                 {formatCurrency(product.current_price)}
               </span>
             </p>
@@ -77,7 +77,7 @@ export default function ProductCard({
           <div className="mt-1">
             <p className="text-sm">Giá mua ngay</p>
             <p>
-              <span className="text-xl font-medium text-blue-600">
+              <span className="text-xl font-medium text-red-500">
                 {product.buy_now_price
                   ? formatCurrency(product.buy_now_price)
                   : "---"}

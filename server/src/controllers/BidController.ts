@@ -12,6 +12,12 @@ export class BidController extends BaseController {
     const bid_logs = await this.service.getBidLogs(id);
     return { bid_logs: bid_logs };
   }
+  async getUserBid(req: Request, res: Response) {
+    const userId = Number(req.headers["user-id"]);
+    const productId = parseInt(req.params.productId as string);
+    const userBid = await this.service.getUserBid(userId, productId);
+    return { userBid };
+  }
   async createBid(req: Request, res: Response) {
     const bid: CreateBidLog = {
       user_id: parseInt(req.headers["user-id"] as string),

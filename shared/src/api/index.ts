@@ -43,6 +43,7 @@ const API_ROUTES = {
   },
   bid: {
     getBidLogs: (id: number) => `${BID_API}/${id}`, //GET
+    getUserBid: (productId: number) => `${BID_API}/user-bid/${productId}`, //GET
     createBid: `${BID_API}`, //POST
     createReject: `${BID_API}/reject`, //POST
   },

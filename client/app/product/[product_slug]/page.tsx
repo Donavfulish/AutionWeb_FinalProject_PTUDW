@@ -28,6 +28,7 @@ import {
   Product,
   ProductCategoryTree,
   ProductPreview,
+  UserBidInfo,
 } from "../../../../shared/src/types";
 import BidHook from "@/hooks/useBid";
 import FavoriteHook from "@/hooks/useFavorite";
@@ -69,7 +70,7 @@ function EndTime({ endTime }: Time) {
         Thời gian còn lại
       </p>
       {endTime && endTime.getTime() <= now.getTime() ? (
-        <p className="text-xl font-bold text-teal-600">Đã kết thúc</p>
+        <p className="text-xl font-bold text-slate-600">Đã kết thúc</p>
       ) : (
         <p className="text-xl font-bold text-red-500">
           {endTime && isLessThreeDays(now, endTime) ? (
@@ -89,6 +90,28 @@ export default function ProductPage() {
   const [isFavorite, setIsFavorite] = useState<boolean>();
   const [setFavorites, setSetFavorites] = useState<Set<number>>();
 
+  const schemaBid = z.object({
+    price: z
+      .string()
+      .nonempty("Giá tiền không được để trống")
+      .refine((val) => !isNaN(Number(val)), "Giá tiền phải là số")
+      .transform((val) => Number(val)),
+  });
+
+  const {
+    register: registerBid,
+    handleSubmit: handleSubmitBid,
+    formState: formStateBid,
+    reset,
+    setValue,
+    watch,
+  } = useForm<{ price: string }, any, { price: number }>({
+    resolver: zodResolver(schemaBid),
+    defaultValues: {
+      price: "",
+    },
+  });
+
   const { data: product, isLoading: isLoadingProduct } =
     ProductHook.useGetProductBySlug(product_slug as string);
   const { data: favorite_products, isLoading: isLoadingFavoriteProducts } =
@@ -98,6 +121,9 @@ export default function ProductPage() {
       data: ProductCategoryTree;
       isLoading: boolean;
     };
+  const { data: userBid, isLoading: isLoadingUserBid } = BidHook.useUserBid(
+    product?.id
+  ) as { data: UserBidInfo; isLoading: boolean };
 
   const { mutate: createBid, isPending: isCreatingBid } =
     BidHook.useCreateBid();
@@ -121,6 +147,10 @@ export default function ProductPage() {
       }
     }
   }, [favorite_products, product]);
+
+  useEffect(() => {
+    setValue("price", "");
+  }, []);
 
   const [isBid, setIsBid] = useState(false);
 
@@ -161,28 +191,6 @@ export default function ProductPage() {
   const handleBuyNow = () => {
     console.log("Đã nhấn mua ngay");
   };
-  console.log(product);
-  const schemaBid = z.object({
-    price: z
-      .string()
-      .nonempty("Giá tiền không được để trống")
-      .refine((val) => !isNaN(Number(val)), "Giá tiền phải là số")
-      .transform((val) => Number(val)),
-  });
-
-  const {
-    register: registerBid,
-    handleSubmit: handleSubmitBid,
-    formState: formStateBid,
-    reset,
-    setValue,
-    watch,
-  } = useForm<{ price: string }, any, { price: number }>({
-    resolver: zodResolver(schemaBid),
-    defaultValues: {
-      price: "",
-    },
-  });
 
   console.log(watch("price"));
 
@@ -190,7 +198,8 @@ export default function ProductPage() {
     <div className="bg-[#F8FAFC] w-full">
       {isLoadingProduct ||
       isLoadingFavoriteProducts ||
-      isLoadingProductCategory ? (
+      isLoadingProductCategory ||
+      isLoadingUserBid ? (
         <LoadingSpinner />
       ) : (
         <>
@@ -215,17 +224,30 @@ export default function ProductPage() {
                   <h1 className="text-2xl font-bold mb-4 text-slate-900">
                     {product.name}
                   </h1>
-                  <p className="text-sm font-light mb-2 text-slate-600">
-                    Giá hiện tại
-                  </p>
-                  <p className="text-4xl font-bold text-teal-600 mb-2">
-                    {product.current_price &&
-                      formatCurrency(product.current_price)}
-                  </p>
-                  <p className="text-sm text-slate-600 font-light">
-                    {" "}
-                    {product.bid_count} Lượt đấu giá
-                  </p>
+                  <div className="grid grid-cols-2 items-start">
+                    <div>
+                      <p className="text-sm font-light mb-2 text-slate-600">
+                        Giá hiện tại
+                      </p>{" "}
+                      <p className="text-4xl font-bold text-blue-600 mb-2">
+                        {product.current_price &&
+                          formatCurrency(product.current_price)}
+                      </p>
+                      <p className="text-sm text-slate-600 font-light">
+                        {" "}
+                        {product.bid_count} Lượt đấu giá
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-light mb-2 text-slate-600">
+                        Giá mua ngay
+                      </p>{" "}
+                      <p className="text-4xl font-bold text-red-500 mb-2">
+                        {product.current_price &&
+                          formatCurrency(product.buy_now_price)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 <div className="pb-6 border-b mb-6 border-slate-200 grid grid-cols-2">
                   <div>
@@ -243,7 +265,9 @@ export default function ProductPage() {
                       Người ra giá cao nhất
                     </p>
                     {product.top_bidder ? (
-                      product.top_bidder.name
+                      <p className=" ml-4 text-[16px] font-semibold text-slate-900">
+                        {product.top_bidder.name}
+                      </p>
                     ) : (
                       <p className=" ml-4 text-[16px] font-semibold text-slate-900">
                         Chưa có
@@ -285,21 +309,25 @@ export default function ProductPage() {
                   </div>
                 </div>
 
-                <EndTime endTime={new Date(product.end_time || "")} />
                 <div className="pb-6 border-b  mb-6 border-slate-200 ">
                   <p className="text-sm text-slate-600 mb-2 font-light">
                     Giá đấu tiếp theo
                   </p>
-                  <p className="text-3xl font-bold text-teal-600">
+                  <p className="text-3xl font-bold text-blue-600">
                     {formatCurrency(
                       parseFloat(product.current_price || 0) +
                         parseFloat(product.price_increment || 0)
                     )}
                   </p>
                 </div>
+
+                <EndTime endTime={new Date(product.end_time || "")} />
+
                 <div className="pb-6 border-b  mb-6 border-slate-200 gap-4 flex flex-col">
                   <div className="relative">
                     <PrimaryButton
+                      backgroundColor="#2563eb"
+                      hoverBackgroundColor="#3376eb"
                       text="Đặt lệnh đấu giá"
                       onClick={handleOnclickBid}
                     />
@@ -322,11 +350,14 @@ export default function ProductPage() {
                               <input
                                 type="text"
                                 id="price"
-                                value={formatPrice(Number(watch("price")))}
+                                value={formatPrice(
+                                  Number(watch("price") || undefined)
+                                )}
                                 onChange={(e) => {
                                   const parsed = parseNumber(e.target.value);
                                   setValue("price", String(parsed));
                                 }}
+                                autoComplete="off"
                                 className="border border-gray-300 mt-4 rounded-2xl text-heading text-3xl text-blue-500 rounded-base  w-full px-3 py-2.5 shadow-xs placeholder:text-body"
                                 placeholder="150.000"
                               />
@@ -335,6 +366,56 @@ export default function ProductPage() {
                                   ? formStateBid.errors.price.message
                                   : ""}
                               </span>
+
+                              <div className="text-md mt-4">
+                                <p>
+                                  <span className="">Giá hiện tại: </span>
+                                  <span className="ml-1 text-blue-600 font-medium text-lg">
+                                    {formatCurrency(product.current_price)}
+                                  </span>
+                                </p>
+                                <p>
+                                  <span className="">Bước nhảy: </span>
+                                  <span className="ml-2 text-blue-600 font-medium text-lg">
+                                    {formatCurrency(product.price_increment)}
+                                  </span>
+                                </p>
+                                {userBid?.max_price ? (
+                                  <p className="">
+                                    <span className="">Giá đấu cũ: </span>
+                                    <span className="ml-2 text-orange-600 font-medium text-lg">
+                                      {formatCurrency(userBid.max_price)}
+                                    </span>
+                                  </p>
+                                ) : (
+                                  <p className="text-slate-600">
+                                    Bạn chưa từng đấu giá sản phẩm này
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="mt-2">
+                                {userBid.max_price &&
+                                userBid.max_price > product.current_price ? (
+                                  <p>
+                                    Bạn cần đặt giá lớn hơn{" "}
+                                    <span className="text-orange-600">
+                                      {formatCurrency(userBid.max_price)}
+                                    </span>
+                                  </p>
+                                ) : (
+                                  <p>
+                                    Bạn cần đặt giá tối thiểu là{" "}
+                                    <span className="font-medium text-orange-600">
+                                      {formatCurrency(
+                                        Number(product.current_price) +
+                                          Number(product.price_increment)
+                                      )}
+                                    </span>
+                                  </p>
+                                )}
+                              </div>
+
                               <div className="grid grid-cols-2 gap-2 mt-5">
                                 <button
                                   type="submit"

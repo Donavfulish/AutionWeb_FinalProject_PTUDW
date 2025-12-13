@@ -1,21 +1,24 @@
+"use client";
+
 import React from "react";
 import { useState, useEffect } from "react";
 import BidHook from "@/hooks/useBid";
 import { BidLog } from "../../../../../shared/src/types";
 import { formatCurrency, formatDate } from "./Question";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface ProductId {
   productId: number;
 }
 export const BidHistory = ({ productId }: ProductId) => {
-  const {
-    data: bidLogs,
-    isLoading: isLoadingBigLogs,
-  }: { data: BidLog[] | undefined; isLoading: boolean } =
-    BidHook.useBidLogs(productId);
-
+  const { data: bidLogs, isLoading: isLoadingBigLogs } = BidHook.useBidLogs(
+    productId
+  ) as { data: BidLog[]; isLoading: boolean };
+  console.log(productId);
+  console.log("bidlog", bidLogs);
   return (
-    <div className="bg-white rounded-lg p-6 mb-8 border border-slate-200">
+    <div className="relative bg-white rounded-lg p-6 mb-8 border border-slate-200">
+      {isLoadingBigLogs && <LoadingSpinner />}
       <h3 className="text-2xl font-bold text-slate-900 mb-4">
         Lịch sử đấu giá
       </h3>

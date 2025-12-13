@@ -1,4 +1,8 @@
-import { BidLog, CreateBidLog } from "../../../shared/src/types/Bid";
+import {
+  BidLog,
+  CreateBidLog,
+  UserBidInfo,
+} from "../../../shared/src/types/Bid";
 import { BaseService } from "./BaseService";
 import { MutationResult } from "../../../shared/src/types/Mutation";
 
@@ -28,9 +32,23 @@ export class BidService extends BaseService {
                             'name', u.name
                             ) AS user
     FROM auction.bid_logs as l, admin.users as u
-     WHERE l.product_id = $1 AND u.id = l.user_id ORDER BY l.created_at DESC `;
+    WHERE l.product_id = $1 AND u.id = l.user_id 
+    ORDER BY l.created_at DESC
+    LIMIT 10`;
     const logs: BidLog[] = await this.safeQuery(sql, [id]);
     return logs;
+  }
+  async getUserBid(userId: number, productId: number): Promise<UserBidInfo> {
+    const sql =
+      "SELECT max_price::INT FROM auction.user_bids WHERE user_id = $1 AND product_id = $2";
+    const max_price = (
+      await this.safeQuery<{ max_price: number }>(sql, [userId, productId])
+    )?.[0]?.max_price;
+    return {
+      user_id: userId,
+      product_id: productId,
+      max_price: max_price || undefined,
+    };
   }
   async createBid(bid: CreateBidLog): Promise<MutationResult> {
     const poolClient = await this.getClient();
@@ -186,7 +204,7 @@ export class BidService extends BaseService {
       }
 
       console.log(5);
-      // 5. Thực hiện so sánh và lưu kết quả đấu giá  
+      // 5. Thực hiện so sánh và lưu kết quả đấu giá
       if (productBidStatus.top_bidder_id == bid.user_id) {
         console.log("Bidder vẫn đang thắng đấu giá");
         await poolClient.query("COMMIT");

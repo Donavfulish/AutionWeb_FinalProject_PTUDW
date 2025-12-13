@@ -10,6 +10,13 @@ export class BidService {
     });
   }
 
+  static async getUserBid(product_id: number): Promise<any> {
+    return safeRequest(async () => {
+      const res = await api.get(API_ROUTES.bid.getUserBid(product_id));
+      return res.data;
+    });
+  }
+
   static async createBid(payload: CreateBidLog): Promise<any> {
     return safeRequest(async () => {
       const res = await api.post(API_ROUTES.bid.createBid, payload);

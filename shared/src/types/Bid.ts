@@ -33,3 +33,9 @@ export type UserBid = {
   created_at: Date;
   updated_at: Date;
 };
+
+export type UserBidInfo = {
+  user_id: number;
+  product_id: number;
+  max_price: number | undefined;
+};
