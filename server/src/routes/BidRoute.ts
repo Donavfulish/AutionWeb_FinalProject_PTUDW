@@ -14,6 +14,12 @@ export class BidRoute extends BaseRoute {
 
   initRoutes() {
     this.router.get(
+      "/user-bid/:productId",
+      BaseController.handleRequest(
+        this.controller.getUserBid.bind(this.controller)
+      )
+    );
+    this.router.get(
       "/:id",
       BaseController.handleRequest(
         this.controller.getBidLogs.bind(this.controller)

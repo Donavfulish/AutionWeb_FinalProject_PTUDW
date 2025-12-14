@@ -9,12 +9,15 @@ import {
   ProductQuestion,
   SearchProduct,
   WinningProduct,
+  ProductQuestionPagination,
 } from "./../../../shared/src/types/Product";
 import { BaseService } from "./BaseService";
 import { ShortUser } from "../../../shared/src/types";
 
 import { createSlugUnique } from "../utils";
 import { R2Service } from "./R2Service";
+import { Pagination } from "../../../shared/src/types/Pagination";
+import { PoolClient } from "pg";
 
 export class ProductService extends BaseService {
   private static instance: ProductService;
@@ -33,11 +36,9 @@ export class ProductService extends BaseService {
   async getTopBidder(productId: number): Promise<ShortUser | null> {
     const sql = `  
     SELECT u.id, u.name, u.profile_img
-    FROM auction.bid_logs bl 
-    JOIN admin.users u on bl.user_id = u.id 
-    WHERE bl.product_id = $1
-    ORDER BY bl.price DESC 
-    LIMIT 1 
+    FROM admin.users u
+    JOIN product.products p ON p.top_bidder_id = u.id
+    WHERE p.id = $1
     `;
     const bidder = await this.safeQuery<ShortUser>(sql, [productId]);
     return bidder[0] ? bidder[0] : null;
@@ -59,7 +60,8 @@ export class ProductService extends BaseService {
   async getCurrentPrice(productId: number): Promise<number | undefined | null> {
     const sql = `  
     SELECT MAX(bl.price) AS current_price
-    FROM auction.bid_logs bl 
+    FROM product.products p
+    JOIN auction.bid_logs bl ON bl.product_id = p.id AND bl.user_id = p.top_bidder_id 
     WHERE bl.product_id = $1
     `;
     const currentPrice: { current_price: number | null }[] =
@@ -157,29 +159,35 @@ export class ProductService extends BaseService {
       p.end_time,
       p.auto_extend,
       p.created_at,
-      p.initial_price
-
+      p.initial_price,
+      u.email as seller_email,
+      c.name as category_name
     FROM product.products p 
     JOIN admin.users u on u.id = p.seller_id 
+    JOIN product.product_categories c on c.id = p.category_id
     WHERE p.id = $1
     `;
 
     let products: any = await this.safeQuery<ProductPreview>(sql, [productId]);
-
+    const { seller_email, category_name, ...rest } = products[0];
     products = {
-      ...products[0],
+      ...rest,
       top_bidder_name: top_bidder ? top_bidder.name : null,
       current_price: current_price ? current_price : products[0].initial_price,
       bid_count: bid_count,
       status: status,
+      seller: {
+        email: seller_email,
+      },
+      category: {
+        name: category_name,
+      },
     };
 
     return products;
   }
 
-    async getTotalProductsBySearch(
-    query: string,
-  ): Promise<number | undefined> {
+  async getTotalProductsBySearch(query: string): Promise<number | undefined> {
     let sql = `
        SELECT COUNT(*) as total
        FROM product.products pp
@@ -188,10 +196,7 @@ export class ProductService extends BaseService {
     `;
     const params: any[] = [query];
 
-
-    let totalProducts: {total: number}[] = await this.safeQuery(sql, params);
-
-   
+    let totalProducts: { total: number }[] = await this.safeQuery(sql, params);
 
     return totalProducts[0]?.total;
   }
@@ -264,9 +269,9 @@ export class ProductService extends BaseService {
     page?: number
   ): Promise<ProductPreview[]> {
     let sql = `
-    SELECT id
-    FROM product.products
-    ORDER BY product.products.end_time ASC
+        SELECT id
+        FROM product.products
+        ORDER BY product.products.end_time ASC
     `;
 
     const params: any[] = [];
@@ -567,9 +572,9 @@ WHERE pc.parent_id is not null
     ) DESC
     `;
 
-    if (limit){
-      sql += 'LIMIT $2';
-      params.push(limit)
+    if (limit) {
+      sql += "LIMIT $2";
+      params.push(limit);
     }
 
     const product: SearchProduct[] = await this.safeQuery(sql, params);
@@ -642,25 +647,20 @@ WHERE pc.parent_id is not null
     return updateProduct;
   }
   async deleteProductById(productId: number) {
-    const sql = `
-    DELETE FROM product.products 
-    WHERE id = $1
-    RETURNING MAIN_IMAGE, EXTRA_IMAGES
-    `;
+    const params = [productId];
+
+    const sql =
+      "DELETE FROM product.products WHERE id = $1 RETURNING MAIN_IMAGE, EXTRA_IMAGES";
     const result = await this.safeQuery<{
       main_image: string;
       extra_images: string[];
     }>(sql, [productId]);
-
     if (result.length == 0) {
       throw new Error(`Không thể tìm thấy sản phẩm có id = ${productId}`);
     }
-
     const { main_image, extra_images = [] } = result[0]!;
     const r2 = R2Service.getInstance();
     await r2.deleteFilesFromR2([main_image, ...extra_images]);
-
-    return result;
   }
 
   async getQuestions(productId: number): Promise<ProductQuestion[]> {
@@ -679,7 +679,7 @@ WHERE pc.parent_id is not null
             SELECT 
                 json_build_object(
                     'id', pa.id,
-                    'comment', pq.comment,
+                    'comment', pa.comment,
                     'question_id', pa.question_id,
                     'user', json_build_object(
                         'id', u2.id,
@@ -694,11 +694,64 @@ WHERE pc.parent_id is not null
       FROM feedback.product_questions pq
       JOIN admin.users u ON u.id = pq.user_id
       WHERE pq.product_id = $1;
-
+      ORDER BY pq.created_at desc
     `;
     const questions = await this.safeQuery<ProductQuestion>(sql, [productId]);
 
     return questions;
+  }
+
+  async getQuestionsByPage(
+    productId: number,
+    page: number,
+    limit: number
+  ): Promise<ProductQuestionPagination> {
+    const sql = `
+    SELECT 
+          pq.id, 
+          pq.product_id, 
+          json_build_object(
+              'id', u.id,
+              'name', u.name,
+              'profile_img', u.profile_img
+          ) AS user,
+          pq.comment,
+          pq.created_at,
+          (
+            SELECT 
+                json_build_object(
+                    'id', pa.id,
+                    'comment', pa.comment,
+                    'question_id', pa.question_id,
+                    'user', json_build_object(
+                        'id', u2.id,
+                        'name', u2.name,
+                        'profile_img', u2.profile_img
+                    )
+                )
+            FROM feedback.product_answers pa
+            JOIN admin.users u2 ON u2.id = pa.user_id
+            WHERE pa.question_id = pq.id
+          ) AS answer,
+          COUNT(*) OVER() AS total_count
+      FROM feedback.product_questions pq
+      JOIN admin.users u ON u.id = pq.user_id
+      WHERE pq.product_id = $1
+      ORDER BY pq.created_at desc
+      OFFSET $2 LIMIT $3;
+    `;
+
+    const offset = (page - 1) * limit;
+    const questions = await this.safeQuery<
+      ProductQuestion & { total_count: number }
+    >(sql, [productId, offset, limit]);
+
+    return {
+      page: page,
+      limit: limit,
+      total: questions?.[0]?.total_count || 0,
+      questions: questions,
+    };
   }
 
   async createQuestion(
@@ -872,5 +925,26 @@ WHERE pc.parent_id is not null
       })
     );
     return productHavePrice;
+  }
+
+  async getProducts(pagination: Pagination): Promise<ProductPreview[]> {
+    const sql = `
+                SELECT p.id 
+                FROM product.products p
+                ORDER BY created_at desc
+                LIMIT $1
+                OFFSET $2
+                  `;
+    const offset = (pagination.page - 1) * pagination.limit;
+    const params = [pagination.limit, offset];
+    const product = await this.safeQuery<ProductPreview>(sql, params);
+
+    const productPreview = await Promise.all(
+      product.map(async (item: any) => {
+        const productType = this.getProductPreviewType(item.id);
+        return productType;
+      })
+    );
+    return productPreview;
   }
 }

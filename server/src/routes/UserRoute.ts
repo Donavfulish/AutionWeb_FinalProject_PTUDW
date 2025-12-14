@@ -19,20 +19,26 @@ export class UserRoute extends BaseRoute {
 
   initRoutes() {
     this.router.use(protectedRoutes);
+    this.router.delete(
+      "/:id",
+      BaseController.handleRequest(
+        this.controller.deleteUser.bind(this.controller)
+      )
+    );
     this.router.get(
       "/",
       BaseController.handleRequest(
         this.controller.getUsers.bind(this.controller)
       )
     );
-    this.router.get("/me", protectedRoutes, fetchMe);
+    this.router.get("/me", fetchMe);
     this.router.get(
       "/profile",
-      protectedRoutes,
       BaseController.handleRequest(
         this.controller.getProfile.bind(this.controller)
       )
     );
+
     this.router.patch(
       "/profile",
       upload.single("profile_img"),

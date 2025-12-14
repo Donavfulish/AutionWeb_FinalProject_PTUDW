@@ -6,11 +6,25 @@ import { BidLog, CreateBidLog } from "../../shared/src/types";
 class BidHook {
   static useBidLogs(product_id: number) {
     return useQuery({
-      queryKey: ["bid_logs"],
+      queryKey: ["bid_logs", product_id],
       queryFn: () => BidService.getBidlogs(product_id),
       staleTime: STALE_10_MIN,
+      enabled: !!product_id,
       select: (data) => {
+        console.log("bid log", data);
         return data.data.bid_logs;
+      },
+    });
+  }
+
+  static useUserBid(product_id: number) {
+    return useQuery({
+      queryKey: ["user_bid", product_id],
+      queryFn: () => BidService.getUserBid(product_id),
+      staleTime: STALE_10_MIN,
+      enabled: !!product_id,
+      select: (data) => {
+        return data.data.userBid;
       },
     });
   }
@@ -22,7 +36,10 @@ class BidHook {
       mutationFn: (bid: CreateBidLog) => BidService.createBid(bid),
       onSuccess: (_, params) => {
         queryClient.invalidateQueries({
-          queryKey: ["bid_logs"],
+          queryKey: ["bid_logs", params.product_id],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["product_by_slug", params.product_slug],
         });
       },
     });

@@ -9,6 +9,7 @@ import Image from "next/image";
 import FavoriteHook from "@/hooks/useFavorite";
 import LoadingSpinner from "../LoadingSpinner";
 import { formatCurrency } from "@/app/(MainLayout)/[product_slug]/components/Question";
+import { useAuth } from "@/hooks/useAuth";
 
 const defaultImage =
   "https://img.freepik.com/premium-photo/white-colors-podium-abstract-background-minimal-geometric-shape-3d-rendering_48946-113.jpg?semt=ais_hybrid&w=740&q=80";
@@ -20,6 +21,7 @@ export default function ProductCard({
   product: ProductPreview;
   isFavorite: boolean;
 }) {
+  const { user } = useAuth();
   const { mutate: addFavorite, isPending: isAdding } =
     FavoriteHook.useAddFavorite();
   const { mutate: removeFavorite, isPending: isRemoving } =
@@ -69,7 +71,7 @@ export default function ProductCard({
           <div className="mt-3">
             <p className="text-sm">Giá hiện tại</p>
             <p>
-              <span className="text-2xl font-medium text-red-500">
+              <span className="text-2xl font-medium text-blue-600">
                 {formatCurrency(product.current_price)}
               </span>
             </p>
@@ -77,7 +79,7 @@ export default function ProductCard({
           <div className="mt-1">
             <p className="text-sm">Giá mua ngay</p>
             <p>
-              <span className="text-xl font-medium text-blue-600">
+              <span className="text-xl font-medium text-red-500">
                 {product.buy_now_price
                   ? formatCurrency(product.buy_now_price)
                   : "---"}
@@ -89,7 +91,9 @@ export default function ProductCard({
             {product.top_bidder_name ? (
               <div>
                 <p className="text-sm">Người trả giá cao nhất</p>
-                <p className="font-medium">{product.top_bidder_name}</p>
+                <p className="font-medium">
+                    {product.top_bidder_name[0]}***
+                </p>
               </div>
             ) : (
               <div>

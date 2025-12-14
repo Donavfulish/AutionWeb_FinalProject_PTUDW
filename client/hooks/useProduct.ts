@@ -106,7 +106,7 @@ class ProductHook {
       },
     });
   }
-    static useGetProductsBySearch(query: string, limit: number, page: number) {
+  static useGetProductsBySearch(query: string, limit: number, page: number) {
     return useQuery({
       queryKey: ["product_by_search", query, limit, page],
 
@@ -122,7 +122,7 @@ class ProductHook {
     });
   }
 
-    static useGetProductsBySearchSuggestion(query: string, limit: number) {
+  static useGetProductsBySearchSuggestion(query: string, limit: number) {
     return useQuery({
       queryKey: ["product_by_search_suggestion", query, limit],
 
@@ -260,6 +260,24 @@ class ProductHook {
       select: (data) => {
         // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
         return data.data.questions;
+      },
+    });
+  }
+
+  static useGetProductQuestionsByPage(id: number, page: number, limit: number) {
+    return useQuery({
+      queryKey: ["product_question", id, page, limit],
+
+      queryFn: () => ProductService.getProductQuestionsByPage(id, page, limit),
+
+      staleTime: STALE_10_MIN,
+
+      enabled: !!id,
+
+      // Transform data tại Hook (select)
+      select: (data) => {
+        // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
+        return data.data.questionPagination;
       },
     });
   }

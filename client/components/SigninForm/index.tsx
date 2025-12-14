@@ -32,7 +32,7 @@ export function SigninForm({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
-  const { signIn } = useAuthStore();
+  const signIn = useAuthStore((s) => s.signIn);
   const {
     register,
     handleSubmit,
@@ -46,8 +46,9 @@ export function SigninForm({
     const user: SignRequest = data;
 
     await signIn(user);
-
-    router.push("/");
+    if (useAuthStore.getState().user) {
+      router.replace("/");
+    }
   };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>

@@ -12,10 +12,11 @@ import { Pagination } from "../types/Pagination";
 
 const API_ROUTES = {
   user: {
-    getUsers: `${BASE_API}/users`,
+    getUsers: (pagination: Pagination) =>
+      `${USER_API}?page=${pagination.page}&limit=${pagination.limit}`, //GET
     getUser: (id: number) => `${BASE_API}/users${id}`,
     updateUser: (id: number) => `${BASE_API}/users${id}`,
-    deleteUser: (id: number) => `${BASE_API}/users${id}`,
+    deleteUser: (id: number) => `${USER_API}/${id}`,
     createUSer: `${BASE_API}/users`,
     getProfile: () => `${USER_API}/profile`, //GET
     updateProfile: `${USER_API}/profile`, //PATCH
@@ -23,6 +24,7 @@ const API_ROUTES = {
     fetchMe: `${USER_API}/me`,
   },
   upgrade: {
+    getUpgradeRequests: (pagination: Pagination) => `${UPGRADE_API}/request`, //GET
     createSellerRequest: `${UPGRADE_API}/request`, //POST
     getRequestStatus: (id: number) => `${UPGRADE_API}/status/${id}`, //GET
     updateApproveRequest: `${UPGRADE_API}/approve`, //PATCH
@@ -30,21 +32,26 @@ const API_ROUTES = {
   },
   category: {
     getCategories: `${CATEGORY_API}`, //GET
+    getCountProduct: `${CATEGORY_API}/count`, //GET
     getCategoryDetailById: (id: number) => `${CATEGORY_API}/detail/${id}`, // GET
     getProductsByCategoryId: (pagination: Pagination) =>
-      `${CATEGORY_API}/${pagination.id}/products?page${pagination.page}&limit=${pagination.limit}&sort=${pagination.sort}`, //GET
+      `${CATEGORY_API}/${pagination.id}/products?page=${pagination.page}&limit=${pagination.limit}&sort=${pagination.sort}`, //GET
     getProductsByCategorySlug: (
       slug: string,
       page: number,
       limit: number,
       sort: string
-    ) => `${CATEGORY_API}/slug/${slug}?page${page}&limit=${limit}&sort=${sort}`, //GET
+    ) => {
+      console.log("page:,", page);
+      return `${CATEGORY_API}/slug/${slug}?page=${page}&limit=${limit}&sort=${sort}`;
+    }, //GET
     createCategory: `${CATEGORY_API}`, //POST
     updateCategory: (id: number) => `${CATEGORY_API}/${id}`, //PATCH
     deleteCategory: (id: number) => ` ${CATEGORY_API}/${id}`, //DELETE
   },
   bid: {
     getBidLogs: (id: number) => `${BID_API}/${id}`, //GET
+    getUserBid: (productId: number) => `${BID_API}/user-bid/${productId}`, //GET
     createBid: `${BID_API}`, //POST
     createReject: `${BID_API}/reject`, //POST
   },
@@ -61,6 +68,8 @@ const API_ROUTES = {
     refresh: `${AUTH_API}/refresh`,
   },
   product: {
+    getProducts: (pagination: Pagination) =>
+      `${PRODUCT_API}?page=${pagination.page}&limit=${pagination.limit}`, //GET
     getCategoryProductList: `${PRODUCT_API}/category`,
     getProductTop: `${PRODUCT_API}/top`, // GET
     getProductsBySearch: (query: string, limit: number, page: number) =>
@@ -90,7 +99,12 @@ const API_ROUTES = {
     updateProductDescription: (id: number) =>
       `${PRODUCT_API}/${id}/description`, // PATCH
     deleteProductById: (id: number) => `${PRODUCT_API}/${id}`, // DELETE
-    geProductQuestion: (id: number) => `${PRODUCT_API}/${id}/questions`, // GET
+    getProductQuestion: (id: number) => `${PRODUCT_API}/${id}/questions`, // GET
+    getProductQuestionsByPage: (
+      id: number,
+      page: number = 1,
+      limit: number = 10
+    ) => `${PRODUCT_API}/${id}/questions-by-page?page=${page}&limit=${limit}`, // GET
     createProductQuestion: (id: number) => `${PRODUCT_API}/${id}/questions`, // POST
     createProductAnswer: (idProduct: number, idQuestion: number) =>
       `${PRODUCT_API}/${idProduct}/${idQuestion}/answers`, // POST

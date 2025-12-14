@@ -1,11 +1,20 @@
+"use client";
+
 import { FlightOutlineIcon } from "@/components/icons";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import ProductHook from "@/hooks/useProduct";
-import { ProductQuestion } from "../../../../../shared/src/types";
+import {
+  ProductQuestion,
+  ProductQuestionPagination,
+} from "../../../../../shared/src/types";
 import { useForm, SubmitHandler } from "react-hook-form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { usePathname, useSearchParams } from "next/navigation";
+import Pagination from "@/components/Pagination";
+import { useRouter } from "next/navigation";
+import LoadingSpinner from "@/components/LoadingSpinner";
 export function formatDate(date?: Date | string): string {
   if (!date) return "--";
   const d = date instanceof Date ? date : new Date(date);
@@ -46,7 +55,9 @@ function QuestionItem({
   return (
     <>
       <div className="flex flex-row justify-between">
-        <p className="font-medium text-gray-900">{user.name}</p>
+        <p className="font-medium text-gray-900">
+            {user.name}
+        </p>
         {created_at && (
           <p className="text-xs text-gray-600"> {formatDate(date)}</p>
         )}
@@ -67,20 +78,35 @@ interface ProductId {
   productId: number;
 }
 export const Question = ({ productId }: ProductId) => {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const page = Number(searchParams.get("page")) || 1;
+  const per_page = Number(searchParams.get("limit")) || 5;
+
   const {
-    data: questions,
+    data: questionPagination,
     isLoading: isLoadingQuestion,
   }: {
-    data: ProductQuestion[] | undefined;
+    data: ProductQuestionPagination | undefined;
     isLoading: boolean;
-  } = ProductHook.useGetProductQuestion(productId);
+  } = ProductHook.useGetProductQuestionsByPage(productId, page, per_page);
+
+  const questions = questionPagination?.questions || [];
+  const totalPages = questionPagination
+    ? Math.ceil(questionPagination.total / per_page)
+    : 0;
+
+  const handlePageChange = (value: number) => {
+    const next = new URLSearchParams(searchParams);
+    next.set("page", value.toString());
+    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+  };
 
   const { mutate: createQuestion, isPending: isCreateQuestion } =
     ProductHook.useCreateProductQuestion();
-  const handleSend: SubmitHandler<{ comment: string }> = (data) => {
-    createQuestion({ id: productId, data: data });
-    reset();
-  };
+
   const schema = z.object({
     comment: z.string().nonempty("Vui lòng nhập câu hỏi"),
   });
@@ -88,18 +114,24 @@ export const Question = ({ productId }: ProductId) => {
   const {
     register,
     handleSubmit,
-    reset,
-    watch,
+    setValue,
     formState: { errors },
   } = useForm<{ comment: string }>({
     resolver: zodResolver(schema),
     defaultValues: { comment: "" },
   });
-  const question = watch("comment");
+
+  const handleSend: SubmitHandler<{ comment: string }> = (data) => {
+    createQuestion({ id: productId, data: data });
+    setValue("comment", "");
+  };
+
   return (
-    <div className="bg-white rounded-lg p-3 sm:p-6 mb-8 border border-slate-200">
-      <h3 className="text-2xl font-bold text-slate-900 mb-4">Hỏi & Đáp</h3>
-      <div>
+    <div className="relative bg-white rounded-lg p-3 sm:p-6 mb-8 border border-slate-200">
+      <h3 className="relative text-2xl font-bold text-slate-900 mb-4">
+        Hỏi & Đáp
+      </h3>
+      <div className="relative">
         <form className=" mb-8" onSubmit={handleSubmit(handleSend)}>
           <div className="w-full  ">
             <div className="flex flex-row">
@@ -125,14 +157,25 @@ export const Question = ({ productId }: ProductId) => {
             </span>
           </div>
         </form>
-      </div>
-      {questions &&
-        questions.map((question, index) => (
-          <div key={index} className="py-6 border-t border-gray-200">
-            {" "}
-            <QuestionItem {...question} />{" "}
+        <div className="relative h-min-25">
+          {isLoadingQuestion && <LoadingSpinner />}
+          {!isLoadingQuestion &&
+            questions &&
+            questions.map((question, index) => (
+              <div key={index} className="py-6 border-t border-gray-200">
+                {" "}
+                <QuestionItem {...question} />{" "}
+              </div>
+            ))}
+          <div className="flex justify-center items-center mt-2">
+            <Pagination
+              totalPages={totalPages}
+              currentPage={page}
+              onPageChange={handlePageChange}
+            />
           </div>
-        ))}
+        </div>
+      </div>
     </div>
   );
 };

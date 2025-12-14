@@ -1,4 +1,8 @@
+import { User } from "../../../shared/src/types";
+import { MutationResult } from "../../../shared/src/types/Mutation";
+import { createSlugUnique } from "../utils";
 import { BaseService } from "./BaseService";
+import { ProductService } from "./ProductService";
 import { R2Service } from "./R2Service";
 import { UserEntity } from "../../../shared/src/types";
 interface UpdateUserPayload {
@@ -23,13 +27,18 @@ export class UserService extends BaseService {
     return UserService.instance;
   }
 
-  async getUsers() {
+  async getUsers(page: number, limit: number): Promise<User[]> {
+    const offset = (page - 1) * limit;
+
     const sql = `
-            SELECT * FROM product.products
+            SELECT * FROM admin.users as u
+            WHERE u.role != $1 
+            ORDER BY u.created_at desc
+            OFFSET $2
+            LIMIT $3
             `;
-    const users = await this.safeQuery(sql);
-    // const result = await this.safeQuery<User>(sql, [id]); (cung duoc)
-    // const users = await this.safeQuery(sql, params);
+    const params = ["admin", offset, limit];
+    const users: User[] = await this.safeQuery(sql, params);
     return users;
   }
   async getProfile(id: number) {
@@ -42,8 +51,16 @@ export class UserService extends BaseService {
 
     return profile[0];
   }
-
-
+  async getTotalUser(): Promise<number | undefined> {
+    const sql = `
+            SELECT COUNT(*) AS total
+            FROM admin.users u
+            WHERE u.role != $1 
+            `;
+    const params = ["admin"];
+    const totalUsers: { total: number }[] = await this.safeQuery(sql, params);
+    return totalUsers[0]?.total;
+  }
   async updateProfile(payload: UpdateUserPayload) {
     const r2 = R2Service.getInstance();
     const filesArray = payload.profile_image ? [payload.profile_image] : [];
@@ -61,5 +78,14 @@ export class UserService extends BaseService {
     const result = await this.safeQuery(sql, params);
 
     return result;
+  }
+  async deleteUser(id: number): Promise<MutationResult> {
+    const params = [id];
+    const sql = " DELETE FROM admin.users WHERE users.id = $1";
+    await this.safeQuery(sql, params);
+
+    return {
+      success: true,
+    };
   }
 }

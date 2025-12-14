@@ -3,6 +3,7 @@ import {
   CreateProduct,
   CreateQuestion,
 } from "../../../shared/src/types";
+import { Pagination } from "../../../shared/src/types/Pagination";
 import { BaseController } from "./BaseController";
 import { Request, Response, NextFunction } from "express";
 
@@ -202,6 +203,20 @@ export class ProductController extends BaseController {
     };
   }
 
+  async getQuestionsByPage(req: Request, res: Response) {
+    const productId = req.params.productId;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const questionPagination = await this.service.getQuestionsByPage(
+      productId,
+      page,
+      limit
+    );
+    return {
+      questionPagination,
+    };
+  }
+
   async createQuestion(req: Request, res: Response) {
     const userId = req.headers["user-id"];
     const productId = req.params.productId;
@@ -266,6 +281,23 @@ export class ProductController extends BaseController {
     return {
       products: products,
       totalProducts: totalProducts,
+    };
+  }
+  async getProducts(req: Request, res: Response) {
+    const userId = req.headers["user-id"];
+
+    const pagination: Pagination = {
+      limit: Number(req.query.limit || "5"),
+      page: Number(req.query.page || "1"),
+    };
+
+    const products = await this.service.getProducts(pagination);
+    const totalProducts = await this.service.getTotalProducts();
+    return {
+      products: products,
+      totalProducts: totalProducts,
+      limit: pagination.limit,
+      page: pagination.page,
     };
   }
 }

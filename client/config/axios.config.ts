@@ -8,7 +8,10 @@ export const api = axios.create({
   timeout: 10000,
 });
 
-// lấy AccessToken từ useAuthStore (Zustand) và gắn vào header Authorization.
+/* 
+- Xử lí request từ front -> back
++ lấy AccessToken từ useAuthStore (Zustand) và gắn vào header Authorization.
+*/
 api.interceptors.request.use((config) => {
   const { accessToken } = useAuthStore.getState();
 
@@ -19,7 +22,10 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Xử lí api nếu accessToken hết hạn tự động xin cấp accessToken mới với số lần xin thử tối đa là 4
+/* 
+- Xử lí response từ back -> front
+Xử lí api nếu accessToken hết hạn tự động xin cấp accessToken mới với số lần xin thử tối đa là 4
+*/
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -31,7 +37,7 @@ api.interceptors.response.use(
       originalRequest.url.includes("/auth/signUp") ||
       originalRequest.url.includes("/auth/refresh")
     ) {
-      return Promise.reject();
+      return Promise.reject(error);
     }
 
     originalRequest._retryCount = originalRequest._retryCount || 0;
@@ -40,9 +46,13 @@ api.interceptors.response.use(
       originalRequest._retryCount += 1;
       try {
         // Gọi API để xin Access Token mới
-        const res = await api.post(API_ROUTES.auth.refresh, {
-          withCredentials: true,
-        });
+        const res = await api.post(
+          API_ROUTES.auth.refresh,
+          {},
+          {
+            withCredentials: true,
+          }
+        );
         // Lấy token mới
         const newAccessToken = res.data.accessToken;
 

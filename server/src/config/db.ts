@@ -38,7 +38,6 @@ class Database {
         ssl: { rejectUnauthorized: false },
       });
     }
-
     return global._pgPool;
   }
 }

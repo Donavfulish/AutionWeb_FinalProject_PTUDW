@@ -1,9 +1,6 @@
 import { api, safeRequest } from "../config/axios.config";
 import API_ROUTES from "../../shared/src/api";
-import {
-  CreateAnswer,
-  CreateQuestion,
-} from "../../shared/src/types";
+import { CreateAnswer, CreateQuestion } from "../../shared/src/types";
 
 // Một hàm để tạo kết nối tới endpoint bên backend
 // Không được biết gì về frontend cả
@@ -17,20 +14,30 @@ export class ProductService {
     });
   }
 
-   static async getProductsBySearch(query: string, limit: number, page: number): Promise<any> {
+  static async getProductsBySearch(
+    query: string,
+    limit: number,
+    page: number
+  ): Promise<any> {
     return safeRequest(async () => {
-      const res = await api.get(API_ROUTES.product.getProductsBySearch(query, limit, page));
+      const res = await api.get(
+        API_ROUTES.product.getProductsBySearch(query, limit, page)
+      );
       return res.data;
     });
   }
 
-   static async getProductsBySearchSuggestion(query: string, limit: number): Promise<any> {
+  static async getProductsBySearchSuggestion(
+    query: string,
+    limit: number
+  ): Promise<any> {
     return safeRequest(async () => {
-      const res = await api.get(API_ROUTES.product.getProductsBySearchSuggestion(query, limit));
+      const res = await api.get(
+        API_ROUTES.product.getProductsBySearchSuggestion(query, limit)
+      );
       return res.data;
     });
   }
-
 
   static async getProductTop(): Promise<any> {
     return safeRequest(async () => {
@@ -89,13 +96,17 @@ export class ProductService {
   }
   static async getBiddingProduct(limit: number, page: number): Promise<any> {
     return safeRequest(async () => {
-      const res = await api.get(API_ROUTES.product.getBiddingProduct(limit, page));
+      const res = await api.get(
+        API_ROUTES.product.getBiddingProduct(limit, page)
+      );
       return res.data;
     });
   }
   static async getWinningProduct(limit: number, page: number): Promise<any> {
     return safeRequest(async () => {
-      const res = await api.get(API_ROUTES.product.getWinningProduct(limit, page));
+      const res = await api.get(
+        API_ROUTES.product.getWinningProduct(limit, page)
+      );
       return res.data;
     });
   }
@@ -132,7 +143,20 @@ export class ProductService {
 
   static async getProductQuestion(id: number): Promise<any> {
     return safeRequest(async () => {
-      const res = await api.get(API_ROUTES.product.geProductQuestion(id));
+      const res = await api.get(API_ROUTES.product.getProductQuestion(id));
+      return res.data;
+    });
+  }
+
+  static async getProductQuestionsByPage(
+    id: number,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<any> {
+    return safeRequest(async () => {
+      const res = await api.get(
+        API_ROUTES.product.getProductQuestionsByPage(id, page, limit)
+      );
       return res.data;
     });
   }

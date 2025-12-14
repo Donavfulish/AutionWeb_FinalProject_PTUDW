@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { RegisterRequest, SignRequest } from "../../shared/src/types";
-import { toast } from "sonner";
 import { authService } from "@/services/authService";
 import { AuthState } from "@/types/store";
 
@@ -56,10 +55,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // goi api
 
       await authService.signUp(user);
-      toast.success("Đăng kí thành công");
     } catch (error) {
       console.log(error);
-      toast.error("Đăng kí không thành công");
     } finally {
       set({ loading: false });
     }
@@ -79,14 +76,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       set({ loading: true });
 
+      // Khi đăng nhập thành công thì lấy accessToken của user đó
       const { accessToken } = await authService.signIn(user);
       get().setAccessToken(accessToken);
-      // Lấy thông tin về user đang đăng nhập
+
+      // Lấy thông tin về user đang đăng nhập và lưu thông tin user vào trong store
       await get().fetchMe();
-      toast.success("Chào mừng bạn quay lại với trang của chúng tôi");
     } catch (error) {
       console.log(error);
-      toast.error("Đăng nhập không thành công");
     } finally {
       set({ loading: false });
     }
@@ -103,10 +100,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       get().clearState();
       await authService.signOut();
-      toast.success("Đăng xuất thành công");
     } catch (error) {
       console.log(error);
-      toast.error("Đăng xuất không thành công");
     }
   },
 
@@ -127,7 +122,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error) {
       console.log(error);
       set({ user: null, accessToken: null });
-      toast.error("Lỗi xảy ra khi lấy dữ liệu từ người dùng");
     } finally {
       set({ loading: false });
     }
@@ -157,7 +151,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     } catch (error) {
       console.log(error);
-      toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại");
       get().clearState();
     } finally {
       set({ loading: false });
