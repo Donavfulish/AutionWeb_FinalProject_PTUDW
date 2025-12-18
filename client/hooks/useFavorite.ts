@@ -2,15 +2,21 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { FavoriteService } from "@/services/favoriteService";
 import { STALE_10_MIN } from "@/config/query.config";
 import { Pagination } from "../../shared/src/types/Pagination";
+import { useAuthStore } from "@/store/auth.store";
+import { toast } from "react-toastify";
 
 class FavoriteHook {
   static useAllFavorite() {
+    const user = useAuthStore((s) => s.user);
+    const userId = user?.id;
     return useQuery({
-      queryKey: ["favorite_product"],
+      queryKey: ["favorite_product", userId],
 
       queryFn: () => FavoriteService.getAllFavorite(),
 
       staleTime: STALE_10_MIN,
+
+      enabled: !!userId,
 
       select: (data) => {
         return data.data.allFavorite;
@@ -18,11 +24,14 @@ class FavoriteHook {
     });
   }
   static useFavorite(pagination: Pagination) {
+    const user = useAuthStore((s) => s.user);
+    const userId = user?.id;
     return useQuery({
-      queryKey: ["favorite_product", pagination.page, pagination.limit],
+      queryKey: ["favorite_product", userId, pagination.page, pagination.limit],
 
       queryFn: () => FavoriteService.getFavorite(pagination),
 
+      enabled: !!userId,
       staleTime: STALE_10_MIN,
 
       select: (data) => {
@@ -42,6 +51,9 @@ class FavoriteHook {
         queryClient.invalidateQueries({
           queryKey: ["favorite_product"],
         });
+      },
+      onError: (error) => {
+        toast.error(error.message);
       },
     });
   }

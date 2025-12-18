@@ -13,7 +13,6 @@ export default function FavoriteButton({
   onClick,
 }: FavoriteButtonProps) {
   const [favorite, setFavorite] = useState<boolean>(isFavorite);
-
   useEffect(() => {
     setFavorite(isFavorite);
   }, [isFavorite]);

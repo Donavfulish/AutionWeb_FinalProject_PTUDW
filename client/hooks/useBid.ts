@@ -11,7 +11,6 @@ class BidHook {
       staleTime: STALE_10_MIN,
       enabled: !!product_id,
       select: (data) => {
-        console.log("bid log", data);
         return data.data.bid_logs;
       },
     });

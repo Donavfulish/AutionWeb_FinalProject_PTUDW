@@ -33,7 +33,6 @@ const SoldProduct = ({ product, rater_id }: SoldProps) => {
     }
     setOpenPopup(false);
   };
-  console.log(product);
   return (
     <>
       <RatingPopup

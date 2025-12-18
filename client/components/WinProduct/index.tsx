@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { WinningProduct } from "../../../shared/src/types";
-import { formatCurrency } from "@/app/product/[product_slug]/components/Question";
-
+import { formatCurrency } from "@/app/(MainLayout)/product/[product_slug]/components/Question";
 const WinProduct = ({ product }: { product: WinningProduct }) => {
   return (
     <div className="flex items-center justify-between bg-white border border-gray-100 rounded-lg shadow-xs p-4 w-full">

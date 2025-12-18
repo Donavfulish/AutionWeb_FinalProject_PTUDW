@@ -3,11 +3,15 @@
 import Link from "next/link";
 import { FC, SVGProps, useState } from "react";
 import RenderIcon from "../RenderIcon";
+import { useAuthStore } from "@/store/auth.store";
+import { USER_ROLES } from "@/shared/role";
+export type UserRole = "guest" | "bidder" | "seller" | "admin" | undefined;
 export interface UserCategory {
   id: number;
   name: string;
   slug: string;
   icon?: FC<SVGProps<SVGSVGElement>>;
+  roles: UserRole[];
 }
 
 export default function UserCategoryTable({
@@ -19,8 +23,14 @@ export default function UserCategoryTable({
   const handleClick = (id: number) => {
     setIdCurrent(id);
   };
+  const user = useAuthStore((s) => s.user);
+  const isBidder = user?.role == USER_ROLES.BIDDER;
   return (
-    <div className="relative w-60 h-125 flex flex-col bg-white border-2 border-gray-200 rounded-xl py-4 pl-4 pr-2 shadow-sm">
+    <div
+      className={`relative w-60 ${
+        isBidder ? "h-90" : "h-125"
+      }  flex flex-col bg-white border-2 border-gray-200 rounded-xl py-4 pl-4 pr-2 shadow-sm`}
+    >
       <p className="text-xl font-medium">Hồ sơ</p>
       <div className="grow overflow-y-auto minimal-scrollbar">
         {userCategories.map((item, index) => {

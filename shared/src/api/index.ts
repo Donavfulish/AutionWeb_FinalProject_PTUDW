@@ -3,6 +3,7 @@ const USER_API = `${BASE_API}/user`;
 const UPGRADE_API = `${BASE_API}/upgrade`;
 const RATING_API = `${BASE_API}/rating`;
 const PRODUCT_API = `${BASE_API}/product`;
+const AUTH_API = `${BASE_API}/auth`;
 const CATEGORY_API = `${BASE_API}/category`;
 const BID_API = `${BASE_API}/bid`;
 const FAVORITE_API = `${BASE_API}/favorite`;
@@ -20,6 +21,7 @@ const API_ROUTES = {
     getProfile: () => `${USER_API}/profile`, //GET
     updateProfile: `${USER_API}/profile`, //PATCH
     updatePassword: `${USER_API}/password`, //PATCH
+    fetchMe: `${USER_API}/me`,
   },
   upgrade: {
     getUpgradeRequests: (pagination: Pagination) => `${UPGRADE_API}/request`, //GET
@@ -58,6 +60,12 @@ const API_ROUTES = {
       `${RATING_API}/${userId}/${offset}`, //GET
     getTotalRating: (userId: number) => `${RATING_API}/total/${userId}`, //GET
     createRating: `${RATING_API}`, //POST
+  },
+  auth: {
+    createAccount: `${AUTH_API}/signUp`,
+    signIn: `${AUTH_API}/signIn`,
+    signOut: `${AUTH_API}/signOut`,
+    refresh: `${AUTH_API}/refresh`,
   },
   product: {
     getProducts: (pagination: Pagination) =>

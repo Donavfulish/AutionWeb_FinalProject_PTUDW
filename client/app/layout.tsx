@@ -1,9 +1,7 @@
 // app/layout.tsx
-import { Footer } from "@/components/Footer/Footer";
 import "./globals.css";
 import { Providers } from "./providers";
-import Header from "@/components/Header";
-
+import { ToastContainer } from "react-toastify";
 export default function RootLayout({
   children,
 }: {
@@ -12,13 +10,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers>
-          <Header />
-          <div className="mt-[100px] flex container-layer gap-8 mb-[50px]">
-            {children}
-          </div>
-          <Footer />
-        </Providers>
+        <Providers>{children}</Providers>
+        <ToastContainer />
       </body>
     </html>
   );

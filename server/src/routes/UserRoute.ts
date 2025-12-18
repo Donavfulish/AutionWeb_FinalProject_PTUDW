@@ -3,6 +3,8 @@ import { UserController } from "../controllers/UserController";
 import { UserService } from "../services/UserService";
 import { BaseController } from "../controllers/BaseController";
 import multer from "multer";
+import { protectedRoutes } from "../middlewares/authMiddleware";
+import { fetchMe } from "../controllers/AuthController";
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -16,6 +18,7 @@ export class UserRoute extends BaseRoute {
   }
 
   initRoutes() {
+    this.router.use(protectedRoutes);
     this.router.delete(
       "/:id",
       BaseController.handleRequest(
@@ -28,7 +31,7 @@ export class UserRoute extends BaseRoute {
         this.controller.getUsers.bind(this.controller)
       )
     );
-
+    this.router.get("/me", fetchMe);
     this.router.get(
       "/profile",
       BaseController.handleRequest(

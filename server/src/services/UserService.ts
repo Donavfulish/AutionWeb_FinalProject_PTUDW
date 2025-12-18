@@ -4,7 +4,6 @@ import { createSlugUnique } from "../utils";
 import { BaseService } from "./BaseService";
 import { ProductService } from "./ProductService";
 import { R2Service } from "./R2Service";
-
 interface UpdateUserPayload {
   id: number;
   name: string | "";
@@ -44,7 +43,7 @@ export class UserService extends BaseService {
   async getProfile(id: number) {
     const sql = `
             SELECT * FROM admin.users
-            WHERE id = $1 
+            WHERE id = $1
             `;
     const params = [id];
     const profile = await this.safeQuery(sql, params);

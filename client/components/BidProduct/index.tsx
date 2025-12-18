@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { BiddingProduct } from "../../../shared/src/types";
 import Link from "next/link";
-import { formatCurrency } from "@/app/product/[product_slug]/components/Question";
+import { formatCurrency } from "@/app/(MainLayout)/product/[product_slug]/components/Question";
 import { defaultImage } from "@/app/const";
 
 const BidProduct = ({ product }: { product: BiddingProduct }) => {
