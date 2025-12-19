@@ -41,6 +41,7 @@ class BidHook {
         queryClient.invalidateQueries({
           queryKey: ["product_by_slug", params.product_slug],
         });
+       
       },
     });
   }

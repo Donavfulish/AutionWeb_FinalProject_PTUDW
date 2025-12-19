@@ -87,13 +87,14 @@ export class UpgradeService extends BaseService {
         bidder_created_at,
         ...rest
       } = r;
+
       return {
         ...rest,
         bidder: {
           name: bidder_name,
           email: bidder_email,
-          positive_points,
-          negative_points,
+          negative_points: negative_points === null ? 0 : negative_points,
+          positive_points: positive_points === null ? 0 : positive_points,
           created_at: bidder_created_at,
         },
       };

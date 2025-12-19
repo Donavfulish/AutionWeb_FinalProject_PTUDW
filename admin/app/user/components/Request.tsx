@@ -175,12 +175,17 @@ export const Request = () => {
                 </thead>
                 <tbody>
                   {requests.map((r: UpgradeRequestPreview, index: number) => {
-                    const point = Math.round(
-                      (Number(r.bidder.positive_points) /
-                        (Number(r.bidder.positive_points) +
-                          Number(r.bidder.negative_points))) *
-                        100
-                    );
+                    let point = 100;
+                    if (
+                      r.bidder.positive_points + r.bidder.negative_points !=
+                      0
+                    )
+                      point = Math.round(
+                        (Number(r.bidder.positive_points) /
+                          (Number(r.bidder.positive_points) +
+                            Number(r.bidder.negative_points))) *
+                          100
+                      );
                     return (
                       <tr
                         key={index}

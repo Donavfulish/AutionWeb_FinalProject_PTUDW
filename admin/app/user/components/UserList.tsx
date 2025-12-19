@@ -52,6 +52,7 @@ export const UserList = () => {
     }
     setIsPopup(false);
   };
+  console.log(users);
   return (
     <>
       {isLoading || isDeletingUser ? (
@@ -86,12 +87,15 @@ export const UserList = () => {
                   </thead>
                   <tbody>
                     {users.map((item: User, index: number) => {
-                      const point = Math.round(
-                        (Number(item.positive_points) /
-                          (Number(item.positive_points) +
-                            Number(item.negative_points))) *
-                          100
-                      );
+                      let point = 100;
+                      if (item.positive_points + item.negative_points != 0)
+                        point = Math.round(
+                          (Number(item.positive_points) /
+                            (Number(item.positive_points) +
+                              Number(item.negative_points))) *
+                            100
+                        );
+
                       return (
                         <tr
                           key={index}
