@@ -10,7 +10,7 @@ export class FavoriteController extends BaseController {
   async getFavorite(req: Request, res: Response) {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-     const userId = Number(req.user?.id);
+    const userId = Number(req.user?.id);
     const data = await this.service.getFavorite(userId, page, limit);
     return data;
   }

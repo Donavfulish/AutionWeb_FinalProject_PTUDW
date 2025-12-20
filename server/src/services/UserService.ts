@@ -10,6 +10,7 @@ interface UpdateUserPayload {
   email: string | "";
   address: string | "";
   profile_image: Express.Multer.File;
+  day_of_birth: Date
 }
 
 export class UserService extends BaseService {
@@ -72,6 +73,7 @@ export class UserService extends BaseService {
     return totalUsers[0]?.total;
   }
   async updateProfile(payload: UpdateUserPayload) {
+    console.log(payload, typeof payload.day_of_birth);
     const r2 = R2Service.getInstance();
     const filesArray = payload.profile_image ? [payload.profile_image] : [];
     const [avatarUrl] = await r2.uploadFilesToR2(filesArray, "user");
@@ -80,11 +82,12 @@ export class UserService extends BaseService {
             SET name = $1,
                 email = $2,
                 address = $3,
-                profile_img = $4
+                profile_img = $4,
+                day_of_birth = $6
             WHERE id = $5
             `;
-    const { name, email, address, id } = payload;
-    const params = [name, email, address, avatarUrl, id];
+    const { name, email, address, id, day_of_birth } = payload;
+    const params = [name, email, address, avatarUrl, id, day_of_birth];
     const result = await this.safeQuery(sql, params);
 
     return result;

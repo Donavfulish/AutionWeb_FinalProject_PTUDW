@@ -7,8 +7,9 @@ import UserHook from "@/hooks/useUser";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { EditProfileInputs, EditProfileSchema } from "./validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User } from "../../../../shared/src/types";
+import { User } from "../../../../../shared/src/types";
 import { url } from "inspector";
+import { formatDate } from "../../product/[product_slug]/components/Question";
 
 interface EditDetailProps {
   user: User;
@@ -43,6 +44,9 @@ export default function EditDetail({
       name: user.name || "",
       email: user.email || "",
       address: user.address || "",
+      day_of_birth: user.day_of_birth
+      ? formatDate(user.day_of_birth) // YYYY-MM-DD
+      : "",
     },
     mode: "onChange",
   });
@@ -54,6 +58,10 @@ export default function EditDetail({
       formData.append("name", data.name);
       formData.append("email", data.email);
       formData.append("address", data.address);
+      if (data.day_of_birth) {
+        formData.append("day_of_birth", data.day_of_birth); 
+      }
+
 
       if (avatarFile) {
         formData.append("profile_img", avatarFile); // file object
@@ -95,6 +103,10 @@ export default function EditDetail({
       setValue("name", user.name || "");
       setValue("email", user.email || "");
       setValue("address", user.address || "");
+      setValue(
+      "day_of_birth",
+      user.day_of_birth ? formatDate(user.day_of_birth) : ""
+    );
     }
   }, [user, setValue]);
 
@@ -158,6 +170,21 @@ export default function EditDetail({
               {errors.address.message}
             </p>
           )}
+          <label htmlFor="day_of_birth" className="mt-3 font-medium text-sm">
+            Ngày sinh
+          </label>
+          <input
+            {...register("day_of_birth")}
+            id="day_of_birth"
+            type="date"
+            className="text-black rounded-lg mr-10"
+            />
+            {errors.day_of_birth && (
+            <p className="text-red-500 text-xs mt-1">
+                {errors.day_of_birth.message}
+            </p>
+          )}
+
 
           <button type="submit" hidden aria-hidden="true" tabIndex={-1} />
         </form>

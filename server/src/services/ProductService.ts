@@ -36,7 +36,7 @@ export class ProductService extends BaseService {
 
   async getTopBidder(productId: number): Promise<ShortUser | null> {
     const sql = `  
-    SELECT u.id, u.name, u.profile_img
+    SELECT u.id, u.name, u.profile_img, u.positive_points, u.negative_points
     FROM admin.users u
     JOIN product.products p ON p.top_bidder_id = u.id
     WHERE p.id = $1

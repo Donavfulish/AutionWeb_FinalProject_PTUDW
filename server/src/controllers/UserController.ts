@@ -28,7 +28,7 @@ export class UserController extends BaseController {
 
   async updateProfile(req: Request, res: Response) {
     const files = req.file;
-    const userId = req.headers["user-id"];
+    const userId = Number(req.user?.id)
     const result = await this.service.updateProfile({
       profile_image: files,
       ...req.body,

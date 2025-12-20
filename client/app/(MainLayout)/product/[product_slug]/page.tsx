@@ -11,7 +11,7 @@ import { ImageCarousel } from "@/components/ImageCarousel";
 import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ProductHook from "@/hooks/useProduct";
 import { useParams, useRouter } from "next/navigation";
 import { Question, formatCurrency, formatDate } from "./components/Question";
@@ -151,6 +151,29 @@ export default function ProductPage() {
     FavoriteHook.useAddFavorite();
   const { mutate: removeFavorite, isPending: isRemoveFavorite } =
     FavoriteHook.useRemoveFavorite();
+
+  const sellerRating = useMemo(() => {
+    if (!product?.seller) return 0
+
+    const { positive_points, negative_points } = product.seller
+    const total = positive_points + negative_points
+
+    if (total === 0) return 0
+
+    return Math.round((positive_points / total) * 100)
+  }, [product?.seller])
+
+  const bidderRating = useMemo(() => {
+    if (!product?.top_bidder) return 0
+
+    const { positive_points, negative_points } = product.top_bidder
+    const total = positive_points + negative_points
+
+    if (total === 0) return 0
+
+    return Math.round((positive_points / total) * 100)
+  }, [product?.top_bidder])
+
 
   useEffect(() => {
     if (favorite_products && product) {
@@ -305,17 +328,27 @@ export default function ProductPage() {
                       <UserOutlineIcon />
                       Người ra giá cao nhất
                     </p>
-                    {product.top_bidder ? (
-                      product.top_bidder.id === user?.id ? (
-                        `${product.top_bidder.name} (Bạn)`
-                      ) : (
-                        `${product.top_bidder.name[0]}***${product.top_bidder.name[product.top_bidder.name.length - 1]}`
-                      )
-                    ) : (
-                      <p className=" ml-4 text-[16px] font-semibold text-slate-900">
-                        Chưa có
-                      </p>
-                    )}
+                    {product.top_bidder ? 
+                        <>
+                            <p className="font-semibold text-slate-900 mb-1"> 
+                                product.top_bidder.id === user?.id ? (
+                                    `${product.top_bidder.name} (Bạn)`
+                                ) : (
+                                    `${product.top_bidder.name[0]}***${product.top_bidder.name[product.top_bidder.name.length - 1]}`
+                                )
+                            </p>
+                            <p className="text-xs text-slate-600">
+                                {bidderRating !== 0 ? 
+                                    `⭐${" "}${bidderRating}%` : `Chưa có đánh giá`
+                                }
+                            </p>
+                        </> : 
+                        (
+                        <p className=" ml-4 text-[16px] font-semibold text-slate-900">
+                            Chưa có
+                        </p>
+                        )
+                    }
                   </div>
                 </div>
 
@@ -339,14 +372,9 @@ export default function ProductPage() {
                         {product.seller.name}
                       </p>
                       <p className="text-xs text-slate-600">
-                        ⭐{" "}
-                        {Math.round(
-                          (product.seller.positive_points /
-                            (product.seller.positive_points +
-                              product.seller.negative_points)) *
-                            100
-                        )}
-                        {"%"}
+                        {sellerRating !== 0 ? 
+                            `⭐${" "}${sellerRating}%` : `Chưa có đánh giá`
+                        }
                       </p>
                     </div>
                   </div>

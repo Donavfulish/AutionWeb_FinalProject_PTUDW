@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { CalendarIcon, MailIcon } from "lucide-react"
 import Avatar from "./Avatar"
 import { User } from "../../../../../shared/src/types"
+import { formatDate } from "../../product/[product_slug]/components/Question"
 
 export default function ViewDetail({ user }: { user: User }) {
 
@@ -64,13 +65,18 @@ export default function ViewDetail({ user }: { user: User }) {
                 <p className="font-medium text-sm">Email</p>
                 <p className="text-gray-600">{user.email}</p>
             </div>
-            {/* <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1">
                 <p className="font-medium text-sm">Ngày sinh</p>
-                <p className="text-gray-600">{user.</p>
-            </div> */}
+                <p className="text-gray-600">{
+                    user.day_of_birth ? 
+                    new Date(user.day_of_birth).toLocaleDateString() : 
+                    'Chưa cập nhật ngày sinh'
+                    }
+                </p>
+            </div>
             <div className="flex flex-col gap-1">
                 <p className="font-medium text-sm">Địa chỉ</p>
-                <p className="text-gray-600">{user.address}</p>
+                <p className="text-gray-600">{user.address ? user.address : 'Chưa cập nhật địa chỉ'}</p>
             </div>
         </section>
     </div>

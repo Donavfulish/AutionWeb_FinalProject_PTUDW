@@ -10,6 +10,7 @@ export type User = {
   negative_points: number;
   created_at: Date;
   updated_at: Date | null;
+  day_of_birth: Date | null;
   // user_name: string;
   // password_hash: string;
 };

@@ -107,6 +107,7 @@ export class ProductRoute extends BaseRoute {
     );
     this.router.post(
       "/",
+      protectedRoutes,
       upload.any(),
       BaseController.handleRequest(
         this.controller.createProduct.bind(this.controller)
@@ -114,18 +115,21 @@ export class ProductRoute extends BaseRoute {
     );
     this.router.delete(
       "/:productId",
+      protectedRoutes,
       BaseController.handleRequest(
         this.controller.deleteProductById.bind(this.controller)
       )
     );
     this.router.patch(
       "/:productId/description",
+      protectedRoutes,
       BaseController.handleRequest(
         this.controller.updateProductDescription.bind(this.controller)
       )
     );
     this.router.get(
       "/:productId/questions",
+      protectedRoutes,
       BaseController.handleRequest(
         this.controller.getQuestions.bind(this.controller)
       )
@@ -138,18 +142,21 @@ export class ProductRoute extends BaseRoute {
     );
     this.router.post(
       "/:productId/questions",
+      protectedRoutes,
       BaseController.handleRequest(
         this.controller.createQuestion.bind(this.controller)
       )
     );
     this.router.post(
       "/:productId/:questionId/answers",
+      protectedRoutes,
       BaseController.handleRequest(
         this.controller.createAnswer.bind(this.controller)
       )
     );
     this.router.patch(
       "/:productId/extend",
+      protectedRoutes,
       BaseController.handleRequest(
         this.controller.updateProductExtend.bind(this.controller)
       )

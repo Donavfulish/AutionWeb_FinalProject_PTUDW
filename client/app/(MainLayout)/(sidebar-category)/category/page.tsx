@@ -1,8 +1,8 @@
 "use client";
 import { ArrowRight } from "@/components/icons";
 import Link from "next/link";
-import { ProductPreview } from "../../../../shared/src/types";
-import { CategoryProduct } from "../../../../shared/src/types";
+import { ProductPreview } from "../../../../../shared/src/types";
+import { CategoryProduct } from "../../../../../shared/src/types";
 import ProductCard from "@/components/ProductCard";
 import ProductHook from "@/hooks/useProduct";
 import LoadingSpinner from "@/components/LoadingSpinner";
