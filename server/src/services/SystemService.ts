@@ -46,7 +46,7 @@ export class SystemService extends BaseService {
                 SET new_product_min_time = $1
                 `;
     const params = [time];
-
+    
     return await this.safeQuery(sql, params);
   }
 }

@@ -17,6 +17,7 @@ export class SystemController extends BaseController {
 
   async getProductMinTime(req: Request, res: Response) {
     const result = await this.service.getProductMinTime();
+    console.log(result);
     return { result };
   }
   async updateProductMinTime(req: Request, res: Response) {
