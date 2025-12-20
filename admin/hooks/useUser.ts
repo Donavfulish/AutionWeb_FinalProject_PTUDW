@@ -2,7 +2,7 @@ import { STALE_10_MIN } from "@/config/query.config";
 import { UserService } from "@/services/userService";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pagination } from "../../shared/src/types/Pagination";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 
 interface UpdateUserPayload {
   name: string | "";
