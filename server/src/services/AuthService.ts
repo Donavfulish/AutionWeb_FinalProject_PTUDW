@@ -2,9 +2,12 @@ import {
   CreateUser,
   UserEntity,
   CreateRefreshToken,
-  User,
   RefreshToken,
 } from "../../../shared/src/types";
+import {
+  CreateResetPasswordOTP,
+  UserOTP,
+} from "../../../shared/src/types/ResetPasswordOTP";
 import { BaseService } from "./BaseService";
 export class AuthService extends BaseService {
   private static instance: AuthService;
@@ -32,6 +35,26 @@ export class AuthService extends BaseService {
               WHERE user_name = $1
               `;
     const params = [userName];
+    const profile: UserEntity[] = await this.safeQuery(sql, params);
+
+    return profile[0];
+  }
+
+  async getUserByUserNameAndEmail(
+    userName: string,
+    email: string
+  ): Promise<UserEntity | undefined> {
+    const sql = `
+              SELECT 
+                u.id,
+                u.name,
+                u.user_name,
+                u.email,
+                u.password_hash
+              FROM admin.users u
+              WHERE user_name = $1 and email = $2
+              `;
+    const params = [userName, email];
     const profile: UserEntity[] = await this.safeQuery(sql, params);
 
     return profile[0];
@@ -115,4 +138,60 @@ export class AuthService extends BaseService {
     const result: RefreshToken[] = await this.safeQuery(sql, [token]);
     return result[0];
   }
+
+  async createResetPasswordOTP(resetPasswordOTP: CreateResetPasswordOTP) {
+    const sql = `
+      INSERT INTO admin.reset_password_otp (
+      user_id,
+      OTP_hash,
+      expired_at
+      )
+      VALUES ($1, $2, $3)
+      RETURNING *
+      `;
+    await this.safeQuery(sql, [
+      resetPasswordOTP.user_id,
+      resetPasswordOTP.otp_hash,
+      resetPasswordOTP.expired_at,
+    ]);
+  }
+
+  async getResetPasswordOTPById(userId: number): Promise<UserOTP | undefined> {
+    const sql = `
+      SELECT user_id, otp_hash, is_verified, expired_at
+      FROM admin.reset_password_otp
+      WHERE user_id = $1
+        AND is_verified = FALSE
+       AND expired_at > NOW();
+      `;
+    const res: UserOTP[] = await this.safeQuery(sql, [userId]);
+    return res[0];
+  }
+  async updateHashPassword(userId: number, passwordHash: string){
+    const sql = `
+      UPDATE admin.users
+      SET password_hash = $1
+      WHERE user_id = $2;
+      `;
+    await this.safeQuery(sql, [passwordHash, userId]);
+  }
+  async updateResetPasswordOTP(userId: number){
+     const sql = `
+      UPDATE admin.reset_password_otp
+      SET is_verified = true
+      WHERE user_id = $1;
+      `;
+    await this.safeQuery(sql, [userId]);
+  }
+
+  async cleanupOTP(userId: number){
+       const sql = `
+      DELETE  admin.reset_password_otp
+      WHERE user_id = $1;
+      `;
+    await this.safeQuery(sql, [userId]);
+
+  }
+
+  // async updatePasswordUser()
 }

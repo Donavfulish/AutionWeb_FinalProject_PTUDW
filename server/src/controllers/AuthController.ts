@@ -1,3 +1,4 @@
+import { CreateResetPasswordOTP } from "../../../shared/src/types/ResetPasswordOTP";
 import {
   CreateRefreshToken,
   RefreshToken,
@@ -6,16 +7,21 @@ import {
   CreateUser,
   RegisterRequest,
   SignRequest,
+  UserConfirm,
+  UserEntity,
 } from "../../../shared/src/types";
 import { BaseController } from "./BaseController";
 import { Request, Response, NextFunction } from "express";
-import { UserService } from "../services/UserService";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { sendEmail } from "../utils/mailer";
+import { UserOTP } from "./../../../shared/src/types/ResetPasswordOTP";
 
 const ACCESS_TOKEN_TTL = "15m";
+const RESET_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000; // 14 days (ms)
+const RESET_PASSWORD_OTP_TTL = 5 * 60 * 1000;
 export class AuthController extends BaseController {
   constructor(service: any) {
     super(service); // inject service
@@ -162,6 +168,105 @@ export class AuthController extends BaseController {
 
     return {
       accessToken: accessToken,
+    };
+  }
+
+  async forgetPassword(req: Request, res: Response) {
+    // Kiem tra username co ton tai
+    const { username, email } = req.body;
+    if (!username || !email) {
+      throw new Error("Vui lòng nhập đủ thông tin tên đăng nhập và email");
+    }
+    const user = await this.service.getUserByUserNameAndEmail(username, email);
+    if (!user) {
+      throw new Error("Tài khoản không hợp lệ");
+    }
+
+    // Tao OTP va hash OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp_hash = await bcrypt.hash(otp, 10);
+
+    // Luu OTP hash vao db
+    const createResetPasswordOTP: CreateResetPasswordOTP = {
+      user_id: user.id,
+      otp_hash: otp_hash,
+      expired_at: new Date(Date.now() + RESET_PASSWORD_OTP_TTL),
+    };
+
+    await this.service.createResetPasswordOTP(createResetPasswordOTP);
+
+    // Gui gmail vs OTP do
+
+    await sendEmail(user.email, otp);
+
+    return {
+      message: "Gửi email thành công",
+    };
+  }
+
+  async verifyOTP(req: Request, res: Response) {
+    // 1. Kiem tra thong tin input
+    const userOTP: UserOTP = req.body;
+    if (!userOTP.user_id || !userOTP.otp) {
+      throw new Error("Thiếu thông tin user hoặc otp");
+    }
+
+    // 2. Lay thong tin user
+    const user: UserEntity = this.service.getUserById(userOTP.user_id);
+    if (!user) {
+      throw new Error("Không tồn tại thông tin người dùng");
+    }
+    const userId = user.id;
+
+    // 3. Lay record cua user o reset password otp
+    const otpRes: UserOTP = await this.service.getResetPasswordOTPById(
+      userOTP.user_id
+    );
+    if (!otpRes) {
+      throw new Error("OTP hết hạn hoặc không hợp lệ");
+    }
+
+    // 4. Kiem tra otp co hop le hay khong ?
+    const isOTPCorrect = await bcrypt.compare(userOTP.otp, otpRes.otp);
+
+    if (!isOTPCorrect) {
+      throw new Error("OTP không hợp lệ");
+    }
+
+    // 4. Đánh dấu OTP is verified
+    await this.service.updateResetPasswordOTP(userOTP.user_id);
+
+    // 5. Tao reset token (cho bước nhập mật khẩu mới)
+    const resetToken = jwt.sign(
+      { userId, type: "reset-password" },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      { expiresIn: RESET_TOKEN_TTL }
+    );
+    return {
+      message: "Xác thực OTP thành công",
+      resetToken,
+    };
+  }
+
+  async resetPassword(req: Request, res: Response) {
+    const userConfirm: UserConfirm = req.body;
+    if (!userConfirm.newPassword || !userConfirm.confirmPassword) {
+      throw new Error("Vui lòng nhập đầy đủ thông tin password");
+    }
+
+    if (userConfirm.newPassword != userConfirm.confirmPassword) {
+      throw new Error(
+        "Thông tin mật khẩu mới và xác nhận mật khẩu mới không chính xác"
+      );
+    }
+
+    const passwordHash: string = await bcrypt.hash(userConfirm.newPassword, 10);
+    await this.service.updateHashPassword(req.user?.id, passwordHash);
+
+    await this.service.cleanupOTP(req.user?.id);
+
+    return {
+      message: "Thay đổi mật khẩu thành công",
     };
   }
 }

@@ -136,9 +136,14 @@ export function SigninForm({
                 </Button>
               </Field>
               <FieldDescription className="text-center">
-                Bạn đã có tài khoản chưa?{" "}
-                <Link href="/signup" className="text-blue-500">
+                Bạn đã có tài khoản chưa?
+                <br />
+                <Link href="/sign-up" className="text-blue-500 mr-1">
                   Đăng kí
+                </Link>
+                <span className="mr-1">hoặc</span>
+                <Link href="/forget-password" className="text-blue-500">
+                  Quên tài khoản
                 </Link>
               </FieldDescription>
             </FieldGroup>

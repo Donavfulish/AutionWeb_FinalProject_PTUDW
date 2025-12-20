@@ -1,3 +1,4 @@
+import { UserConfirm } from './User';
 export type User = {
   id: number;
   name: string;
@@ -10,8 +11,6 @@ export type User = {
   negative_points: number;
   created_at: Date;
   updated_at: Date | null;
-  // user_name: string;
-  // password_hash: string;
 };
 
 export type ShortUser = Pick<User, "id" | "name" | "profile_img">;
@@ -40,3 +39,9 @@ export type UserEntity = {
   email: User["email"];
   role: User["role"]
 };
+
+export type UserConfirm = {
+  id: User["id"],
+  newPassword: string;
+  confirmPassword: string;
+}

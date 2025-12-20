@@ -3,6 +3,7 @@ import { AuthController } from "../controllers/AuthController";
 import { BaseController } from "../controllers/BaseController";
 import { AuthService } from "../services/AuthService";
 import multer from "multer";
+import { ProtectedResetPasswordRoutes } from "../middlewares/authMiddleware";
 
 const storage = multer.memoryStorage();
 
@@ -17,31 +18,49 @@ export class AuthRoute extends BaseRoute {
   initRoutes() {
     this.router.post(
       "/signUp",
-      BaseController.handleRequest(
-        this.controller.signUp.bind(this.controller)
-      )
+      BaseController.handleRequest(this.controller.signUp.bind(this.controller))
     );
 
-     this.router.post(
+    this.router.post(
       "/signIn",
-      BaseController.handleRequest(
-        this.controller.signIn.bind(this.controller)
-      )
+      BaseController.handleRequest(this.controller.signIn.bind(this.controller))
     );
 
-      this.router.post(
+    this.router.post(
       "/signOut",
       BaseController.handleRequest(
         this.controller.signOut.bind(this.controller)
       )
     );
 
-    
-      this.router.post(
+    this.router.post(
       "/refresh",
       BaseController.handleRequest(
         this.controller.refreshToken.bind(this.controller)
       )
     );
+
+    this.router.post(
+      "/forget-password",
+      BaseController.handleRequest(
+        this.controller.forgetPassword.bind(this.controller)
+      )
+    );
+
+     this.router.post(
+      "/verify-otp",
+      BaseController.handleRequest(
+        this.controller.verifyOTP.bind(this.controller)
+      )
+    );
+
+      this.router.post(
+      "/reset-password",
+      ProtectedResetPasswordRoutes,
+      BaseController.handleRequest(
+        this.controller.resetPassword.bind(this.controller)
+      )
+    );
+
   }
 }
