@@ -105,7 +105,7 @@ export default function ProductPage() {
       .refine((val) => !isNaN(Number(val)), "Giá tiền phải là số")
       .transform((val) => Number(val)),
   });
-
+  console.log(user);
   const {
     register: registerBid,
     handleSubmit: handleSubmitBid,
@@ -521,7 +521,7 @@ export default function ProductPage() {
                     </>
                   ) : (
                     <div>
-                      {order && order.buyer.id == user?.id ? (
+                      {order && order.buyer?.id == user?.id ? (
                         <div className="flex flex-row gap-2 justify-between items-center">
                           <p className="text-blue-500 text-2xl font-medium">
                             Bạn đã mua ngay sản phẩm này

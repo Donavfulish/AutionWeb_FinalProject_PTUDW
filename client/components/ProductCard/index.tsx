@@ -63,14 +63,14 @@ export default function ProductCard({
       console.error("Fail to adding or removing favorite products", e);
     }
   };
-  console.log(isHighlight);
+
   return (
     <div
       className={`border-2 relative  rounded-lg shadow-md hover:shadow-2xl  hover:border-blue-500  ${
         isHighlight ? " border-red-500" : "  border-gray-200"
       }`}
     >
-      <div className="absolute z-10">
+      <div className={`${isHighlight ? "absolute z-10" : "hidden"} `}>
         <svg
           className="w-6 h-6 text-red-500 dark:text-white"
           aria-hidden="true"
