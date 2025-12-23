@@ -130,7 +130,7 @@ export function SignupForm({
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="confirm-password">
-                      Confirm Password
+                      Xác nhận mật khẩu
                     </FieldLabel>
                     <Input
                       id="confirm-password"

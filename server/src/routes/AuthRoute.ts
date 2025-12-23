@@ -2,10 +2,7 @@ import { BaseRoute } from "./BaseRoute";
 import { AuthController } from "../controllers/AuthController";
 import { BaseController } from "../controllers/BaseController";
 import { AuthService } from "../services/AuthService";
-import multer from "multer";
 import { ProtectedResetPasswordRoutes } from "../middlewares/authMiddleware";
-
-const storage = multer.memoryStorage();
 
 export class AuthRoute extends BaseRoute {
   private controller: AuthController;
@@ -47,20 +44,19 @@ export class AuthRoute extends BaseRoute {
       )
     );
 
-     this.router.post(
+    this.router.post(
       "/verify-otp",
       BaseController.handleRequest(
         this.controller.verifyOTP.bind(this.controller)
       )
     );
 
-      this.router.post(
+    this.router.post(
       "/reset-password",
       ProtectedResetPasswordRoutes,
       BaseController.handleRequest(
         this.controller.resetPassword.bind(this.controller)
       )
     );
-
   }
 }

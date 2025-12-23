@@ -1,29 +1,38 @@
 import {
+  ForgetPasswordRequest,
   RegisterRequest,
+  ResetPasswordRequest,
   SignRequest,
   UserEntity,
 } from "../../shared/src/types";
+import { UserOTP } from "../../shared/src/types/ResetPasswordOTP";
 
 export interface AuthState {
   /**
    * Access token (JWT) dùng cho các request cần xác thực
    */
   accessToken: string | null;
-   /**
+  /**
    * Thông tin người dùng hiện tại
    */
   user: UserEntity | null;
-   /**
-   * Trạng thái loading 
+  /**
+   * Trạng thái loading
    */
   loading: boolean;
 
-    /**
+  forgetUserId: number | null;
+
+  resetToken: string | null,
+
+  /**
    * Cập nhật access token vào store
    *
    * @param accessToken JWT access token
    */
   setAccessToken: (accessToken: string) => void;
+
+  setResetToken: (resetToken: string) => void;
   /**
    * Xoá toàn bộ trạng thái xác thực
    *
@@ -33,8 +42,8 @@ export interface AuthState {
    */
   clearState: () => void;
 
-   /**
-   * Đăng ký tài khoản mới và lưu vào db 
+  /**
+   * Đăng ký tài khoản mới và lưu vào db
    *
    * @param user Dữ liệu đăng ký (email, password, ...)
    *
@@ -44,7 +53,7 @@ export interface AuthState {
    */
   signUp: (user: RegisterRequest) => Promise<void>;
 
-    /**
+  /**
    * Đăng nhập hệ thống và lưu accessToken + user vào store nếu thông tin đăng nhập là hợp lệ
    *
    * @param user Thông tin đăng nhập (email, password)
@@ -56,8 +65,8 @@ export interface AuthState {
    */
   signIn: (user: SignRequest) => Promise<void>;
 
-   /**
-   * Đăng xuất khỏi hệ thống , xoá thông tin trong store + xoá refreshToken trong db 
+  /**
+   * Đăng xuất khỏi hệ thống , xoá thông tin trong store + xoá refreshToken trong db
    *
    * @description
    * - Xoá toàn bộ auth state ở client
@@ -65,8 +74,10 @@ export interface AuthState {
    */
   signOut: () => Promise<void>;
 
-    /**
-   * Lấy thông tin người dùng hiện tại và lưu user vào store 
+  forgetPassword: (user: ForgetPasswordRequest) => Promise<void>;
+
+  /**
+   * Lấy thông tin người dùng hiện tại và lưu user vào store
    *
    * @description
    * - Gọi API GET /auth/me
@@ -75,7 +86,7 @@ export interface AuthState {
    */
   fetchMe: () => Promise<void>;
 
-    /**
+  /**
    * Tạo accessToken mới nếu refreshToken còn hạn và lưu accessToken + user vào store
    *
    * @description
@@ -88,4 +99,21 @@ export interface AuthState {
    * - Hoặc khi access token hết hạn
    */
   refresh: () => Promise<void>;
+
+
+    /**
+   * Kiểm tra OTP người dùng gửi lên, nếu thành công thì lưu  resetToken vào store 
+   *
+   * @description
+   * - Gửi request refresh token (qua httpOnly cookie)
+   * - Nhận access token mới từ server
+   * - Tự động fetch user nếu chưa có thông tin user
+   *
+   * @note
+   * - Được gọi khi reload trang (F5)
+   * - Hoặc khi access token hết hạn
+   */
+  verifyOTP: (user: UserOTP) => Promise<void>;
+
+  resetPassword: (user: ResetPasswordRequest) => Promise<void>;
 }

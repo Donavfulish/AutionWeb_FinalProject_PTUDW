@@ -1,4 +1,7 @@
-import { CreateResetPasswordOTP } from "../../../shared/src/types/ResetPasswordOTP";
+import {
+  CreateResetPasswordOTP,
+  UserHashOTP,
+} from "../../../shared/src/types/ResetPasswordOTP";
 import {
   CreateRefreshToken,
   RefreshToken,
@@ -6,6 +9,7 @@ import {
 import {
   CreateUser,
   RegisterRequest,
+  ResetPasswordRequest,
   SignRequest,
   UserConfirm,
   UserEntity,
@@ -201,6 +205,7 @@ export class AuthController extends BaseController {
 
     return {
       message: "Gửi email thành công",
+      userId: user.id,
     };
   }
 
@@ -212,14 +217,15 @@ export class AuthController extends BaseController {
     }
 
     // 2. Lay thong tin user
-    const user: UserEntity = this.service.getUserById(userOTP.user_id);
+    const user: UserEntity = await this.service.getUserById(userOTP.user_id);
     if (!user) {
       throw new Error("Không tồn tại thông tin người dùng");
     }
+    console.log(user);
     const userId = user.id;
 
     // 3. Lay record cua user o reset password otp
-    const otpRes: UserOTP = await this.service.getResetPasswordOTPById(
+    const otpRes: UserHashOTP = await this.service.getResetPasswordOTPById(
       userOTP.user_id
     );
     if (!otpRes) {
@@ -227,7 +233,7 @@ export class AuthController extends BaseController {
     }
 
     // 4. Kiem tra otp co hop le hay khong ?
-    const isOTPCorrect = await bcrypt.compare(userOTP.otp, otpRes.otp);
+    const isOTPCorrect = await bcrypt.compare(userOTP.otp, otpRes.otp_hash);
 
     if (!isOTPCorrect) {
       throw new Error("OTP không hợp lệ");
@@ -249,7 +255,12 @@ export class AuthController extends BaseController {
   }
 
   async resetPassword(req: Request, res: Response) {
-    const userConfirm: UserConfirm = req.body;
+    const userConfirm: ResetPasswordRequest = req.body;
+    const user = req.user;
+    console.log("user: ", user);
+    if (!user || !user.id) {
+      throw new Error("Phiên làm việc không hợp lệ hoặc đã hết hạn");
+    }
     if (!userConfirm.newPassword || !userConfirm.confirmPassword) {
       throw new Error("Vui lòng nhập đầy đủ thông tin password");
     }
@@ -259,14 +270,15 @@ export class AuthController extends BaseController {
         "Thông tin mật khẩu mới và xác nhận mật khẩu mới không chính xác"
       );
     }
-
+    console.log("this is user: ", user);
     const passwordHash: string = await bcrypt.hash(userConfirm.newPassword, 10);
-    await this.service.updateHashPassword(req.user?.id, passwordHash);
-
-    await this.service.cleanupOTP(req.user?.id);
+    console.log("Gia tri hash: ", passwordHash);
+    console.log("Gia tri password: ", userConfirm.newPassword);
+    await this.service.updateHashPassword(user?.id, passwordHash);
+    await this.service.cleanupOTP(user?.id);
 
     return {
-      message: "Thay đổi mật khẩu thành công",
+      message: "Thay đổi mật khẩu thành công. . Vui lòng đăng nhập lại",
     };
   }
 }

@@ -22,6 +22,19 @@ export type RegisterRequest = {
   name: User["name"];
 };
 
+export type ForgetPasswordRequest = {
+  username: string;
+  email: string;
+}
+
+
+
+export type ResetPasswordRequest = {
+  newPassword: string;
+  confirmPassword: string;
+}
+
+
 export type SignRequest = {
   username: string;
   password: string;

@@ -3,50 +3,49 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-} from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ForgetPasswordRequest, RegisterRequest } from "../../shared/src/types";
+import { ResetPasswordRequest } from "../../shared/src/types";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
 
-const forgetPasswordSchema = z.object({
-  username: z.string().min(1, "Tên đăng nhập phải có ít nhất 1 kí tự"),
-  email: z.email("Email không hợp lệ"),
-});
+const resetPasswordSchema = z
+  .object({
+    newPassword: z.string().min(8, "Mật khẩu phải có ít nhất 8 kí tự"),
+    confirmPassword: z.string().min(1, "Mật khẩu phải có ít nhất 8 kí tự"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Mật khẩu mới và xác nhận mật khẩu mới phải giống nhau",
+    path: ["confirmPassword"],
+  });
 
-type forgetPasswordFormValues = z.infer<typeof forgetPasswordSchema>;
+type resetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
-export function ForgetPasswordForm({
+export function ResetPasswordForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const { forgetPassword } = useAuthStore();
+  const { resetPassword } = useAuthStore();
   const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<forgetPasswordFormValues>({
-    resolver: zodResolver(forgetPasswordSchema),
+  } = useForm<resetPasswordFormValues>({
+    resolver: zodResolver(resetPasswordSchema),
   });
 
-  const onSubmit = async (data: forgetPasswordFormValues) => {
+  const onSubmit = async (data: resetPasswordFormValues) => {
     // goi api backend
     try {
-      const user: ForgetPasswordRequest = data;
-      await forgetPassword(user);
-      router.push("/verify-otp");
+      const user: ResetPasswordRequest = data;
+      await resetPassword(user);
+      router.push("/login");
     } catch (error) {
       console.log(error);
     }
@@ -64,30 +63,28 @@ export function ForgetPasswordForm({
                 </p>
               </div>
               <Field>
-                <FieldLabel htmlFor="username">Tên đăng nhập</FieldLabel>
+                <FieldLabel htmlFor="newPassword">Mật khẩu mới</FieldLabel>
                 <Input
-                  id="username"
-                  type="text"
-                  placeholder="mtri123"
-                  {...register("username")}
+                  id="newPassword"
+                  type="password"
+                  {...register("newPassword")}
                 />
-                {errors.username && (
+                {errors.newPassword && (
                   <p className="text-destructive text-sm">
-                    {errors.username.message}
+                    {errors.newPassword.message}
                   </p>
                 )}
               </Field>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="confirmPassword">Mật khẩu mới</FieldLabel>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  {...register("email")}
+                  id="confirmPassword"
+                  type="password"
+                  {...register("confirmPassword")}
                 />
-                {errors.email && (
+                {errors.confirmPassword && (
                   <p className="text-destructive text-sm">
-                    {errors.email.message}
+                    {errors.confirmPassword.message}
                   </p>
                 )}
               </Field>

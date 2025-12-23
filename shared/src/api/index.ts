@@ -66,6 +66,9 @@ const API_ROUTES = {
     signIn: `${AUTH_API}/signIn`,
     signOut: `${AUTH_API}/signOut`,
     refresh: `${AUTH_API}/refresh`,
+    forgetPassword: `${AUTH_API}/forget-password`,
+    verifyOTP: `${AUTH_API}/verify-otp`,
+    resetPassword: `${AUTH_API}/reset-password`,
   },
   product: {
     getProducts: (pagination: Pagination) =>

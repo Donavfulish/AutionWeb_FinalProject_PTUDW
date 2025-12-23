@@ -167,16 +167,16 @@ export class AuthService extends BaseService {
     const res: UserOTP[] = await this.safeQuery(sql, [userId]);
     return res[0];
   }
-  async updateHashPassword(userId: number, passwordHash: string){
+  async updateHashPassword(userId: number, passwordHash: string) {
     const sql = `
       UPDATE admin.users
       SET password_hash = $1
-      WHERE user_id = $2;
+      WHERE id = $2;
       `;
     await this.safeQuery(sql, [passwordHash, userId]);
   }
-  async updateResetPasswordOTP(userId: number){
-     const sql = `
+  async updateResetPasswordOTP(userId: number) {
+    const sql = `
       UPDATE admin.reset_password_otp
       SET is_verified = true
       WHERE user_id = $1;
@@ -184,13 +184,12 @@ export class AuthService extends BaseService {
     await this.safeQuery(sql, [userId]);
   }
 
-  async cleanupOTP(userId: number){
-       const sql = `
-      DELETE  admin.reset_password_otp
-      WHERE user_id = $1;
+  async cleanupOTP(userId: number) {
+    const sql = `
+      DELETE FROM admin.reset_password_otp
+      WHERE user_id = $1
       `;
     await this.safeQuery(sql, [userId]);
-
   }
 
   // async updatePasswordUser()
