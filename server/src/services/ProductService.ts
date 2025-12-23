@@ -19,6 +19,7 @@ import { createSlugUnique } from "../utils";
 import { R2Service } from "./R2Service";
 import { Pagination } from "../../../shared/src/types/Pagination";
 import { PoolClient } from "pg";
+import { sendEmailToUser } from "../utils/mailer";
 
 export class ProductService extends BaseService {
   private static instance: ProductService;
@@ -860,6 +861,11 @@ WHERE pc.parent_id is not null
 
     const emailUser: string = await getEmailUser();
 
+    sendEmailToUser(
+      emailUser,
+      "Sản phẩm bạn đang đặt câu hỏi",
+      "Người bán đã trả lời câu hỏi của bạn, hãy vào chi tiết sản phẩm để xem"
+    );
     return answer[0];
   }
 
