@@ -197,8 +197,8 @@ export class BidService extends BaseService {
       return result[0];
     };
 
-    //Lấy thông tin người đấu giá
-    const getBidderInfo = async (id: number) => {
+    //Lấy thông tin user
+    const getUserInfo = async (id: number) => {
       const sql = `
       SELECT u.email 
       FROM admin.users as u 
@@ -269,7 +269,7 @@ export class BidService extends BaseService {
       console.log(5);
       //Gửi Mail
       const sellerInfo: User | undefined = await getSellerInfo();
-      const bidderInfo: User | undefined = await getBidderInfo(bid.user_id);
+      const bidderInfo: User | undefined = await getUserInfo(bid.user_id);
       const productInfo: Product | undefined = await getProductInfo(
         bid.product_id
       );
@@ -298,13 +298,30 @@ export class BidService extends BaseService {
         </table>
            `
         ); //Seller
-      }
 
-      sendEmailToUser(
-        emailBidder,
-        "Thông báo về sản phẩm đang đấu giá",
-        "Bạn đã đấu giá thành công"
-      ); //Bidder
+        sendEmailToUser(
+          bidderInfo.email,
+          "THÔNG BÁO VỀ SẢN PHẨM ĐÃ ĐẤU GIÁ",
+          `
+          <table style="width:100%; max-width:600px; margin:auto; font-family:Arial,sans-serif; border-collapse:collapse; border:1px solid #ddd;">
+            <tr>
+              <td style="background-color:#28a745; color:white; padding:20px; text-align:center; font-size:20px; font-weight:bold;">
+                Thông báo đấu giá thành công
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
+                <p>Bạn đã đấu giá thành công sản phẩm: <strong>${productInfo.name}</strong></p>
+                <p>Của seller: <strong>${sellerInfo.name} - ${sellerInfo.email}</strong></p>
+                <p><strong>Với mức giá:</strong> ${bid.price}</p>
+                <p><strong>Giá hiện tại của sản phẩm:</strong> ${productBidStatus.current_price}</p>
+              </td>
+            </tr>
+  
+          </table>
+         `
+        ); //Bidder
+      }
 
       // 5. Thực hiện so sánh và lưu kết quả đấu giá
       if (productBidStatus.top_bidder_id == bid.user_id) {
@@ -347,14 +364,16 @@ export class BidService extends BaseService {
 
           await Promise.all([writeBidLogPromise, updateTopBidderPromise]);
 
-          const emailOldBidder: string = await getEmailBidder(
+          const oldBidderInfo: User | undefined = await getUserInfo(
             productBidStatus.top_bidder_id
           );
-          sendEmailToUser(
-            emailOldBidder,
-            "Thông báo về sản phẩm đang đấu giá",
-            " Đã có người đấu giá thành công sản phẩm bạn đang đấu giá"
-          ); //Old bidder
+          if (oldBidderInfo && sellerInfo && bidderInfo) {
+            sendEmailToUser(
+              oldBidderInfo.email,
+              "THÔNG BÁO VỀ SẢN PHẨM ĐANG ĐẤU GIÁ",
+              " Đã có người đấu giá thành công sản phẩm bạn đang đấu giá"
+            ); //Old bidder
+          }
         }
       }
       await poolClient.query("COMMIT");
