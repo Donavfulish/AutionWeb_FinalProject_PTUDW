@@ -367,7 +367,7 @@ export class BidService extends BaseService {
           const oldBidderInfo: User | undefined = await getUserInfo(
             productBidStatus.top_bidder_id
           );
-          if (oldBidderInfo && sellerInfo && bidderInfo) {
+          if (oldBidderInfo && sellerInfo && bidderInfo && productInfo) {
             sendEmailToUser(
               oldBidderInfo.email,
               "THÔNG BÁO VỀ SẢN PHẨM ĐANG ĐẤU GIÁ",
@@ -380,7 +380,7 @@ export class BidService extends BaseService {
               </tr>
               <tr>
                 <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
-                  <p>Đã có người đấu giá thành công sản phẩm: <strong>[Tên sản phẩm]</strong> mà bạn đang tham gia</p>
+                  <p>Đã có người đấu giá thành công sản phẩm: <strong>${productInfo.name}</strong> mà bạn đang tham gia</p>
                   <p>Của seller: <strong>[Tên seller]</strong></p>
                   <p><strong>Mức giá hiện tại của sản phẩm:</strong> [Giá hiện tại]</p>
                 </td>
