@@ -286,7 +286,7 @@ export class BidService extends BaseService {
           </tr>
           <tr>
             <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
-              <p><strong>Bidder:</strong> ${bidderInfo.name} - ${bidderInfo.email}</p>
+              <p><strong>Bidder:</strong> ${bidderInfo.name}}</p>
               <p>Đã đấu giá sản phẩm <strong>${productInfo.name}</strong> của bạn</p>
               <p><strong>Với mức giá:</strong> ${bid.price}</p>
               <p><strong>Mức giá hiện tại:</strong> ${productBidStatus.current_price}</p>
@@ -312,7 +312,7 @@ export class BidService extends BaseService {
             <tr>
               <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
                 <p>Bạn đã đấu giá thành công sản phẩm: <strong>${productInfo.name}</strong></p>
-                <p>Của seller: <strong>${sellerInfo.name} - ${sellerInfo.email}</strong></p>
+                <p>Của seller: <strong>${sellerInfo.name}</strong></p>
                 <p><strong>Với mức giá:</strong> ${bid.price}</p>
                 <p><strong>Giá hiện tại của sản phẩm:</strong> ${productBidStatus.current_price}</p>
               </td>
@@ -381,15 +381,11 @@ export class BidService extends BaseService {
               <tr>
                 <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
                   <p>Đã có người đấu giá thành công sản phẩm: <strong>${productInfo.name}</strong> mà bạn đang tham gia</p>
-                  <p>Của seller: <strong>[Tên seller]</strong></p>
-                  <p><strong>Mức giá hiện tại của sản phẩm:</strong> [Giá hiện tại]</p>
+                  <p>Của seller: ${sellerInfo.name}<strong></strong></p>
+                  <p><strong>Mức giá hiện tại của sản phẩm:</strong> ${myBidPrice}</p>
                 </td>
               </tr>
-              <tr>
-                <td style="background-color:#f5f5f5; text-align:center; padding:15px; font-size:14px; color:#777;">
-                  © 2025 Your Company. All rights reserved.
-                </td>
-              </tr>
+             
             </table>
               `
             ); //Old bidder
