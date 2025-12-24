@@ -65,10 +65,12 @@ const API_ROUTES = {
   auth: {
     createAccount: `${AUTH_API}/signUp`,
     signIn: `${AUTH_API}/signIn`,
+    signInAdmin: `${AUTH_API}/signInAdmin`,
     signOut: `${AUTH_API}/signOut`,
     refresh: `${AUTH_API}/refresh`,
     forgetPassword: `${AUTH_API}/forget-password`,
     verifyOTP: `${AUTH_API}/verify-otp`,
+    verifyRegisterOTP: `${AUTH_API}/verify-register-otp`,
     resetPassword: `${AUTH_API}/reset-password`,
   },
   product: {

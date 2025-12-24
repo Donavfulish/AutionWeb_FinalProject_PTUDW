@@ -23,6 +23,11 @@ export class AuthRoute extends BaseRoute {
       BaseController.handleRequest(this.controller.signIn.bind(this.controller))
     );
 
+     this.router.post(
+      "/signInAdmin",
+      BaseController.handleRequest(this.controller.signInAdmin.bind(this.controller))
+    );
+
     this.router.post(
       "/signOut",
       BaseController.handleRequest(
@@ -50,6 +55,13 @@ export class AuthRoute extends BaseRoute {
         this.controller.verifyOTP.bind(this.controller)
       )
     );
+
+    this.router.post(
+       "/verify-register-otp",
+      BaseController.handleRequest(
+        this.controller.verifyRegisterOTP.bind(this.controller)
+      )
+    )
 
     this.router.post(
       "/reset-password",

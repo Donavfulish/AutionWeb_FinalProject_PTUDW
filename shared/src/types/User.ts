@@ -1,4 +1,3 @@
-import { UserConfirm } from './User';
 export type User = {
   id: number;
   name: string;
@@ -47,9 +46,19 @@ export type CreateUser = {
   password_hash: string;
 };
 
+export type CreateTempUser = {
+  name: User["name"];
+  username: string;
+  email: User["email"];
+  password_hash: string;
+  expired_at: Date;
+  otp_hash: string;
+};
+
 export type UserEntity = {
   id: User["id"];
   email: User["email"];
+  username: string;
   role: User["role"]
 };
 

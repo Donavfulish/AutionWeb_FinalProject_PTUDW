@@ -22,8 +22,8 @@ import { useRouter } from "next/navigation";
 
 const signUpSchema = z
   .object({
-    name: z.string().min(1, "Tên phải có ít nhất 1 kí tự"),
-    username: z.string().min(1, "Tên đăng nhập phải có ít nhất 1 kí tự"),
+    name: z.string().min(1, "Tên không được để trống"),
+    username: z.string().min(1, "Tên đăng nhập không được để trống"),
     email: z.email("Email không hợp lệ"),
     password: z.string().min(6, "Mật khẩu phải có ít nhất 8 kí tự"),
     confirmPassword: z.string().min(1, "Vui lòng nhập lại mật khẩu"),
@@ -51,10 +51,14 @@ export function SignupForm({
 
   const onSubmit = async (data: SignUpFormValues) => {
     // goi api backend
-    const user: RegisterRequest = data;
+    try {
+      const user: RegisterRequest = data;
 
-    await signUp(user);
-    router.push("/login");
+      await signUp(user);
+      router.push("/verify-otp");
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>

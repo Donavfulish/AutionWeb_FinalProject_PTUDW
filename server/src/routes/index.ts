@@ -4,10 +4,10 @@ import { ResourceFactory } from "../factories/ResourceFactory";
 const router = Router();
 
 const resource = [
+  `product`,
   `user`,
   `category`,
   `bid`,
-  `product`,
   `favorite`,
   `order`,
   `upgrade`,

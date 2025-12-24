@@ -1,24 +1,43 @@
 "use client";
 
 import OtpInput from "@/components/OtpInput/OtpInput";
-import { UserOTP } from "../../../shared/src/types/ResetPasswordOTP";
+import {
+  UserOTP,
+  UserRegisterOTP,
+} from "../../../shared/src/types/ResetPasswordOTP";
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
 export default function VerifyOtpPage() {
   const router = useRouter();
   const forgetUserId = useAuthStore((s) => s.forgetUserId);
+  const pendingUserEmail = useAuthStore((s) => s.pendingUserEmail);
+  const verifyOTPType = useAuthStore((s) => s.verifyOTPType);
   const verifyOTP = useAuthStore((s) => s.verifyOTP);
+  const verifyRegisterOTP = useAuthStore((s) => s.verifyRegisterOTP);
+
+  
   const handleOtpComplete = async (otp: string) => {
     try {
-      const user: UserOTP = {
-        otp: otp,
-        user_id: forgetUserId,
-      };
+      console.log("Type: ", verifyOTPType, forgetUserId, pendingUserEmail);
+      if (verifyOTPType === "forgetPassword-otp") {
+        const user: UserOTP = {
+          otp: otp,
+          user_id: forgetUserId,
+        };
 
-      await verifyOTP(user);
-      console.log(useAuthStore.getState().resetToken);
-      if (useAuthStore.getState().resetToken) {
-        router.push("/reset-password");
+        await verifyOTP(user);
+        console.log(useAuthStore.getState().resetToken);
+        if (useAuthStore.getState().resetToken) {
+          router.push("/reset-password");
+        }
+      } else if (verifyOTPType === "register-otp") {
+        const user: UserRegisterOTP = {
+          otp: otp,
+          email: pendingUserEmail,
+        };
+        console.log("verify-type");
+        await verifyRegisterOTP(user);
+        router.push("/login");
       }
       console.log("Mã OTP đã nhập:", otp);
     } catch (error) {

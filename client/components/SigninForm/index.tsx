@@ -21,7 +21,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
 
 const signInSchema = z.object({
-  username: z.string().min(1, "Tên đăng nhập phải có ít nhất 1 kí tự"),
+  username: z.string().min(1, "Tên đăng nhập không được để trống"),
   password: z.string().min(6, "Mật khẩu phải có ít nhất 8 kí tự"),
 });
 

@@ -254,6 +254,7 @@ export class ProductService extends BaseService {
 
     let products: ProductPreview[] = await this.safeQuery(sql, params);
 
+    console.log("gia tri: ", products);
     const newProducts = await Promise.all(
       products.map(async (item: any) => {
         const productType = this.getProductPreviewType(item.id);

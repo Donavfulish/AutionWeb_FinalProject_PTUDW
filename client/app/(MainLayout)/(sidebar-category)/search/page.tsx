@@ -1,14 +1,12 @@
 "use client";
 import ProductCard from "@/components/ProductCard";
-import CategoryHook from "@/hooks/useCategory";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ProductPreview } from "../../../../shared/src/types";
+import { ProductPreview } from "../../../../../shared/src/types";
 import Pagination from "@/components/Pagination";
 import FavoriteHook from "@/hooks/useFavorite";
-import { use } from "react";
 import ProductHook from "@/hooks/useProduct";
-
+import { useMemo } from "react";
 function SearchPage() {
   const per_page = 15;
   const searchParams = useSearchParams();
@@ -29,6 +27,13 @@ function SearchPage() {
     error: errorFavoriteProduct,
   } = FavoriteHook.useAllFavorite();
 
+    const favoriteIds = useMemo(
+      () =>
+        new Set(favoriteProductData?.map((f: ProductPreview) => f.id)) ||
+        new Set([]),
+      [favoriteProductData]
+    );
+  
   const totalProducts = data?.totalProducts ?? 0;
   const products = data?.products ?? [];
 
@@ -37,6 +42,7 @@ function SearchPage() {
     next.set("page", String(value));
     router.replace(`?${next.toString()}`);
   };
+  console.log("data: ", data);
   if (data) {
     totalPages = Math.ceil(Number(totalProducts) / per_page);
     dataResult = products as ProductPreview[];
@@ -46,7 +52,7 @@ function SearchPage() {
       {(isLoadingProducts || isLoadingFavoriteProduct) && <LoadingSpinner />}
       {errorProducts && <> Error...</>}
       {errorFavoriteProduct && <> Error...</>}
-      {dataResult && favoriteProductData ? (
+      {dataResult  ? (
         <div>
           <div className="text-center w-full">
             <h1 className="text-4xl">Chào mừng đến AuctionHub</h1>
@@ -72,16 +78,13 @@ function SearchPage() {
 
             <span className="text-xl font-medium">Từ khóa tìm kiếm </span>
             <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md font-semibold">
-              "{query}"
+              {query}
             </span>
           </div>
           <div className="mt-2 grid grid-cols-5 gap-3">
-            {products.map((item: ProductPreview, index: number) => {
-              const favoriteIds = new Set(
-                favoriteProductData.map((f: ProductPreview) => Number(f.id))
-              );
+            {(products || []).map((item: ProductPreview, index: number) => {
               const isFavoriteProduct = (item: ProductPreview) =>
-                favoriteIds.has(Number(item.id));
+                  favoriteIds.has(Number(item.id));
               return (
                 <div key={index} className="mt-3">
                   <ProductCard

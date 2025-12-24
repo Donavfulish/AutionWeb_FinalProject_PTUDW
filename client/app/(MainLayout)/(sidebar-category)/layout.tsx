@@ -11,6 +11,7 @@ export default function SidebarLayout({
 }) {
   const { data, isLoading, error } = CategoryHook.useCategories();
 
+  console.log("Layout chung");
   return (
     <>
       {isLoading && <LoadingSpinner />}

@@ -23,7 +23,7 @@ export const authService = {
 
   signIn: async (user: SignRequest) => {
     try {
-      const res = await api.post(API_ROUTES.auth.signIn, user, {
+      const res = await api.post(API_ROUTES.auth.signInAdmin, user, {
         withCredentials: true,
       });
       return res.data;

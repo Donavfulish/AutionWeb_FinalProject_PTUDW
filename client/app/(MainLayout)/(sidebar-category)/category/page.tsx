@@ -1,18 +1,13 @@
 "use client";
 import { ArrowRight } from "@/components/icons";
 import Link from "next/link";
-import { ProductPreview } from "../../../../shared/src/types";
-import { CategoryProduct } from "../../../../shared/src/types";
+import { ProductPreview } from "../../../../../shared/src/types";
+import { CategoryProduct } from "../../../../../shared/src/types";
 import ProductCard from "@/components/ProductCard";
 import ProductHook from "@/hooks/useProduct";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import FavoriteHook from "@/hooks/useFavorite";
-
-interface PageItem {
-  title: string;
-  href?: string;
-  products: ProductPreview[];
-}
+import { useMemo } from "react";
 
 function Page() {
   const {
@@ -31,6 +26,13 @@ function Page() {
     error: errorFavoriteProduct,
   } = FavoriteHook.useAllFavorite();
 
+  const favoriteIds = useMemo(
+    () =>
+      new Set(favoriteProductData?.map((f: ProductPreview) => f.id)) ||
+      new Set([]),
+    [favoriteProductData]
+  );
+
   return (
     <>
       {(isLoadingCategoryProduct || isLoadingFavoriteProduct) && (
@@ -38,7 +40,7 @@ function Page() {
       )}
       {errorCategoryProduct && <>Error...</>}
       {errorFavoriteProduct && <>Error...</>}
-      {categoryProductData && favoriteProductData && (
+      {categoryProductData && (
         <div>
           <div className="text-center w-full">
             <h1 className="text-4xl">Chào mừng đến AuctionHub</h1>
@@ -64,11 +66,6 @@ function Page() {
                   </div>
                   <div className="mt-2 grid grid-cols-5 gap-3">
                     {(item.products || []).map((item, index) => {
-                      const favoriteIds = new Set(
-                        favoriteProductData.map((f: ProductPreview) =>
-                          Number(f.id)
-                        )
-                      );
                       const isFavoriteProduct = (item: ProductPreview) =>
                         favoriteIds.has(Number(item.id));
                       return (

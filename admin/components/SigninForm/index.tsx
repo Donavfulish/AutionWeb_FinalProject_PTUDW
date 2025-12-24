@@ -11,44 +11,43 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ForgetPasswordRequest } from "../../shared/src/types";
-import Link from "next/link";
+import { SignRequest } from "../../../shared/src/types";
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
 
-const forgetPasswordSchema = z.object({
+const signInSchema = z.object({
   username: z.string().min(1, "Tên đăng nhập không được để trống"),
-  email: z.email("Email không hợp lệ"),
+  password: z.string().min(6, "Mật khẩu phải có ít nhất 8 kí tự"),
 });
 
-type forgetPasswordFormValues = z.infer<typeof forgetPasswordSchema>;
+type SignInFormValues = z.infer<typeof signInSchema>;
 
-export function ForgetPasswordForm({
+export function SigninForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const { forgetPassword } = useAuthStore();
   const router = useRouter();
+  const signIn = useAuthStore((s) => s.signIn);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<forgetPasswordFormValues>({
-    resolver: zodResolver(forgetPasswordSchema),
+  } = useForm<SignInFormValues>({
+    resolver: zodResolver(signInSchema),
   });
 
-  const onSubmit = async (data: forgetPasswordFormValues) => {
+  const onSubmit = async (data: SignInFormValues) => {
     // goi api backend
-    try {
-      const user: ForgetPasswordRequest = data;
-      await forgetPassword(user);
-      router.push("/verify-otp");
-    } catch (error) {
-      console.log(error);
+    const user: SignRequest = data;
+
+    await signIn(user);
+    if (useAuthStore.getState().user) {
+      router.replace("/");
     }
   };
   return (
@@ -58,11 +57,12 @@ export function ForgetPasswordForm({
           <form className="p-6 md:p-8" onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Quên tài khoản</h1>
+                <h1 className="text-2xl font-bold">Đăng nhập</h1>
                 <p className="text-muted-foreground text-sm text-balance">
-                  Vùi lòng nhập thông tin dưới đây
+                  Vui lòng nhập thông tin dưới đây để đăng nhập
                 </p>
               </div>
+
               <Field>
                 <FieldLabel htmlFor="username">Tên đăng nhập</FieldLabel>
                 <Input
@@ -77,29 +77,30 @@ export function ForgetPasswordForm({
                   </p>
                 )}
               </Field>
+
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  {...register("email")}
-                />
-                {errors.email && (
-                  <p className="text-destructive text-sm">
-                    {errors.email.message}
-                  </p>
-                )}
+                <Field className="grid gap-4">
+                  <Field>
+                    <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
+                    <Input
+                      id="password"
+                      type="password"
+                      {...register("password")}
+                    />
+                    {errors.password && (
+                      <p className="text-destructive text-sm">
+                        {errors.password.message}
+                      </p>
+                    )}
+                    <FieldDescription>
+                      Mật khẩu phải có ít nhất 8 kí tự
+                    </FieldDescription>
+                  </Field>
+                </Field>
               </Field>
-              <Link
-                href="/login"
-                className="text-right text-[10px] text-gray-400 "
-              >
-                Trở lại đăng nhập
-              </Link>
               <Field>
                 <Button type="submit" disabled={isSubmitting}>
-                  Gửi yêu cầu
+                  Đăng nhập
                 </Button>
               </Field>
             </FieldGroup>

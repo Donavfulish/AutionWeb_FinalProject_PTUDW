@@ -23,6 +23,7 @@ export class ProductController extends BaseController {
     const page = Number(req.query.page) || null;
     const limit = Number(req.query.limit) || null;
     const query = req.query.query;
+    console.log(page, limit, query);
     const [products, totalProducts] = await Promise.all([
       this.service.getProductsBySearch(query, limit, page),
       this.service.getTotalProductsBySearch(query),
@@ -269,7 +270,7 @@ export class ProductController extends BaseController {
     const userId = req.user?.id;
     const page = Number(req.query.page) || null;
     const limit = Number(req.query.limit) || null;
-    
+
     const products = await this.service.getWinningProducts(userId, limit, page);
     const totalProducts = await this.service.getTotalWinningProductsByUser(
       userId

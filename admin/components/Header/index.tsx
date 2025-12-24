@@ -3,8 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Menu, X, User } from "lucide-react";
+import { useAuthStore } from "@/store/auth.store";
 
 const Header = () => {
+   const { signOut } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openLogout, setOpenLogout] = useState(false);
   const logoutRef = useRef<HTMLDivElement>(null);
@@ -24,6 +26,14 @@ const Header = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const handleSignOut = async () => {
+    try{
+      await signOut();
+    }catch(error){
+      console.log(error);
+    }
+  }
   return (
     <header className=" md:flex bg-white border-b border-gray-200 shadow-sm z-50 h-full w-full items-center">
       <div className="container-layer">
@@ -52,9 +62,7 @@ const Header = () => {
                 <div className="bg-white text-red-500  w-35 p-2  border-2 border-gray-100 rounded-[6px] ">
                   <div
                     className="flex flex-row hover:cursor-pointer"
-                    onClick={() => {
-                      console.log(2);
-                    }}
+                    onClick={handleSignOut}
                   >
                     <div className="mr-2">
                       <svg

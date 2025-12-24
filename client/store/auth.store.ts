@@ -1,7 +1,4 @@
-import {
-  UserOTP,
-  UserResetPassword,
-} from "./../../shared/src/types/ResetPasswordOTP";
+import { UserOTP, UserRegisterOTP } from "./../../shared/src/types/ResetPasswordOTP";
 import { create } from "zustand";
 import {
   ForgetPasswordRequest,
@@ -11,6 +8,7 @@ import {
 } from "../../shared/src/types";
 import { authService } from "@/services/authService";
 import { AuthState } from "@/types/store";
+import { toast } from "react-toastify";
 
 //  state đại diện cho toàn bộ store hiện tại
 // set(): Dùng để GHI (cậ  nhật/thay đổi) state (chỉ dùng bên trong store).
@@ -20,8 +18,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   loading: false,
   forgetUserId: null,
-
+  pendingUserEmail: null,
   resetToken: null,
+
+  verifyOTPType: null,
 
   setAccessToken: (accessToken: string) => {
     set({ accessToken });
@@ -29,6 +29,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setResetToken: (resetToken: string) => {
     set({ resetToken });
+  },
+
+  setVerifyOTPType: (verifyOTPType: string) => {
+    set({ verifyOTPType });
+  },
+
+  setPendingUserEmail: (pendingUserEmail: string) => {
+    set({ pendingUserEmail });
   },
 
   clearState: () => {
@@ -40,9 +48,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ loading: true });
       // goi api
 
-      await authService.signUp(user);
-    } catch (error) {
+      const { message } = await authService.signUp(user);
+      get().setPendingUserEmail(user.email);
+      get().setVerifyOTPType("register-otp");
+      toast.success(message);
+    } catch (error: any) {
       console.log(error);
+      toast.error(error.message);
+      throw error;
     } finally {
       set({ loading: false });
     }
@@ -53,13 +66,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ loading: true });
 
       // Khi đăng nhập thành công thì lấy accessToken của user đó
-      const { accessToken } = await authService.signIn(user);
+      const { accessToken, message } = await authService.signIn(user);
       get().setAccessToken(accessToken);
 
       // Lấy thông tin về user đang đăng nhập và lưu thông tin user vào trong store
       await get().fetchMe();
-    } catch (error) {
+
+      toast.success(message);
+    } catch (error: any) {
       console.log(error);
+      toast.error(error.message);
+      throw error;
     } finally {
       set({ loading: false });
     }
@@ -70,11 +87,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ loading: true });
 
       const data = await authService.forgetPassword(user);
-      console.log("this is data: ", data);
       set({ forgetUserId: data.userId });
+      get().setVerifyOTPType("forgetPassword-otp");
       console.log(data);
-    } catch (error) {
+      toast.success(data.message);
+    } catch (error: any) {
       console.log(error);
+      toast.error(error.message);
       throw error;
     }
   },
@@ -82,9 +101,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signOut: async () => {
     try {
       get().clearState();
-      await authService.signOut();
-    } catch (error) {
+      const { message } = await authService.signOut();
+      toast.success(message);
+    } catch (error: any) {
       console.log(error);
+      toast.error(error.message);
+      throw error;
     }
   },
 
@@ -123,12 +145,27 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   verifyOTP: async (user: UserOTP) => {
     try {
       set({ loading: true });
-      const { resetToken } = await authService.verifyOTP(user);
+      const { resetToken, message } = await authService.verifyOTP(user);
       console.log("gia tri reset token: ", resetToken);
       get().setResetToken(resetToken);
-    } catch (error) {
+      toast.success(message);
+    } catch (error: any) {
       console.log(error);
+      toast.error(error.message);
       throw error;
+    }
+  },
+
+  verifyRegisterOTP: async (user: UserRegisterOTP) => {
+    try{
+      set({ loading: true });
+      const {message } = await authService.verifyRegisterOTP(user);
+      toast.success(message);
+    }catch(error: any){
+      console.log(error);
+      toast.error(error.message);
+      throw error;
+
     }
   },
 
@@ -138,8 +175,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ loading: true });
       const data = await authService.resetPassword(user, resetToken);
       console.log("this is reset: ", data);
-    } catch (error) {
+
+      toast.success(data.message);
+    } catch (error: any) {
       console.log(error);
+      toast.error(error.message);
       throw error;
     }
   },

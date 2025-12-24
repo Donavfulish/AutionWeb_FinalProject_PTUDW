@@ -3,10 +3,11 @@ import ProductCard from "@/components/ProductCard";
 import CategoryHook from "@/hooks/useCategory";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ProductPreview } from "../../../../../shared/src/types";
+import { ProductPreview } from "../../../../../../shared/src/types";
 import Pagination from "@/components/Pagination";
 import FavoriteHook from "@/hooks/useFavorite";
 import { use } from "react";
+import { useMemo } from "react";
 
 function CategorySlugPage({
   params,
@@ -38,6 +39,13 @@ function CategorySlugPage({
     error: errorFavoriteProduct,
   } = FavoriteHook.useAllFavorite();
 
+  const favoriteIds = useMemo(
+    () =>
+      new Set(favoriteProductData?.map((f: ProductPreview) => f.id)) ||
+      new Set([]),
+    [favoriteProductData]
+  );
+
   const totalPriceProducts = data?.totalProducts ?? 0;
   const categoryName = data?.categoryName ?? "";
   const products = data?.products ?? [];
@@ -57,7 +65,7 @@ function CategorySlugPage({
       {(isLoadingProducts || isLoadingFavoriteProduct) && <LoadingSpinner />}
       {errorProducts && <> Error...</>}
       {errorFavoriteProduct && <> Error...</>}
-      {dataResult && favoriteProductData ? (
+      {dataResult ? (
         <div>
           <div className="text-center w-full">
             <h1 className="text-4xl">Chào mừng đến AuctionHub</h1>
@@ -67,10 +75,7 @@ function CategorySlugPage({
           </div>
           <div className="text-2xl font-medium mt-10">{categoryName}</div>
           <div className="mt-2 grid grid-cols-5 gap-3">
-            {products.map((item: ProductPreview, index: number) => {
-              const favoriteIds = new Set(
-                favoriteProductData.map((f: ProductPreview) => Number(f.id))
-              );
+            {(products || []).map((item: ProductPreview, index: number) => {
               const isFavoriteProduct = (item: ProductPreview) =>
                 favoriteIds.has(Number(item.id));
               return (

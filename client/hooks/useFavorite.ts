@@ -7,10 +7,14 @@ import { toast } from "react-toastify";
 
 class FavoriteHook {
   static useAllFavorite() {
+    const user = useAuthStore((s) => s.user);
+    const userId = user?.id;
     return useQuery({
       queryKey: ["favorite_product"],
 
       queryFn: () => FavoriteService.getAllFavorite(),
+
+      enabled: !!userId,
 
       staleTime: STALE_10_MIN,
 
