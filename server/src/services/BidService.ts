@@ -371,9 +371,27 @@ export class BidService extends BaseService {
             sendEmailToUser(
               oldBidderInfo.email,
               "THÔNG BÁO VỀ SẢN PHẨM ĐANG ĐẤU GIÁ",
-              " Đã có người đấu giá thành công sản phẩm bạn đang đấu giá"
-
-              
+              `
+            <table style="width:100%; max-width:600px; margin:auto; font-family:Arial,sans-serif; border-collapse:collapse; border:1px solid #ddd;">
+              <tr>
+                <td style="background-color:#dc3545; color:white; padding:20px; text-align:center; font-size:20px; font-weight:bold;">
+                  Cập nhật đấu giá
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
+                  <p>Đã có người đấu giá thành công sản phẩm: <strong>[Tên sản phẩm]</strong> mà bạn đang tham gia</p>
+                  <p>Của seller: <strong>[Tên seller]</strong></p>
+                  <p><strong>Mức giá hiện tại của sản phẩm:</strong> [Giá hiện tại]</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="background-color:#f5f5f5; text-align:center; padding:15px; font-size:14px; color:#777;">
+                  © 2025 Your Company. All rights reserved.
+                </td>
+              </tr>
+            </table>
+              `
             ); //Old bidder
           }
         }
