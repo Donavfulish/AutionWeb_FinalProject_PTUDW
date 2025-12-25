@@ -287,11 +287,11 @@ export class BidService extends BaseService {
           </tr>
           <tr>
             <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
-              <p><strong>Bidder:</strong> ${bidderInfo.name}</p>
+              <p>Bidder <strong> ${bidderInfo.name}</strong> </p>
               <p>Đã đấu giá sản phẩm <strong>${productInfo.name}</strong> của bạn</p>
-              <p><strong>Với mức giá:</strong> ${bid.price}</p>
-              <p><strong>Mức giá hiện tại:</strong> ${productBidStatus.current_price}</p>
-              <p><strong>Giá mua ngay:</strong> ${productInfo.buy_now_price}</p> 
+              <p>Với mức giá:<strong> ${bid.price}</strong> </p>
+              <p>Mức giá hiện tại:<strong> ${productBidStatus.current_price}</strong> </p>
+              <p>Giá mua ngay:<strong> ${productInfo.buy_now_price}</strong> </p> 
 
             </td>
           </tr>
@@ -575,7 +575,7 @@ export class BidService extends BaseService {
         
         </table>
 `
-      ); 
+      );
     }
 
     if (product?.[0]?.top_bidder_id != buyer_id) return { success: true };
