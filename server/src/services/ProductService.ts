@@ -117,6 +117,7 @@ export class ProductService extends BaseService {
       p.price_increment::INT,
       p.created_at,
       p.updated_at,
+      p.is_all_can_bid,
       c.name as category_name
     FROM product.products p 
     JOIN admin.users u on u.id = p.seller_id 
@@ -661,9 +662,10 @@ WHERE pc.parent_id is not null
     description, 
     auto_extend, 
     price_increment,
-    created_at
+    created_at,
+    is_all_can_bid
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), $13)
     RETURNING * 
     `;
     const newProduct = await this.safeQuery(sql, [
@@ -679,6 +681,7 @@ WHERE pc.parent_id is not null
       payload.description,
       payload.auto_extend,
       payload.price_increment,
+      payload.is_all_can_bid,
     ]);
     return newProduct;
   }
