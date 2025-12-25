@@ -287,7 +287,7 @@ export class BidService extends BaseService {
           </tr>
           <tr>
             <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
-              <p>Bidder <strong> ${bidderInfo.name}</strong> </p>
+              <p>Người đấu giá <strong> ${bidderInfo.name}</strong> </p>
               <p>Đã đấu giá sản phẩm <strong>${productInfo.name}</strong> của bạn</p>
               <p>Với mức giá:<strong> ${bid.price}</strong> </p>
               <p>Mức giá hiện tại:<strong> ${productBidStatus.current_price}</strong> </p>
@@ -313,7 +313,7 @@ export class BidService extends BaseService {
             <tr>
               <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
                 <p>Bạn đã đấu giá thành công sản phẩm: <strong>${productInfo.name}</strong></p>
-                <p>Của seller: <strong>${sellerInfo.name}</strong></p>
+                <p>Của người bán: <strong>${sellerInfo.name}</strong></p>
                 <p>Với mức giá:<strong> ${bid.price}</strong></p>
                 <p>Giá hiện tại của sản phẩm: <strong>${productBidStatus.current_price}</strong></p>
               </td>
@@ -386,7 +386,7 @@ export class BidService extends BaseService {
               <tr>
                 <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
                   <p>Đã có người đấu giá thành công sản phẩm <strong>${productInfo.name}</strong> mà bạn đang tham gia</p>
-                  <p>Của seller:<strong>  ${sellerInfo.name}</strong></p>
+                  <p>Của người bán:<strong>  ${sellerInfo.name}</strong></p>
                   <p>Mức giá hiện tại của sản phẩm: <strong>${myBidPrice}</strong></p>
                 </td>
               </tr>
@@ -456,7 +456,7 @@ export class BidService extends BaseService {
               </tr>
               <tr>
                 <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
-                  <p>Seller: <strong>[Tên seller]</strong></p>
+                  <p>Người bán: <strong>[Tên seller]</strong></p>
                   <p>Đã chặn bạn không được phép đấu giá sản phẩm:</p>
                   <p style="font-weight:bold;">[Tên sản phẩm]</p>
                 </td>
@@ -568,7 +568,7 @@ export class BidService extends BaseService {
           </tr>
           <tr>
             <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
-              <p>Seller <strong>${sellerInfo.name}</strong></p>
+              <p>Người bán <strong>${sellerInfo.name}</strong></p>
               <p>Đã chặn bạn không được phép đấu giá sản phẩm: <strong>${product[0].name}</strong></p>
             </td>
           </tr>

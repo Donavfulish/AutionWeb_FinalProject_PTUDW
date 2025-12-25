@@ -143,4 +143,6 @@ export type BiddingProduct = WinningProduct & {
   user_price: number;
 };
 export type CreateQuestion = Pick<ProductQuestion, "comment">;
-export type CreateAnswer = Pick<ProductAnswer, "comment">;
+export type CreateAnswer = Pick<ProductAnswer, "comment"> & {
+  productId: number;
+};

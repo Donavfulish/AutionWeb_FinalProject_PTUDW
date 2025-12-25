@@ -21,6 +21,7 @@ import { Pagination } from "../../../shared/src/types/Pagination";
 import { PoolClient } from "pg";
 import { sendEmailToUser } from "../utils/mailer";
 import { MutationResult } from "../../../shared/src/types/Mutation.js";
+import { Hmac } from "crypto";
 
 export class ProductService extends BaseService {
   private static instance: ProductService;
@@ -880,7 +881,7 @@ WHERE pc.parent_id is not null
           <tr>
             <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
               <p>
-                Bidder <strong> ${bidderInfo.name}</strong>  đã đặt câu hỏi về sản phẩm
+                Người đấu giá <strong> ${bidderInfo.name}</strong>  đã đặt câu hỏi về sản phẩm
                 <strong>${productInfo.name}</strong> của bạn.
               </p>
               <p style="margin-top:15px;">
@@ -901,17 +902,61 @@ WHERE pc.parent_id is not null
     userId: number,
     questionId: number
   ) {
-    const getEmailUser = async () => {
+    const getRelatedUsersInQuestion = async () => {
       const sql = `
-      SELECT u.email 
+      SELECT u.*
       FROM feedback.product_questions as q
       JOIN admin.users as u ON u.id = q.user_id
-      WHERE q.id = $1 `;
-      const params = [questionId];
-      const result: { email: string }[] = await this.safeQuery(sql, params);
-      return result[0]?.email ?? "";
+      WHERE q.product_id = $1 `;
+      const params = [createAnswer.productId];
+      const result: User[] = await this.safeQuery(sql, params);
+      return result;
     };
+    const getIdOfQuestioner = async () => {
+      const sql = `
+      SELECT u.id
+      FROM feedback.product_questions as q
+      JOIN admin.users as u ON u.id = q.user_id
+      WHERE q.id = $1 
+      `;
+      const params = [questionId];
+      const result: Number[] = await this.safeQuery(sql, params);
+      return result[0];
+    };
+    const getRelatedUsersInUserBids = async () => {
+      const sql = `
+      SELECT u.*
+      FROM auction.user_bids as b
+      JOIN admin.users as u ON u.id = b.user_id
+      WHERE b.product_id = $1 AND NOT EXISTS (SELECT l.user_id as id 
+                                              FROM auction.black_list AS l  
+                                              WHERE l.user_id = u.id
+      )`;
+      const params = [createAnswer.productId];
+      const result: User[] = await this.safeQuery(sql, params);
+      return result;
+    };
+    //Lấy thông tin user
+    const getUserInfo = async (id: number) => {
+      const sql = `
+      SELECT u.*
+      FROM admin.users as u 
+      WHERE u.id = $1 `;
+      const params = [id];
+      const result: User[] = await this.safeQuery(sql, params);
 
+      return result[0];
+    };
+    const getProductInfo = async (id: number) => {
+      const sql = `
+      SELECT p.*
+      FROM product.products as p 
+      WHERE p.id = $1 `;
+      const params = [id];
+      const result: Product[] = await this.safeQuery(sql, params);
+
+      return result[0];
+    };
     const sql = `
     INSERT INTO feedback.product_answers(
     question_id,
@@ -927,14 +972,77 @@ WHERE pc.parent_id is not null
       userId,
       createAnswer.comment,
     ]);
+    const [usersFromQuestions, usersFromBids] = await Promise.all([
+      getRelatedUsersInQuestion(),
+      getRelatedUsersInUserBids(),
+    ]);
 
-    const emailUser: string = await getEmailUser();
+    // Gộp & loại trùng theo id
+    const userMap = new Map<number, User>();
 
-    sendEmailToUser(
-      emailUser,
-      "Sản phẩm bạn đang đặt câu hỏi",
-      "Người bán đã trả lời câu hỏi của bạn, hãy vào chi tiết sản phẩm để xem"
-    );
+    [...usersFromQuestions, ...usersFromBids].forEach((user) => {
+      userMap.set(user.id, user);
+    });
+
+    const [questionerId, sellerInfo, productInfo] = await Promise.all([
+      getIdOfQuestioner(),
+      getUserInfo(userId),
+      getProductInfo(createAnswer.productId),
+    ]);
+    const relatedUsers: User[] = Array.from(userMap.values());
+
+    if (sellerInfo && productInfo) {
+      await Promise.all([
+        relatedUsers.forEach((user) => {
+          let html: string = "";
+          if (user.id == questionerId) {
+            html = `
+       <table style="width:100%; max-width:600px; margin:auto; font-family:Arial,sans-serif; border-collapse:collapse; border:1px solid #ddd;">
+          <tr>
+            <td style="background-color:#198754; color:white; padding:20px; text-align:center; font-size:20px; font-weight:bold;">
+              Phản hồi từ người bán
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
+              <p>
+                Người bán <strong>${sellerInfo}</strong> đã trả lời câu hỏi của bạn
+                tại sản phẩm <strong> ${productInfo.name}</strong>.
+              </p>
+              <p style="margin-top:15px;">
+                Hãy truy cập sản phẩm để xem chi tiết nội dung phản hồi.
+              </p>
+            </td>
+          </tr>
+        </table>
+        `;
+          } else {
+            html = `
+       <table style="width:100%; max-width:600px; margin:auto; font-family:Arial,sans-serif; border-collapse:collapse; border:1px solid #ddd;">
+          <tr>
+            <td style="background-color:#198754; color:white; padding:20px; text-align:center; font-size:20px; font-weight:bold;">
+              Phản hồi từ người bán
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
+              <p>
+                Người bán <strong>${sellerInfo}</strong> đã trả lời câu hỏi của người khác
+                tại sản phẩm <strong> ${productInfo.name}</strong>.
+              </p>
+              <p style="margin-top:15px;">
+                Hãy truy cập sản phẩm để xem chi tiết nội dung phản hồi.
+              </p>
+            </td>
+          </tr>
+        </table>
+        `;
+          }
+          sendEmailToUser(user.email, "SẢN PHẨM ĐANG THEO DÕI", html);
+        }),
+      ]);
+    }
+
     return answer[0];
   }
 
