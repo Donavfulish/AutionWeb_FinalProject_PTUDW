@@ -12,7 +12,7 @@ import { useParams } from "next/navigation";
 import {
   Product,
   ProductCategoryTree,
-} from "../../../../../../shared/src/types";
+} from "../../../../../../../shared/src/types";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { formatPrice, getTimeDifference } from "@/utils";
 import CategoryHook from "@/hooks/useCategory";

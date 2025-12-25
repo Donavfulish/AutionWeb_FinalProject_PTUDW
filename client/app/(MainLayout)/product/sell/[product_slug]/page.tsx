@@ -41,6 +41,7 @@ import OrderHook from "@/hooks/useOrder";
 import Link from "next/link";
 import { defaultImage } from "@/app/const";
 import { SimpleConfirmPopup } from "@/components/SimpleConfirmPopup";
+import { useMemo } from "react";
 
 function isLessThreeDays(dateA: Date, dateB: Date): boolean {
   const diffMs = Math.abs(dateA.getTime() - dateB.getTime()); // hiệu số milliseconds
@@ -165,6 +166,15 @@ export default function ProductPage() {
 
     return Math.round((positive_points / total) * 100);
   }, [product?.top_bidder]);
+
+  const totalRating = useMemo<number>(() => 
+    {
+        if (product?.seller)
+            return (product.seller.positive_points + product.seller.negative_points)
+        return 0
+    }
+  , [product])
+
   useEffect(() => {
     if (favorite_products && product) {
       const newSetFavorites: Set<number> = new Set(
@@ -250,6 +260,8 @@ export default function ProductPage() {
   const handleBuyNow = () => {
     setOpenBuyNowModal(true);
   };
+
+  if (isLoadingFavoriteProducts || isLoadingOrder || isLoadingProduct || isLoadingProductCategory || isLoadingUserBid) return <div>Loading...</div>;
 
   return (
     <div className="bg-[#F8FAFC] w-full">
@@ -367,14 +379,12 @@ export default function ProductPage() {
                         {product.seller.name}
                       </p>
                       <p className="text-xs text-slate-600">
-                        ⭐{" "}
-                        {Math.round(
+                        {totalRating === 0 ? 'Chưa có đánh giá' : `⭐{" "}${Math.round(
                           (product.seller.positive_points /
                             (product.seller.positive_points +
                               product.seller.negative_points)) *
                             100
-                        )}
-                        {"%"}
+                        )}%`}
                       </p>
                     </div>
                   </div>
