@@ -81,6 +81,15 @@ function QuestionItem({
         )}
       </div>
       <p className="text-gray-600 mb-3">Câu hỏi: {comment}</p>
+
+      {answer && (
+        <div className="ml-4 pl-4 border-l-2 border-amber-400">
+          <p className="text-sm font-medium text-amber-600 mb-1">
+            Trả lời từ người bán:
+          </p>
+          <p className="text-sm text-gray-700">{answer.comment}</p>
+        </div>
+      )}
       <form className=" mb-8" onSubmit={handleSubmit(handleSend)}>
         <div className="w-full  ">
           <div className="flex flex-row">
@@ -106,14 +115,6 @@ function QuestionItem({
           </span>
         </div>
       </form>
-      {answer && (
-        <div className="ml-4 pl-4 border-l-2 border-amber-400">
-          <p className="text-sm font-medium text-amber-600 mb-1">
-            Trả lời từ người bán:
-          </p>
-          <p className="text-sm text-gray-700">{answer.comment}</p>
-        </div>
-      )}
     </>
   );
 }
