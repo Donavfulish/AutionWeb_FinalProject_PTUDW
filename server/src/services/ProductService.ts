@@ -13,7 +13,7 @@ import {
   SoldProduct,
 } from "./../../../shared/src/types/Product";
 import { BaseService } from "./BaseService";
-import { ShortUser } from "../../../shared/src/types";
+import { ShortUser, User } from "../../../shared/src/types";
 
 import { createSlugUnique } from "../utils";
 import { R2Service } from "./R2Service";
@@ -811,6 +811,28 @@ WHERE pc.parent_id is not null
     userId: number,
     productId: number
   ) {
+    //Lấy thông tin người bán
+    const getSellerInfo = async () => {
+      const sql = `
+          SELECT u.*
+          FROM admin.users as u 
+          JOIN product.products as p ON u.id = p.seller_id
+          WHERE p.id = $1 `;
+      const params = [productId];
+      const result: User[] = await this.safeQuery(sql, params);
+      return result[0];
+    };
+
+    const getEmailUser = async () => {
+      const sql = `
+      SELECT u.email 
+      FROM product.product_questions as q
+      JOIN admin.users as u ON u.id = q.user_id
+      WHERE q.id = $1 `;
+      const params = [questionId];
+      const result: { email: string }[] = await this.safeQuery(sql, params);
+      return result[0]?.email ?? "";
+    };
     const sql = `
     INSERT INTO feedback.product_questions(
     product_id, 
