@@ -822,6 +822,16 @@ WHERE pc.parent_id is not null
       const result: User[] = await this.safeQuery(sql, params);
       return result[0];
     };
+    //Lấy thông tin sản phẩm
+    const getProductInfo = async (id: number) => {
+      const sql = `
+      SELECT p.*
+      FROM product.products as p 
+      WHERE p.id = $1 `;
+      const params = [id];
+      const result: Product[] = await this.safeQuery(sql, params);
+      return result[0];
+    };
 
     const getEmailUser = async () => {
       const sql = `
@@ -833,6 +843,7 @@ WHERE pc.parent_id is not null
       const result: { email: string }[] = await this.safeQuery(sql, params);
       return result[0]?.email ?? "";
     };
+
     const sql = `
     INSERT INTO feedback.product_questions(
     product_id, 
@@ -848,6 +859,35 @@ WHERE pc.parent_id is not null
       userId,
       createQuestion.comment,
     ]);
+     sendEmailToUser(
+       emailUser,
+       "THÔNG BÁO VỀ SẢN PHẨM ĐANG BÁN",
+       `
+              <table style="width:100%; max-width:600px; margin:auto; font-family:Arial,sans-serif; border-collapse:collapse; border:1px solid #ddd;">
+          <tr>
+            <td style="background-color:#0d6efd; color:white; padding:20px; text-align:center; font-size:20px; font-weight:bold;">
+              Câu hỏi mới về sản phẩm
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px; font-size:16px; line-height:1.5; color:#333;">
+              <p>
+                <strong>Bidder:</strong> [Tên bidder] đã đặt câu hỏi về sản phẩm
+                <strong>[Tên sản phẩm]</strong> của bạn.
+              </p>
+              <p style="margin-top:15px;">
+                Hãy trả lời câu hỏi để <strong>[Tên bidder]</strong> biết thêm chi tiết!
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color:#f5f5f5; text-align:center; padding:15px; font-size:14px; color:#777;">
+              © 2025 Your Company. All rights reserved.
+            </td>
+          </tr>
+        </table>
+       `
+     );
     return question[0];
   }
 
