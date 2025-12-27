@@ -18,6 +18,7 @@ import ProductHook from "@/hooks/useProduct";
 import WaitingConfirmStep from "./WaitingConfirmStep";
 import DeliveringStep from "./DeliveringStep";
 import FinishStep from "./FinishStep";
+import OrderChat from "../../sell/order/[product_id]/components/OrderChat";
 
 const stepperIndexDict: Record<OrderStatus, number> = {
   pending: 0,
@@ -112,7 +113,7 @@ const ProductOrderPage = () => {
               )}
             </div>
             <div className="col-span-4 border relative bg-white rounded-lg p-6 mb-8 border-slate-200">
-              HELLO
+              <OrderChat productId={product.id}/>
             </div>
           </div>
         </>

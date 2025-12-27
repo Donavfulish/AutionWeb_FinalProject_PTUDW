@@ -19,6 +19,7 @@ import ConfirmStep from "./ConfirmStep";
 import DeliveringStep from "./DeliveringStep";
 import { useRouter } from "next/navigation";
 import FinishStep from "./FinishStep";
+import OrderChat from "./components/OrderChat";
 
 const stepperIndexDict: Record<OrderStatus, number> = {
   pending: 0,
@@ -113,7 +114,7 @@ const ProductOrderPage = () => {
             </div>
 
             <div className="col-span-4 border relative bg-white rounded-lg p-6 mb-8 border-slate-200">
-              HELLO
+              <OrderChat productId={product.id}/>
             </div>
           </div>
         </>
