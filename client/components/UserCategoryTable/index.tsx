@@ -27,8 +27,8 @@ export default function UserCategoryTable({
   const isBidder = user?.role == USER_ROLES.BIDDER;
   return (
     <div
-      className={`relative w-60 ${
-        isBidder ? "h-90" : "h-125"
+      className={`relative w-65 ${
+        isBidder ? "h-117" : "h-127"
       }  flex flex-col bg-white border-2 border-gray-200 rounded-xl py-4 pl-4 pr-2 shadow-sm`}
     >
       <p className="text-xl font-medium">Hồ sơ</p>

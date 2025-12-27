@@ -83,10 +83,24 @@ export class AuthService extends BaseService {
     const sql = `
    SELECT 
       u.id,
+      u.email,
       u.name,
       u.role,
+      u.password_hash,
       u.positive_points,
       u.negative_points
+    FROM admin.users u
+    WHERE id = $1
+    `;
+    const params = [userId];
+    const profile: UserEntity[] = await this.safeQuery(sql, params);
+
+    return profile[0];
+  }
+
+   async getAllUserById(userId: number): Promise<UserEntity | undefined> {
+    const sql = `
+   SELECT *
     FROM admin.users u
     WHERE id = $1
     `;
@@ -116,6 +130,22 @@ export class AuthService extends BaseService {
       user.password_hash,
       user.username,
     ]);
+  }
+
+  async deletePendingUserOTPByEmail(email: string) {
+    const sql = `
+    DELETE FROM admin.pending_users 
+    WHERE email = $1
+    `;
+    await this.safeQuery(sql, [email]);
+  }
+
+  async deleteResetPasswordOTPByUserId(userId: number) {
+    const sql = `
+    DELETE FROM admin.reset_password_otp 
+    WHERE user_id = $1
+    `;
+    await this.safeQuery(sql, [userId]);
   }
 
   async createTempUser(user: CreateTempUser) {
@@ -218,7 +248,7 @@ export class AuthService extends BaseService {
   async getPendingUserOTPByEmail(email: string): Promise<UserOTP | undefined> {
     const sql = `
       SELECT 
-      user_id, 
+      id as user_id, 
       email,
       password_hash,
       name,
@@ -268,6 +298,24 @@ export class AuthService extends BaseService {
       WHERE user_id = $1
       `;
     await this.safeQuery(sql, [userId]);
+  }
+
+  async updateHashOTPPendingUserById(id: number, otpHash: string) {
+    const sql = `
+    UPDATE  admin.pending_users 
+    SET otp_hash = $1
+    WHERE id = $2
+    `;
+    await this.safeQuery(sql, [otpHash, id]);
+  }
+
+  async updateHashOTPResetPasswordByUserId(id: number, otpHash: string) {
+    const sql = `
+    UPDATE  admin.reset_password_otp
+    SET otp_hash = $1
+    WHERE user_id = $2
+    `;
+    await this.safeQuery(sql, [otpHash, id]);
   }
 
   // async updatePasswordUser()

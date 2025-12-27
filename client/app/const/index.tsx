@@ -58,14 +58,14 @@ export const userCategories: UserCategory[] = [
     name: "Sản phẩm đang bán",
     slug: "/selling_products",
     icon: SellingProductIcon,
-    roles: [USER_ROLES.SELLER, USER_ROLES.ADMIN],
+    roles: [USER_ROLES.BIDDER, USER_ROLES.SELLER, USER_ROLES.ADMIN],
   },
   {
     id: 8,
     name: "Sản phẩm đã bán",
     slug: "/sold_products",
     icon: SoldProductIcon,
-    roles: [USER_ROLES.SELLER, USER_ROLES.ADMIN],
+    roles: [USER_ROLES.BIDDER, USER_ROLES.SELLER, USER_ROLES.ADMIN],
   },
   {
     id: 9,

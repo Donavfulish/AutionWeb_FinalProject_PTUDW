@@ -9,6 +9,7 @@ import Pagination from "@/components/Pagination";
 import Fuse from "fuse.js";
 import { CategoryWithProductCount } from "@/components/CategoryCard";
 import { toast } from "react-toastify";
+import { useAuthStore } from "@/store/auth.store";
 const attachProductCount = (
   category: ProductCategoryTree,
   countMap: Map<number, number>
@@ -21,6 +22,8 @@ const attachProductCount = (
 });
 
 const page = () => {
+  const user = useAuthStore((s) => s.user);
+  console.log("user: ", user);
   // Define state
   const limit = 5;
   const [searchQuery, setSearchQuery] = useState("");

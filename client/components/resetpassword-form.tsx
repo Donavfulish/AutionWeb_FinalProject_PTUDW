@@ -76,7 +76,9 @@ export function ResetPasswordForm({
                 )}
               </Field>
               <Field>
-                <FieldLabel htmlFor="confirmPassword">Mật khẩu mới</FieldLabel>
+                <FieldLabel htmlFor="confirmPassword">
+                  Nhập mật khẩu mới
+                </FieldLabel>
                 <Input
                   id="confirmPassword"
                   type="password"

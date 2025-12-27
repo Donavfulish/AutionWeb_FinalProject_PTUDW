@@ -127,4 +127,8 @@ export interface AuthState {
   verifyRegisterOTP: (user: UserRegisterOTP) => Promise<void>;
 
   resetPassword: (user: ResetPasswordRequest) => Promise<void>;
+
+  reSendRegisterOTP: () => Promise<void>
+
+  reSendRResetPasswordOTP: () => Promise<void>
 }

@@ -71,11 +71,16 @@ const API_ROUTES = {
     signIn: `${AUTH_API}/signIn`,
     signInAdmin: `${AUTH_API}/signInAdmin`,
     signOut: `${AUTH_API}/signOut`,
+    signOutAdmin: `${AUTH_API}/signOutAdmin`,
     refresh: `${AUTH_API}/refresh`,
+    refreshAdmin: `${AUTH_API}/refreshAdmin`,
     forgetPassword: `${AUTH_API}/forget-password`,
+    changePassword: `${AUTH_API}/change-password`,
     verifyOTP: `${AUTH_API}/verify-otp`,
     verifyRegisterOTP: `${AUTH_API}/verify-register-otp`,
     resetPassword: `${AUTH_API}/reset-password`,
+    reSendRegisterOTP: `${AUTH_API}/reSend-register-otp`,
+    reSendResetPasswordOTP: `${AUTH_API}/reSend-resetPassword-otp`,
   },
   product: {
     getProducts: (pagination: Pagination) =>

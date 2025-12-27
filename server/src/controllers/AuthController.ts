@@ -9,12 +9,12 @@ import {
   RefreshToken,
 } from "./../../../shared/src/types/RefreshToken";
 import {
+  ChangePasswordRequest,
   CreateTempUser,
   CreateUser,
   RegisterRequest,
   ResetPasswordRequest,
   SignRequest,
-  UserConfirm,
   UserEntity,
 } from "../../../shared/src/types";
 import { BaseController } from "./BaseController";
@@ -22,9 +22,12 @@ import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { sendEmail } from "../utils/mailer";
+import {
+  sendForgetPasswordOTPEmail,
+  sendRegisterOTPEmail,
+} from "../utils/mailer";
 import { UserOTP } from "./../../../shared/src/types/ResetPasswordOTP";
-
+import axios from "axios";
 const ACCESS_TOKEN_TTL = "15m";
 const RESET_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000; // 14 days (ms)
@@ -42,10 +45,15 @@ export class AuthController extends BaseController {
       !registerUser.email ||
       !registerUser.password ||
       !registerUser.name ||
-      !registerUser.username
+      !registerUser.username ||
+      !registerUser.captchaToken
     ) {
-      throw new Error("Không thể thiếu username, password, email, name");
+      throw new Error(
+        "Không thể thiếu username, password, email, name hoặc re-captcha"
+      );
     }
+
+    console.log("gia tri register: ", registerUser);
 
     // Kiem tra username co ton tai chua
     const duplicateUsername = await this.service.getUserByUserName(
@@ -68,6 +76,7 @@ export class AuthController extends BaseController {
     const hashPassword = await bcrypt.hash(registerUser.password, 10); // salt = 10
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otp_hash = await bcrypt.hash(otp, 10);
+    console.log("Gia tri otp va otp hash luu vao: ", otp, otp_hash);
     const newUser: CreateTempUser = {
       username: registerUser.username,
       email: registerUser.email,
@@ -76,11 +85,21 @@ export class AuthController extends BaseController {
       expired_at: new Date(Date.now() + VERIFY_EMAIL_OTP_TTL),
       otp_hash: otp_hash,
     };
+    // Check logic re-captcha
+    const googleVerifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${registerUser.captchaToken}`;
+
+    const response = await axios.post(googleVerifyUrl);
+    console.log("gia tri response: ", response);
+    const { success } = response.data;
+    if (!success) {
+      throw new Error("Xác thực Captcha thất bại, vui lòng thử lại.");
+    }
 
     // Tao user moi
+    await this.service.deletePendingUserOTPByEmail(newUser.email);
     await this.service.createTempUser(newUser);
 
-    await sendEmail(registerUser.email, otp);
+    await sendRegisterOTPEmail(registerUser.email, otp);
 
     return {
       message: "Cần xác thực OTP để đăng kí thành công",
@@ -195,7 +214,7 @@ export class AuthController extends BaseController {
     await this.service.createRefreshToken(createRefreshToken);
 
     // Tra refresh token  ve trong cookie
-    res.cookie("refreshToken", refreshToken, {
+    res.cookie("refreshTokenAdmin", refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
@@ -210,17 +229,18 @@ export class AuthController extends BaseController {
 
   async verifyRegisterOTP(req: Request, res: Response) {
     // 1. Kiem tra thong tin input
+    console.log("verify register controller backend");
     const userOTP: UserRegisterOTP = req.body;
     if (!userOTP.email || !userOTP.otp) {
       throw new Error("Thiếu thông tin người dùng hoặc mã otp");
     }
 
     console.log("otp: ", userOTP);
-    // 3. Lay record cua user o reset password otp
+
     const otpRes: PendingUserHashOTP =
       await this.service.getPendingUserOTPByEmail(userOTP.email);
     if (!otpRes) {
-      throw new Error("OTP hết hạn hoặc không hợp lệ");
+      throw new Error("OTP hết hạn hoặc không hợp lệ 123");
     }
 
     // 4. Kiem tra otp co hop le hay khong ?
@@ -262,9 +282,60 @@ export class AuthController extends BaseController {
     };
   }
 
+  async signOutAdmin(req: Request, res: Response) {
+    // Lay refresh token tu cookie
+    const token = req.cookies?.refreshTokenAdmin;
+
+    if (token) {
+      // Xoa refresh token trong session
+      await this.service.deleteRefreshToken(token);
+
+      // Xoa cookie
+      res.clearCookie("refreshTokenAdmin");
+    }
+    return {
+      message: "Đăng xuất thành công",
+    };
+  }
+
   async refreshToken(req: Request, res: Response) {
     // Lay refresh token tu cookie
     const token = req.cookies?.refreshToken;
+    if (!token) {
+      throw new Error("Token không tồn tại");
+    }
+
+    // So voi refresh token trong cookie
+    const refreshToken: RefreshToken =
+      await this.service.getRefreshTokenByToken(token);
+
+    if (!refreshToken) {
+      throw new Error("Token không hợp lệ hoặc hết hạn");
+    }
+
+    // Kiem tra het han chua
+    if (refreshToken.expired_at < new Date()) {
+      throw new Error("Token đã hết hạn");
+    }
+
+    const accessToken = jwt.sign(
+      {
+        userId: refreshToken.user_id,
+      },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      {
+        expiresIn: ACCESS_TOKEN_TTL,
+      }
+    );
+
+    return {
+      accessToken: accessToken,
+    };
+  }
+
+  async refreshTokenAdmin(req: Request, res: Response) {
+    // Lay refresh token tu cookie
+    const token = req.cookies?.refreshTokenAdmin;
     if (!token) {
       throw new Error("Token không tồn tại");
     }
@@ -319,11 +390,14 @@ export class AuthController extends BaseController {
       expired_at: new Date(Date.now() + RESET_PASSWORD_OTP_TTL),
     };
 
+    await this.service.deleteResetPasswordOTPByUserId(
+      createResetPasswordOTP.user_id
+    );
     await this.service.createResetPasswordOTP(createResetPasswordOTP);
 
     // Gui gmail vs OTP do
 
-    await sendEmail(user.email, otp);
+    await sendForgetPasswordOTPEmail(user.email, otp);
 
     return {
       message: "Gửi email thành công",
@@ -397,7 +471,132 @@ export class AuthController extends BaseController {
     await this.service.cleanupOTP(user?.id);
 
     return {
-      message: "Thay đổi mật khẩu thành công. . Vui lòng đăng nhập lại",
+      message: "Thay đổi mật khẩu thành công. Vui lòng đăng nhập lại",
+    };
+  }
+
+  async changePassword(req: Request, res: Response) {
+    const userConfirm: ChangePasswordRequest = req.body;
+    const user = req.user;
+    console.log("user: ", user);
+
+    // 1. Kiem tra thong tin user
+    if (!user || !user.id) {
+      throw new Error("Phiên làm việc không hợp lệ hoặc đã hết hạn");
+    }
+    if (
+      !userConfirm.oldPassword ||
+      !userConfirm.newPassword ||
+      !userConfirm.confirmPassword
+    ) {
+      throw new Error("Vui lòng nhập đầy đủ thông tin mật khẩu");
+    }
+
+    // 2. Check dieu kien
+    // 2.1 Check mat khau moi va xac nhan mat khau moi phai giong nhau
+    if (userConfirm.newPassword != userConfirm.confirmPassword) {
+      throw new Error(
+        "Thông tin mật khẩu mới và xác nhận mật khẩu mới không chính xác"
+      );
+    }
+
+    // // 2.2 Check mat khau cu phai khop trong db
+    const userInfo: UserEntity = await this.service.getUserById(user.id);
+    if (!userInfo) {
+      throw new Error("Tài khoản không tồn tại");
+    }
+
+    const oldHashPassword = userInfo.password_hash;
+    const isCorrectPassword = bcrypt.compare(
+      userConfirm.oldPassword,
+      oldHashPassword
+    );
+    if (!isCorrectPassword) {
+      throw new Error("Mật khẩu cũ không đúng");
+    }
+
+    // 4. Ma hoa mat khau moi va luu  vao db
+    const passwordHash: string = await bcrypt.hash(userConfirm.newPassword, 10);
+    await this.service.updateHashPassword(user?.id, passwordHash);
+    await this.service.cleanupOTP(user?.id);
+
+    return {
+      message: "Thay đổi mật khẩu thành công",
+    };
+  }
+
+  async reSendPendingUserOTP(req: Request, res: Response) {
+    console.log("gia tri req.body: ", req.body);
+    const { email } = req.body;
+
+    if (!email) {
+      throw new Error("Phiên làm việc không hợp lệ hoặc đã hết hạn");
+    }
+
+    // lay record
+    const otpRecord: PendingUserHashOTP =
+      await this.service.getPendingUserOTPByEmail(email);
+
+    // check xem co record ko ?
+    if (!otpRecord) {
+      throw new Error("Tải khoản của bạn chưa qua bước đăng kí");
+    }
+    // Tao otp moi
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp_hash = await bcrypt.hash(otp, 10);
+
+    // Cap nhat lai record do
+    await this.service.updateHashOTPPendingUserById(
+      otpRecord.user_id,
+      otp_hash
+    );
+
+    console.log("Gia tri mail, otp, otpHash:", otpRecord.email, otp, otp_hash);
+    await sendRegisterOTPEmail(otpRecord.email, otp);
+    return {
+      message: "Gửi lại OTP thành công",
+    };
+  }
+
+  async reSendResetPasswordOTP(req: Request, res: Response) {
+    const { userId } = req.body;
+
+    if (!userId) {
+      throw new Error("Phiên làm việc không hợp lệ hoặc đã hết hạn");
+    }
+
+    const user: UserEntity = await this.service.getUserById(userId);
+
+    if (!user) {
+      throw new Error("Tài khoản này chưa được đăng kí");
+    }
+
+    // 1. lay record
+    const otpRecord: UserHashOTP = await this.service.getResetPasswordOTPById(
+      userId
+    );
+
+    // 2. check xem co record ko ?
+    if (!otpRecord) {
+      throw new Error("Tải khoản của bạn chưa qua bước đăng kí");
+    }
+    // 3. Tao otp moi
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp_hash = await bcrypt.hash(otp, 10);
+
+    // 4. Cap nhat lai record do
+    console.log("otpRecord: ", otpRecord);
+    await this.service.updateHashOTPResetPasswordByUserId(
+      otpRecord.user_id,
+      otp_hash
+    );
+
+    console.log("gia tri user: ", user);
+    console.log("Gia tri mail, otp, otpHash:", user.email, otp, otp_hash);
+    // 5: Gui mail
+    await sendForgetPasswordOTPEmail(user.email, otp);
+    return {
+      message: "Gửi lại OTP thành công",
     };
   }
 }
@@ -414,45 +613,3 @@ export const fetchMe = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };
-
-// user/
-
-/*
-Hàm jwt.sign nhận vào 3 tham số chính:
-+ Tham số thứ nhất: Payload (Dữ liệu mang theo)
-
-{ userId: user.id }: thông tin lưu trữ bên trong token.
-
-Khi người dùng gửi token này lên server trong các request tiếp theo, server sẽ giải mã token và đọc được userId này để biết "ai đang thực hiện hành động này".
-
-+ Tham số thứ hai: Secret Key (Khóa bí mật)
-
-process.env.ACCESS_TOKEN_SECRET: 
-
-Chức năng: Nó dùng để tạo ra chữ ký điện tử cho token. Chỉ có server nắm giữ khóa này mới có thể tạo ra token hợp lệ hoặc xác thực xem token có bị làm giả hay không.
-
-
-Tham số thứ ba: Options (Cấu hình)
-
-{ expiresIn: ACCESS_TOKEN_TTL }: Quy định thời gian sống (Time To Live) của token.
-
-Đoạn code này được viết bằng JavaScript/TypeScript (thường dùng trong môi trường Node.js) sử dụng thư viện jsonwebtoken (thường được import là jwt).
-
-Tóm lại: Đoạn code này tạo ra (ký) một "Access Token" (chìa khóa truy cập) dạng JWT cho một người dùng cụ thể.
-
-Dưới đây là giải thích chi tiết từng thành phần:
-
-
-Ví dụ: Nếu ACCESS_TOKEN_TTL là '15m' (15 phút) hoặc '1h' (1 giờ), thì sau khoảng thời gian này, token sẽ hết hạn và không còn sử dụng được nữa. Đây là cơ chế bảo mật để hạn chế rủi ro nếu token bị đánh cắp.
-
-2. Ví dụ minh họa dễ hiểu
-Hãy tưởng tượng bạn đi vào một công viên giải trí:
-
-userId: user.id: Là thông tin ghi trên vé của bạn (VD: "Khách hàng số 123").
-
-process.env.ACCESS_TOKEN_SECRET: Là con dấu riêng của ban quản lý công viên đóng lên vé. Nếu ai đó tự in vé giả nhưng không có con dấu này, vé sẽ không hợp lệ.
-
-expiresIn: Là thời gian ghi trên vé (VD: "Vé chỉ có giá trị trong ngày hôm nay").
-
-const accessToken: Chính là chiếc vé hoàn chỉnh mà bạn nhận được để đi qua cổng soát vé.
-    */

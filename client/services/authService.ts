@@ -1,4 +1,7 @@
-import { UserOTP, UserRegisterOTP } from "./../../shared/src/types/ResetPasswordOTP";
+import {
+  UserOTP,
+  UserRegisterOTP,
+} from "./../../shared/src/types/ResetPasswordOTP";
 import {
   ForgetPasswordRequest,
   RegisterRequest,
@@ -10,13 +13,12 @@ import API_ROUTES from "../../shared/src/api";
 
 export const authService = {
   signUp: async (user: RegisterRequest) => {
-    try{
-
+    try {
       const res = await api.post(API_ROUTES.auth.createAccount, user, {
         withCredentials: true, // cho phép trình duyệt gửi & nhận COOKIE khi gọi API ở domain khác
       });
       return res.data;
-    }catch(error: any){
+    } catch (error: any) {
       throw error?.response?.data ?? error;
     }
   },
@@ -54,7 +56,7 @@ export const authService = {
     }
   },
 
-    verifyRegisterOTP: async (user: UserRegisterOTP) => {
+  verifyRegisterOTP: async (user: UserRegisterOTP) => {
     try {
       const res = await api.post(API_ROUTES.auth.verifyRegisterOTP, user, {
         withCredentials: true, // cho phép trình duyệt gửi & nhận COOKIE khi gọi API ở domain khác
@@ -66,10 +68,14 @@ export const authService = {
   },
 
   signOut: async () => {
-    try{
-      const  res = await api.post(API_ROUTES.auth.signOut, {}, { withCredentials: true });
+    try {
+      const res = await api.post(
+        API_ROUTES.auth.signOut,
+        {},
+        { withCredentials: true }
+      );
       return res.data;
-    }catch (error: any) {
+    } catch (error: any) {
       throw error?.response?.data ?? error;
     }
   },
@@ -96,15 +102,37 @@ export const authService = {
     user: ResetPasswordRequest,
     resetToken: string | null
   ) => {
-    try{
-       const res = await api.post(API_ROUTES.auth.resetPassword, user, {
-      headers: {
-        Authorization: `Bearer ${resetToken}`,
-      },
-    });
+    try {
+      const res = await api.post(API_ROUTES.auth.resetPassword, user, {
+        headers: {
+          Authorization: `Bearer ${resetToken}`,
+        },
+      });
 
-    return res.data;
-    }catch(error: any){
+      return res.data;
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  },
+
+  reSendRegisterOTP: async (email: string | null) => {
+    try {
+      console.log("email service: ", email);
+      const res = await api.post(API_ROUTES.auth.reSendRegisterOTP, { email });
+      return res.data;
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  },
+
+  reSendRResetPasswordOTP: async (userId: number | null) => {
+    try {
+      const res = await api.post(API_ROUTES.auth.reSendResetPasswordOTP, {
+        userId,
+      });
+
+      return res.data;
+    } catch (error: any) {
       throw error?.response?.data;
     }
   },

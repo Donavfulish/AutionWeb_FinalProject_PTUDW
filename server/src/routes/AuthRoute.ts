@@ -3,7 +3,7 @@ import { AuthController } from "../controllers/AuthController";
 import { BaseController } from "../controllers/BaseController";
 import { AuthService } from "../services/AuthService";
 import { ProtectedResetPasswordRoutes } from "../middlewares/authMiddleware";
-
+import { protectedRoutes } from "../middlewares/authMiddleware";
 export class AuthRoute extends BaseRoute {
   private controller: AuthController;
   constructor() {
@@ -36,9 +36,23 @@ export class AuthRoute extends BaseRoute {
     );
 
     this.router.post(
+      "/signOutAdmin",
+      BaseController.handleRequest(
+        this.controller.signOutAdmin.bind(this.controller)
+      )
+    );
+
+    this.router.post(
       "/refresh",
       BaseController.handleRequest(
         this.controller.refreshToken.bind(this.controller)
+      )
+    );
+
+     this.router.post(
+      "/refreshAdmin",
+      BaseController.handleRequest(
+        this.controller.refreshTokenAdmin.bind(this.controller)
       )
     );
 
@@ -63,6 +77,21 @@ export class AuthRoute extends BaseRoute {
       )
     )
 
+      this.router.post(
+       "/reSend-register-otp",
+      BaseController.handleRequest(
+        this.controller.reSendPendingUserOTP.bind(this.controller)
+      )
+    )
+
+    
+      this.router.post(
+       "/reSend-resetPassword-otp",
+      BaseController.handleRequest(
+        this.controller.reSendResetPasswordOTP.bind(this.controller)
+      )
+    )
+
     this.router.post(
       "/reset-password",
       ProtectedResetPasswordRoutes,
@@ -70,5 +99,15 @@ export class AuthRoute extends BaseRoute {
         this.controller.resetPassword.bind(this.controller)
       )
     );
+
+      this.router.post(
+      "/change-password",
+      protectedRoutes,
+      BaseController.handleRequest(
+        this.controller.changePassword.bind(this.controller)
+      )
+    );
+
+    
   }
 }

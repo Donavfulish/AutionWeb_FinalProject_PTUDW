@@ -1,4 +1,7 @@
-import { UserOTP, UserRegisterOTP } from "./../../shared/src/types/ResetPasswordOTP";
+import {
+  UserOTP,
+  UserRegisterOTP,
+} from "./../../shared/src/types/ResetPasswordOTP";
 import { create } from "zustand";
 import {
   ForgetPasswordRequest,
@@ -87,6 +90,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ loading: true });
 
       const data = await authService.forgetPassword(user);
+      console.log("data response from reset password: ", data);
       set({ forgetUserId: data.userId });
       get().setVerifyOTPType("forgetPassword-otp");
       console.log(data);
@@ -95,6 +99,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.log(error);
       toast.error(error.message);
       throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 
@@ -153,19 +159,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.log(error);
       toast.error(error.message);
       throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 
   verifyRegisterOTP: async (user: UserRegisterOTP) => {
-    try{
+    try {
       set({ loading: true });
-      const {message } = await authService.verifyRegisterOTP(user);
+      const { message } = await authService.verifyRegisterOTP(user);
       toast.success(message);
-    }catch(error: any){
+    } catch (error: any) {
       console.log(error);
       toast.error(error.message);
       throw error;
-
+    } finally {
+      set({ loading: false });
     }
   },
 
@@ -181,6 +190,39 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.log(error);
       toast.error(error.message);
       throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  reSendRegisterOTP: async () => {
+    try {
+      const email = get().pendingUserEmail;
+      set({ loading: true });
+      console.log("gia tri email: ", email);
+      const data = await authService.reSendRegisterOTP(email);
+      toast.success(data.message);
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.message);
+      throw error;
+    }finally {
+      set({ loading: false });
+    }
+  },
+
+  reSendRResetPasswordOTP: async () => {
+    try {
+      set({ loading: true });
+      const userId = get().forgetUserId
+      const data = await authService.reSendRResetPasswordOTP(userId);
+      toast.success(data.message);
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.message);
+      throw error;
+    }finally {
+      set({ loading: false });
     }
   },
 }));
