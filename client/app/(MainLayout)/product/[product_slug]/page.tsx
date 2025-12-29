@@ -11,7 +11,7 @@ import { ImageCarousel } from "@/components/ImageCarousel";
 import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
 import Image from "next/image";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import ProductHook from "@/hooks/useProduct";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Question, formatCurrency, formatDate } from "./components/Question";
@@ -101,9 +101,13 @@ export default function ProductPage() {
   const [setFavorites, setSetFavorites] = useState<Set<number>>();
   const [isBid, setIsBid] = useState(false);
   const [openBuyNowModal, setOpenBuyNowModal] = useState<boolean>(false);
+  const [warningAutoBuyNowModal, setWarningAutoBuyNowModal] =
+    useState<boolean>(false);
   const [isPopup, setIsPopup] = useState<boolean>(false);
   const [canBid, setIsCanBid] = useState<boolean>(false);
   const [navToOrderConfirm, setNavToOrderConfirm] = useState<boolean>(false);
+
+  const resolveRef = useRef<((value: boolean) => void) | null>(null);
 
   const schemaBid = z.object({
     price: z
@@ -241,11 +245,24 @@ export default function ProductPage() {
   };
   if (favorite_products) console.log(favorite_products);
 
-  const handleBid: SubmitHandler<{ price: number }> = (data) => {
+  const waitUserConfirm = async (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      resolveRef.current = resolve;
+    });
+  };
+
+  const userConfirm = (isConfirm: boolean): void => {
+    if (resolveRef.current) {
+      resolveRef.current(isConfirm);
+      resolveRef.current = null;
+    }
+  };
+
+  const handleBid: SubmitHandler<{ price: number }> = async (data) => {
     if (product.buy_now_price && data.price >= product.buy_now_price) {
-      setOpenBuyNowModal(true);
-      setIsBid(false);
-      return;
+      setWarningAutoBuyNowModal(true);
+      const isConfirm = await waitUserConfirm();
+      if (!isConfirm) return;
     }
 
     if (product.current_price && data.price <= product.current_price) {
@@ -715,9 +732,19 @@ export default function ProductPage() {
               favorite_products={setFavorites}
             />
           )}
-          <ConfirmPopup
+          <SimpleConfirmPopup
             isOpen={isPopup}
             onClose={() => setIsPopup(false)}
+            content={
+              <div>
+                <p className="text-gray-700">
+                  Bạn có chắc chắn muốn đấu giá không
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Hành động này không thể hoàn tác.
+                </p>
+              </div>
+            }
             onConfirm={() => {
               handleSubmitBid(handleBid)();
               setIsPopup(false);
@@ -733,6 +760,38 @@ export default function ProductPage() {
             onConfirm={() =>
               router.replace(`/product/order/${order.product_id}`)
             }
+          />
+          <SimpleConfirmPopup
+            title="Đi tới đơn hàng"
+            isOpen={navToOrderConfirm}
+            onClose={() => setNavToOrderConfirm(false)}
+            content={`Bạn đã mua sản phẩm này. Bạn có muốn đi tới đơn hàng không?`}
+            confirmLabel="Tới đơn hàng"
+            cancelLabel="Ở lại"
+            onConfirm={() =>
+              router.replace(`/product/order/${order.product_id}`)
+            }
+          />
+          <SimpleConfirmPopup
+            title="Lưu ý"
+            isOpen={warningAutoBuyNowModal}
+            onClose={() => setWarningAutoBuyNowModal(false)}
+            content={
+              <div>
+                <p>Giá đấu của bạn đang cao hơn giá mua ngay.</p>
+                <p>
+                  Hệ thống sẽ <b>tự động mua ngay</b> nếu bạn dẫn đầu với giá
+                  cao hơn giá mua ngay. Bạn muốn chấp nhận rủi ro và xác nhận
+                  đấu giá không?
+                </p>
+              </div>
+            }
+            confirmLabel="Đấu giá"
+            cancelLabel="Hủy"
+            onConfirm={() => {
+              setWarningAutoBuyNowModal(false);
+              userConfirm(true);
+            }}
           />
         </>
       )}
