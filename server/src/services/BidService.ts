@@ -15,6 +15,10 @@ type BidStatusType = {
   max_price: number;
   price_increment: number;
   buy_now_price: number | null;
+  auto_extend: boolean;
+  end_time: Date;
+  product_threshold_time: number;
+  product_renew_time: number;
 };
 
 export class BidService extends BaseService {
@@ -134,9 +138,14 @@ export class BidService extends BaseService {
           ) AS current_price,
           BID.max_price::INT,
           P.price_increment::INT,
-          P.buy_now_price::INT
+          P.buy_now_price::INT,
+          P.auto_extend,
+          P.end_time,
+          CONF.product_threshold_time,
+          CONF.product_renew_time
         FROM PRODUCT.PRODUCTS P
         LEFT JOIN AUCTION.USER_BIDS BID ON BID.user_id = P.top_bidder_id AND BID.product_id = P.id
+        CROSS JOIN SYSTEM_CONFIG CONF
         WHERE P.id = $1
       `;
 
@@ -229,6 +238,33 @@ export class BidService extends BaseService {
 
       return result[0];
     };
+
+    const extendProductEndTimeIfNecessary = async (
+      auto_extend: boolean,
+      end_time: Date,
+      threshold: number,
+      extend: number
+    ) => {
+      if (!auto_extend) return;
+      const nowTime = new Date();
+      const diffInMinutes: number =
+        (end_time.getTime() - nowTime.getTime()) / (1000 * 60);
+      if (diffInMinutes > 0 && diffInMinutes <= threshold) {
+        const newEndTime = new Date(end_time.getTime() + extend * 1000 * 60);
+        const result = await this.safeQuery(
+          `
+          UPDATE product.products
+          SET
+            end_time = $1,
+            updated_at = NOW()
+          WHERE id = $2
+        `,
+          [newEndTime, bid.product_id]
+        );
+        console.log("extend result: ", result);
+      }
+    };
+
     try {
       await poolClient.query("BEGIN");
 
@@ -253,8 +289,16 @@ export class BidService extends BaseService {
       console.log(3);
       // 3. Lấy thông tin đấu giá hiện tại của sản phẩm
       const productBidStatus: BidStatusType = productBidStatusResult[0]!;
-      const { seller_id, current_price, price_increment, buy_now_price } =
-        productBidStatus;
+      const {
+        seller_id,
+        current_price,
+        price_increment,
+        buy_now_price,
+        auto_extend,
+        end_time,
+        product_threshold_time,
+        product_renew_time,
+      } = productBidStatus;
 
       console.log(4);
       // 4. Kiểm tra giá bid có hợp lệ điều kiện cần không
@@ -365,10 +409,21 @@ export class BidService extends BaseService {
           current_price + price_increment
         );
 
-        await Promise.all([updateTopBidderPromise, writeBidLogPromise]);
+        const extendEndTimePromise = extendProductEndTimeIfNecessary(
+          auto_extend,
+          end_time,
+          product_threshold_time,
+          product_renew_time
+        );
+
+        await Promise.all([
+          updateTopBidderPromise,
+          writeBidLogPromise,
+          extendEndTimePromise,
+        ]);
 
         if (buy_now_price && bidPrice == buy_now_price) {
-          this.orderService.createOrder(bid.user_id, order);
+          await this.orderService.createOrder(bid.user_id, order);
         }
       } else {
         // TH2: Sản phẩm đã được đấu giá trước đó
@@ -383,10 +438,21 @@ export class BidService extends BaseService {
           if (buy_now_price)
             opponentBidPrice = Math.min(buy_now_price, opponentBidPrice);
 
-          await createBidLog(productBidStatus.top_bidder_id, opponentBidPrice);
+          const createBidLogPromise = createBidLog(
+            productBidStatus.top_bidder_id,
+            opponentBidPrice
+          );
+          const extendEndTimePromise = extendProductEndTimeIfNecessary(
+            auto_extend,
+            end_time,
+            product_threshold_time,
+            product_renew_time
+          );
+
+          await Promise.all([createBidLogPromise, extendEndTimePromise]);
 
           if (buy_now_price && opponentBidPrice == buy_now_price) {
-            this.orderService.createOrder(
+            await this.orderService.createOrder(
               productBidStatus.top_bidder_id,
               order
             );
@@ -405,11 +471,21 @@ export class BidService extends BaseService {
 
           const writeBidLogPromise = createBidLog(bid.user_id, myBidPrice);
           const updateTopBidderPromise = updateTopBidderId(bid.user_id);
+          const extendEndTimePromise = extendProductEndTimeIfNecessary(
+            auto_extend,
+            end_time,
+            product_threshold_time,
+            product_renew_time
+          );
 
-          await Promise.all([writeBidLogPromise, updateTopBidderPromise]);
+          await Promise.all([
+            writeBidLogPromise,
+            updateTopBidderPromise,
+            extendEndTimePromise,
+          ]);
 
           if (buy_now_price && myBidPrice == buy_now_price) {
-            this.orderService.createOrder(bid.user_id, order);
+            await this.orderService.createOrder(bid.user_id, order);
           }
 
           const oldBidderInfo: User | undefined = await getUserInfo(
