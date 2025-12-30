@@ -20,6 +20,7 @@ import DeliveringStep from "./DeliveringStep";
 import { useRouter } from "next/navigation";
 import FinishStep from "./FinishStep";
 import OrderChat from "./components/OrderChat";
+import OrderInfoCard from "./OrderInfoCard";
 
 const stepperIndexDict: Record<OrderStatus, number> = {
   pending: 0,
@@ -73,7 +74,7 @@ const ProductOrderPage = () => {
         <>
           <h1 className="text-2xl">Thông tin đơn hàng</h1>
           <div className="w-full grid grid-cols-12 gap-5">
-            <div className="col-span-8 border relative bg-white rounded-lg p-6 mb-8 border-slate-200">
+            <div className="col-span-8 border relative bg-white rounded-lg p-6 border-slate-200">
               <p className="text-xl font-medium mb-4">Trạng thái đơn hàng</p>
               <BuyingProductCard product={product} order={order} />
               {order.status == "cancelled" ? (
@@ -89,7 +90,7 @@ const ProductOrderPage = () => {
                     description={`Người mua thanh toán`}
                     className="mb-4"
                   >
-                    <PaymentStep order={order} product={product}/>
+                    <PaymentStep order={order} product={product} />
                   </Stepper.Step>
                   <Stepper.Step
                     label="Chuẩn bị hàng"
@@ -113,8 +114,13 @@ const ProductOrderPage = () => {
               )}
             </div>
 
-            <div className="col-span-4 border relative bg-white rounded-lg p-6 mb-8 border-slate-200">
-              <OrderChat productId={product.id}/>
+            <div className="sticky top-20 col-span-4 h-[calc(100vh-100px)] flex flex-col gap-4">
+              <div className="flex-1 min-h-0">
+                <OrderChat productId={product.id} />
+              </div>
+              <div className="shrink-0">
+                <OrderInfoCard product={product} order={order} />
+              </div>
             </div>
           </div>
         </>
