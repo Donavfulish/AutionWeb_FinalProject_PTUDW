@@ -36,5 +36,17 @@ export class SystemRoute extends BaseRoute {
         this.controller.updateProductMinTime.bind(this.controller)
       )
     );
+    this.router.get(
+      "/threshold-time",
+      BaseController.handleRequest(
+        this.controller.getProductThresholdTime.bind(this.controller)
+      )
+    );
+    this.router.patch(
+      "/threshold-time",
+      BaseController.handleRequest(
+        this.controller.updateProductThresholdTime.bind(this.controller)
+      )
+    );
   }
 }

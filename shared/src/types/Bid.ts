@@ -44,3 +44,6 @@ export type BlacklistPayload = {
   product_id: number;
   buyer_id: number;
 };
+export type CanBid = {
+  canBid: boolean;
+}

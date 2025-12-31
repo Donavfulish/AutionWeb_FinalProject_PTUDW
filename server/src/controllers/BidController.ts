@@ -48,4 +48,10 @@ export class BidController extends BaseController {
 
     return await this.service.blacklistABuyer(product_id, seller_id, buyer_id);
   }
+  async getCanBid(req: Request, res: Response) {
+    const user_id = req.user?.id;
+    const { product_slug } = req.params;
+
+    return await this.service.getCanBid(user_id, product_slug);
+  }
 }

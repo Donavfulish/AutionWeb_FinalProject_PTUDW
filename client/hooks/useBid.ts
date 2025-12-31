@@ -94,6 +94,17 @@ class BidHook {
       },
     });
   }
+  static useGetCanBid(productSlug: string) {
+    return useQuery({
+      queryKey: ["can_bid", productSlug],
+      queryFn: () => BidService.getCanBid(productSlug),
+      staleTime: STALE_10_MIN,
+      enabled: !!productSlug,
+      select: (data) => {
+        return data.data.canBid;
+      },
+    });
+  }
 }
 
 export default BidHook;

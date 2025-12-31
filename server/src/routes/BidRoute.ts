@@ -39,11 +39,17 @@ export class BidRoute extends BaseRoute {
         this.controller.createReject.bind(this.controller)
       )
     );
-    
+
     this.router.post(
       "/blacklist",
       BaseController.handleRequest(
         this.controller.createBlacklist.bind(this.controller)
+      )
+    );
+    this.router.get(
+      "/:product_slug/can-bid",
+      BaseController.handleRequest(
+        this.controller.getCanBid.bind(this.controller)
       )
     );
   }

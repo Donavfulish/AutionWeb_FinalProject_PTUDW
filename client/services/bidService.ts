@@ -35,4 +35,10 @@ export class BidService {
       return res.data;
     });
   }
+  static async getCanBid(productSlug: string): Promise<any> {
+    return safeRequest(async () => {
+      const res = await api.get(API_ROUTES.bid.getCanBid(productSlug));
+      return res.data;
+    });
+  }
 }

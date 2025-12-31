@@ -47,7 +47,7 @@ export function SigninForm({
 
     await signIn(user);
     if (useAuthStore.getState().user) {
-      router.replace("/");
+      router.replace("/category");
     }
   };
   return (

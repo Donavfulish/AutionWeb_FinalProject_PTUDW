@@ -221,12 +221,11 @@ class ProductHook {
       mutationFn: (formData: FormData) =>
         ProductService.createProduct(formData),
       onSuccess: () => {
+        console.log("Tao san pham thanh cong");
         toast.success("Tạo sản phẩm thành công");
         queryClient.invalidateQueries({
           queryKey: ["products"],
         });
-
-        window.location.reload();
       },
       onError: (error) => {
         toast.error("Tạo sản phẩm thất bại");
@@ -242,7 +241,7 @@ class ProductHook {
       onSuccess: () => {
         toast.success("Cập nhật mô tả thành công");
         queryClient.invalidateQueries({
-          queryKey: ["products"],
+          queryKey: ["product_by_slug"],
         });
       },
 

@@ -147,6 +147,12 @@ export default function ProductPage() {
     data: Order;
     isLoading: boolean;
   };
+  const { data: isCanBid, isLoading: isLoadingIsCanBid } = BidHook.useGetCanBid(
+    product_slug as string
+  ) as {
+    data: boolean;
+    isLoading: boolean;
+  };
 
   const { mutate: createBid, isPending: isCreatingBid } =
     BidHook.useCreateBid();
@@ -196,24 +202,29 @@ export default function ProductPage() {
   }, [favorite_products, product]);
 
   useEffect(() => {
-    if (!router || !user || !product || !order || !searchParams) return;
+    if (!router || !user || !product || !order || !searchParams || canBid)
+      return;
     //Check can bid
     if (user) {
-      const pos = user.positive_points ? user.positive_points : 0;
-      const neg = user.negative_points ? user.negative_points : 0;
-
-      const total = pos + neg;
-      if (total === 0) {
-        if (product.is_all_can_bid) {
-          setIsCanBid(true);
-        } else {
-          setIsCanBid(false);
-        }
+      if (!isCanBid) {
+        setIsCanBid(false);
       } else {
-        if (pos / total >= 0.8) {
-          setIsCanBid(true);
+        const pos = user.positive_points ? user.positive_points : 0;
+        const neg = user.negative_points ? user.negative_points : 0;
+
+        const total = pos + neg;
+        if (total === 0) {
+          if (product.is_all_can_bid) {
+            setIsCanBid(true);
+          } else {
+            setIsCanBid(false);
+          }
         } else {
-          setIsCanBid(false);
+          if (pos / total >= 0.8) {
+            setIsCanBid(true);
+          } else {
+            setIsCanBid(false);
+          }
         }
       }
     }
@@ -435,7 +446,7 @@ export default function ProductPage() {
                   {product.status == "available" ? (
                     <>
                       <div className="relative">
-                        <div>
+                        <div className="relative group inline-block w-full">
                           <PrimaryButton
                             backgroundColor={canBid ? "#2563eb" : "#5d97fc"}
                             hoverBackgroundColor={
@@ -445,6 +456,32 @@ export default function ProductPage() {
                             onClick={handleOnclickBid}
                             disabled={!canBid}
                           />
+
+                          {/* Tooltip */}
+                          {!canBid && (
+                            <div
+                              className="
+                                    absolute
+                                    bottom-full
+                                    left-1/2
+                                    -translate-x-1/2
+                                    mb-2
+                                    hidden
+                                    group-hover:block
+                                    whitespace-nowrap
+                                    rounded
+                                    bg-gray-900
+                                    px-3
+                                    py-1
+                                    text-xs
+                                    text-white
+                                    shadow-lg
+                                    z-50
+                                  "
+                            >
+                              Bạn không đủ điều kiện để đấu giá
+                            </div>
+                          )}
                         </div>
 
                         {isBid && (
@@ -580,14 +617,50 @@ export default function ProductPage() {
                         )}
                       </div>
 
-                      <div>
+                      <div className="relative group w-full">
+                        {/* Button */}
                         <button
+                          disabled={!isCanBid}
                           onClick={handleBuyNow}
-                          className="w-full flex items-center gap-2 justify-center border border-red-600 text-red-600 py-2 font-medium rounded-lg hover:bg-red-400 hover:border-red-400 hover:text-white transition-colors duration-200"
+                          style={{
+                            cursor: !isCanBid ? "not-allowed" : "pointer",
+                          }}
+                          className="
+                                    w-full flex items-center gap-2 justify-center
+                                    border border-red-600 text-red-600
+                                    py-2 font-medium rounded-lg
+                                    transition-colors duration-200
+                                    hover:bg-red-400 hover:border-red-400 hover:text-white
+                                    disabled:hover:bg-transparent
+                                    disabled:hover:text-red-600
+                                  "
                         >
                           {"Mua ngay " +
                             formatCurrency(product.buy_now_price || 0)}
                         </button>
+
+                        {/* Tooltip */}
+                        {!isCanBid && (
+                          <div
+                            className=" absolute bottom-full left-1/2
+                                      -translate-x-1/2
+                                      mb-2
+                                      hidden
+                                      group-hover:block
+                                      whitespace-nowrap
+                                      rounded
+                                      bg-gray-900
+                                      px-3
+                                      py-1
+                                      text-xs
+                                      text-white
+                                      shadow-lg
+                                      z-50
+                                    "
+                          >
+                            Bạn không đủ điều kiện để mua sản phẩm này
+                          </div>
+                        )}
                       </div>
                     </>
                   ) : (

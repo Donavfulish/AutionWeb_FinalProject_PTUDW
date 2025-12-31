@@ -50,36 +50,49 @@ function QuestionItem({
   answer,
   created_at,
 }: ProductQuestion) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
   const date = new Date(created_at ?? "");
+  const [open, setOpen] = useState(false);
+
   return (
     <>
+      {/* Header */}
       <div className="flex flex-row justify-between">
         <p className="font-medium text-gray-900">{user.name}</p>
         {created_at && (
-          <p className="text-xs text-gray-600"> {formatDate(date)}</p>
+          <p className="text-xs text-gray-600">{formatDate(date)}</p>
         )}
       </div>
-      <p className="text-gray-600 mb-3">Câu hỏi: {comment}</p>
-      {answer &&
-        answer.map((item, index) => (
-          <div
-            key={index}
-            className="ml-4 pl-4 border-l-2 border-amber-400 my-4"
-          >
-            <button
-              onClick={() => setOpenIndex(openIndex === index ? null : index)}
-              className="text-sm font-medium text-amber-600 mb-1 flex items-center gap-2 cursor-pointer"
-            >
-              Trả lời từ người bán
-              <span>{openIndex === index ? "▲" : "▼"}</span>
-            </button>
 
-            {openIndex === index && (
-              <p className="text-sm text-gray-700 mt-1">{item.comment}</p>
-            )}
-          </div>
-        ))}
+      <p className="text-gray-600 mb-2">Câu hỏi: {comment}</p>
+
+      {/* Nút mở dropdown */}
+      {answer && answer.length > 0 && (
+        <button
+          onClick={() => setOpen(!open)}
+          className="text-sm text-amber-600 hover:underline cursor-pointer"
+        >
+          {open ? "Ẩn câu trả lời" : `Xem ${answer.length} câu trả lời`}
+        </button>
+      )}
+
+      {/* Dropdown answers */}
+      {open && (
+        <div className="mt-3">
+          {answer?.map((item, index) => (
+            <div
+              key={index}
+              className="ml-4 pl-4 border-l-2 border-amber-400 my-3"
+            >
+              <p className="text-sm font-semibold text-black">
+                {item.user.name}
+              </p>
+              <p className="text-sm text-gray-700">
+                Câu trả lời: {item.comment}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 }

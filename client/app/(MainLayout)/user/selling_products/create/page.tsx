@@ -95,6 +95,7 @@ const CreateProductPage = () => {
     watch,
     resetField,
     control,
+    reset,
   } = useForm({
     resolver: zodResolver(newProductSchema),
     defaultValues: {
@@ -160,7 +161,18 @@ const CreateProductPage = () => {
 
     formData.append("payload", JSON.stringify(payload));
 
-    createProduct(formData);
+    createProduct(formData, {
+      onSuccess: () => {
+        // Reset form
+        reset();
+
+        // Reset images
+        setMainImage(null);
+        setPreviewMain(null);
+        setExtraImages(null);
+        setPreviewExtras(null);
+      },
+    });
   };
   return (
     <div className="relative w-full bg-[#F8FAFC] lg:px-24">

@@ -50,88 +50,49 @@ function QuestionItem({
   answer,
   created_at,
 }: ProductQuestion) {
-  const { mutate: createAnswer, isPending: isCreateAnswer } =
-    ProductHook.useCreateProductAnswer();
-  const schema = z.object({
-    comment: z.string().nonempty("Vui lòng nhập câu trả lời"),
-  });
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<{ comment: string }>({
-    resolver: zodResolver(schema),
-    defaultValues: { comment: "" },
-  });
-
-  const handleSend: SubmitHandler<{ comment: string }> = (data) => {
-    createAnswer({
-      idProduct: product_id,
-      idQuestion: id,
-      data: { comment: data.comment, productId: product_id },
-    });
-    setValue("comment", "");
-  };
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
   const date = new Date(created_at ?? "");
+  const [open, setOpen] = useState(false);
 
   return (
     <>
+      {/* Header */}
       <div className="flex flex-row justify-between">
         <p className="font-medium text-gray-900">{user.name}</p>
         {created_at && (
-          <p className="text-xs text-gray-600"> {formatDate(date)}</p>
+          <p className="text-xs text-gray-600">{formatDate(date)}</p>
         )}
       </div>
-      <p className="text-gray-600 mb-3">Câu hỏi: {comment}</p>
 
-      {answer &&
-        answer.map((item, index) => (
-          <div
-            key={index}
-            className="ml-4 pl-4 border-l-2 border-amber-400 my-4"
-          >
-            <button
-              onClick={() => setOpenIndex(openIndex === index ? null : index)}
-              className="text-sm font-medium text-amber-600 mb-1 flex items-center gap-2 cursor-pointer" 
+      <p className="text-gray-600 mb-2">Câu hỏi: {comment}</p>
+
+      {/* Nút mở dropdown */}
+      {answer && answer.length > 0 && (
+        <button
+          onClick={() => setOpen(!open)}
+          className="text-sm text-amber-600 hover:underline cursor-pointer"
+        >
+          {open ? "Ẩn câu trả lời" : `Xem ${answer.length} câu trả lời`}
+        </button>
+      )}
+
+      {/* Dropdown answers */}
+      {open && (
+        <div className="mt-3">
+          {answer?.map((item, index) => (
+            <div
+              key={index}
+              className="ml-4 pl-4 border-l-2 border-amber-400 my-3"
             >
-              Trả lời từ người bán
-              <span>{openIndex === index ? "▲" : "▼"}</span>
-            </button>
-
-            {openIndex === index && (
-              <p className="text-sm text-gray-700 mt-1">{item.comment}</p>
-            )}
-          </div>
-        ))}
-      <form className=" mb-8" onSubmit={handleSubmit(handleSend)}>
-        <div className="w-full  ">
-          <div className="flex flex-row">
-            <div className="flex-8 md:flex-9 mr-2">
-              <input
-                {...register("comment")}
-                placeholder="Nhập nội dung trả lời câu hỏi của người hỏi"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                type="text"
-              />
+              <p className="text-sm font-semibold text-black">
+                {item.user.name}
+              </p>
+              <p className="text-sm text-gray-700">
+                Câu trả lời: {item.comment}
+              </p>
             </div>
-            <button
-              type="submit"
-              className="flex-2 md:flex-1 bg-blue-600 text-white flex justify-center items-center gap-1 rounded-2xl hover:cursor-pointer"
-            >
-              <FlightOutlineIcon />
-
-              <span>Gửi</span>
-            </button>
-          </div>
-          <span className="text-red-600 text-sm mt-1 block mb-2">
-            {errors.comment ? errors.comment.message : ""}
-          </span>
+          ))}
         </div>
-      </form>
+      )}
     </>
   );
 }

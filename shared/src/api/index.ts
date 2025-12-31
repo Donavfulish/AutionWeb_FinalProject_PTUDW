@@ -52,6 +52,7 @@ const API_ROUTES = {
   },
   bid: {
     getBidLogs: (id: number) => `${BID_API}/${id}`, //GET
+    getCanBid: (productSlug: string) => `${BID_API}/${productSlug}/can-bid`, //GET
     getUserBid: (productId: number) => `${BID_API}/user-bid/${productId}`, //GET
     createBid: `${BID_API}`, //POST
     createReject: `${BID_API}/reject`, //POST
@@ -155,6 +156,8 @@ const API_ROUTES = {
     updateProductRenewTime: `${SYSTEM_API}/renew-time`, //PATCH
     getProductMinTime: `${SYSTEM_API}/min-time`, //GET
     updateProductMinTime: `${SYSTEM_API}/min-time`, //PATCH
+    getProductThresholdTime: `${SYSTEM_API}/threshold-time`, //GET
+    updateProductThresholdTime: `${SYSTEM_API}/threshold-time`, //PATCH
   },
 };
 
