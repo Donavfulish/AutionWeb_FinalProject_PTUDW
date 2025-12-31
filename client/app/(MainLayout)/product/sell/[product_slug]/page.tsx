@@ -167,13 +167,11 @@ export default function ProductPage() {
     return Math.round((positive_points / total) * 100);
   }, [product?.top_bidder]);
 
-  const totalRating = useMemo<number>(() => 
-    {
-        if (product?.seller)
-            return (product.seller.positive_points + product.seller.negative_points)
-        return 0
-    }
-  , [product])
+  const totalRating = useMemo<number>(() => {
+    if (product?.seller)
+      return product.seller.positive_points + product.seller.negative_points;
+    return 0;
+  }, [product]);
 
   useEffect(() => {
     if (favorite_products && product) {
@@ -261,7 +259,18 @@ export default function ProductPage() {
     setOpenBuyNowModal(true);
   };
 
-  if (isLoadingFavoriteProducts || isLoadingOrder || isLoadingProduct || isLoadingProductCategory || isLoadingUserBid) return <div>Loading...</div>;
+  if (
+    isLoadingFavoriteProducts ||
+    isLoadingOrder ||
+    isLoadingProduct ||
+    isLoadingProductCategory ||
+    isLoadingUserBid
+  )
+    return (
+      <div className="w-screen h-screen inset-0 z-100">
+        <LoadingSpinner />
+      </div>
+    );
 
   return (
     <div className="bg-[#F8FAFC] w-full">
@@ -373,12 +382,14 @@ export default function ProductPage() {
                         {product.seller.name}
                       </p>
                       <p className="text-xs text-slate-600">
-                        {totalRating === 0 ? 'Chưa có đánh giá' : `⭐{" "}${Math.round(
-                          (product.seller.positive_points /
-                            (product.seller.positive_points +
-                              product.seller.negative_points)) *
-                            100
-                        )}%`}
+                        {totalRating === 0
+                          ? "Chưa có đánh giá"
+                          : `⭐{" "}${Math.round(
+                              (product.seller.positive_points /
+                                (product.seller.positive_points +
+                                  product.seller.negative_points)) *
+                                100
+                            )}%`}
                       </p>
                     </div>
                   </div>

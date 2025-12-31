@@ -52,6 +52,30 @@ function QuestionItem({
 }: ProductQuestion) {
   const date = new Date(created_at ?? "");
   const [open, setOpen] = useState(false);
+  const { mutate: createAnswer, isPending: isCreateAnswer } =
+    ProductHook.useCreateProductAnswer();
+  const schema = z.object({
+    comment: z.string().nonempty("Vui lòng nhập câu trả lời"),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<{ comment: string }>({
+    resolver: zodResolver(schema),
+    defaultValues: { comment: "" },
+  });
+
+  const handleSend: SubmitHandler<{ comment: string }> = (data) => {
+    createAnswer({
+      idProduct: product_id,
+      idQuestion: id,
+      data: { comment: data.comment, productId: product_id },
+    });
+    setValue("comment", "");
+  };
 
   return (
     <>
@@ -93,6 +117,31 @@ function QuestionItem({
           ))}
         </div>
       )}
+      <form className=" mb-8" onSubmit={handleSubmit(handleSend)}>
+        <div className="w-full  ">
+          <div className="flex flex-row">
+            <div className="flex-8 md:flex-9 mr-2">
+              <input
+                {...register("comment")}
+                placeholder="Nhập nội dung trả lời câu hỏi của người hỏi"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                type="text"
+              />
+            </div>
+            <button
+              type="submit"
+              className="flex-2 md:flex-1 bg-blue-600 text-white flex justify-center items-center gap-1 rounded-2xl hover:cursor-pointer"
+            >
+              <FlightOutlineIcon />
+
+              <span>Gửi</span>
+            </button>
+          </div>
+          <span className="text-red-600 text-sm mt-1 block mb-2">
+            {errors.comment ? errors.comment.message : ""}
+          </span>
+        </div>
+      </form>
     </>
   );
 }

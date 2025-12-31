@@ -3,17 +3,19 @@
 import LoadingSpinner from "@/components/LoadingSpinner";
 import OrderHook from "@/hooks/useOrder";
 import React, { useState } from "react";
-import { Order } from "../../../../../../../shared/src/types";
+import { Order, Product } from "../../../../../../../shared/src/types";
 import { formatCurrency } from "../../[product_slug]/components/Question";
-import { CircleCheckBig, Search, Truck } from "lucide-react";
+import { CircleCheckBig, CircleMinus, Search, Truck } from "lucide-react";
 import PrimaryButton from "@/components/PrimaryButton";
+import RejectOrderButton from "./RejectOrderButton";
 
 type ComponentProps = {
   setActive: React.Dispatch<React.SetStateAction<number>>;
   order: Order;
+  product: Product;
 };
 
-const ConfirmStep = ({ setActive, order }: ComponentProps) => {
+const ConfirmStep = ({ setActive, order, product }: ComponentProps) => {
   const [isPackaged, setIsPackaged] = useState<boolean>(false);
 
   const { mutate: sellerConfirmOrder, isPending: isConfirmingOrder } =
@@ -94,6 +96,15 @@ const ConfirmStep = ({ setActive, order }: ComponentProps) => {
           <Truck height={20} width={20} />
           <span className="text-md font-medium">Tìm tài xế</span>
         </button>
+      </div>
+
+      <div className="mt-10 flex flex-col gap-4">
+        <p className="w-fit text-lg font-bold text-red-500">
+          Trong trường hợp người mua chưa thanh toán hoặc cố tình làm giả giao
+          dịch, ban có thể hủy đơn hàng
+        </p>
+
+        <RejectOrderButton order={order} product={product} />
       </div>
     </div>
   );

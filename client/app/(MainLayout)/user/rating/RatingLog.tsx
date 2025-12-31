@@ -1,35 +1,84 @@
 import Image from "next/image";
-import { UserRating } from "../../../../shared/src/types";
+import { UserRating } from "../../../../../shared/src/types";
+import { ThumbsUp, ThumbsDown, Calendar } from "lucide-react";
+import { defaultImage } from "@/app/const";
 
 export default function RatingLog({ ratingLog }: { ratingLog: UserRating }) {
-  const {
-    rater,
-    rating,
-    comment = "",
-    created_at: date
-  } = ratingLog;
+  const { rater, rating, comment = "", updated_at: date } = ratingLog;
 
-  const goodRating: boolean = (rating == 1); // 0: bad; 1: good
+  const isGood = rating === 1;
 
-  return <div className="bg-white rounded-lg p-4 border-2 border-gray-200 flex flex-col gap-3">
-    <div className="flex flex-row justify-between">
-      <div className="flex flex-row gap-2">
-        <Image
-          src={rater.profile_img}
-          width={100}
-          height={100}
-          alt={`Avatar của ${rater.name}`}
-          className="w-11 h-11 rounded-full object-cover"
-        />
-        <div className="flex flex-col">
-          <p className="text-black font-medium">{rater.name}</p>
-          <p className="text-sm text-gray-500">{new Date(date).toLocaleDateString("en-GB")}</p>
+  return (
+    <div
+      className={`group bg-white rounded-2xl p-5 border-2 transition-all duration-300 shadow-sm hover:shadow-md ${
+        isGood
+          ? "border-emerald-100 hover:border-emerald-200"
+          : "border-rose-100 hover:border-rose-200"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        {/* Phần thông tin người đánh giá */}
+        <div className="flex gap-3">
+          <div className="relative">
+            <Image
+              src={rater.profile_img || defaultImage}
+              width={44}
+              height={44}
+              alt={`Avatar của ${rater.name}`}
+              className="w-11 h-11 rounded-full object-cover ring-2 ring-white shadow-sm"
+            />
+            {/* Badge icon góc avatar */}
+            <div
+              className={`absolute -bottom-1 -right-1 rounded-full p-1 ring-2 ring-white ${
+                isGood ? "bg-emerald-500" : "bg-rose-500"
+              }`}
+            >
+              {isGood ? (
+                <ThumbsUp className="w-2 h-2 text-white" />
+              ) : (
+                <ThumbsDown className="w-2 h-2 text-white" />
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <h4 className="text-slate-800 font-bold text-[15px] leading-tight">
+              {rater.name}
+            </h4>
+            <div className="flex items-center gap-1.5 mt-1 text-slate-400">
+              <Calendar className="w-3.5 h-3.5" />
+              <span className="text-xs font-medium">
+                {new Date(date || "").toLocaleDateString("vi-VN")}
+              </span>
+            </div>
+          </div>
         </div>
-      </div>  
-      <div className={`rounded-full w-10 h-10 flex justify-center items-center select-none ${goodRating ? "bg-green-200" : "bg-red-200"}`}>
-        <span className={`font-bold my-0 text-2xl -translate-y-0.5 ${goodRating ? "text-green-700" : "text-red-800"}`}>{goodRating ? '+' : '-'}</span>
+
+        {/* Badge trạng thái đánh giá */}
+        <div
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-0 font-bold uppercase tracking-tight text-[11px] ${
+            isGood
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-rose-50 text-rose-700"
+          }`}
+        >
+          <span>{isGood ? "＋" : "－"}</span>
+          <span>{isGood ? "Hài lòng" : "Không hài lòng"}</span>
+        </div>
       </div>
+
+      {/* Nội dung bình luận - Hiển thị bình thường */}
+      {comment ? (
+        <div className="mt-4">
+          <p className="text-slate-700 text-[14.5px] leading-relaxed whitespace-pre-wrap">
+            {comment}
+          </p>
+        </div>
+      ) : (
+        <p className="mt-4 text-slate-400 text-xs italic">
+          Người dùng không để lại bình luận.
+        </p>
+      )}
     </div>
-    {comment && <div>{comment}</div>}
-    </div>
+  );
 }

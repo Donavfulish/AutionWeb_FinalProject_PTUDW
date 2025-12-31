@@ -6,6 +6,7 @@ import { SearchIcon } from "../icons";
 import ProductHook from "@/hooks/useProduct";
 import { SearchProduct } from "../../../shared/src/types";
 import { useRouter } from "next/navigation";
+import { formatCurrency } from "@/app/(MainLayout)/product/[product_slug]/components/Question";
 
 const defaultImage =
   "https://img.freepik.com/premium-photo/white-colors-podium-abstract-background-minimal-geometric-shape-3d-rendering_48946-113.jpg?semt=ais_hybrid&w=740&q=80";
@@ -98,7 +99,7 @@ export const SearchBar = () => {
                   <span className="font-medium">{item.name}</span>
                   {item.current_price && (
                     <span className="text-blue-600 text-sm font-medium">
-                      {item.current_price} đ
+                      {formatCurrency(item.current_price)}
                     </span>
                   )}
                 </div>

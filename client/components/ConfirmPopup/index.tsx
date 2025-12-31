@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import React from "react";
 
 export const ConfirmPopup = ({
   isOpen,
@@ -8,7 +9,7 @@ export const ConfirmPopup = ({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  selected: { id: number; content: string };
+  selected: { id: number; content?: string; contentHtml?: React.ReactNode };
   onConfirm: (id: number) => void;
 }) => {
   if (!isOpen) return null;
@@ -27,12 +28,19 @@ export const ConfirmPopup = ({
         </div>
 
         <div className="p-4">
-          <p className="text-gray-700">
-            Bạn có chắc chắn muốn <span className="">{selected.content}</span>?
-          </p>
-          <p className="text-sm text-gray-500 mt-2">
-            Hành động này không thể hoàn tác.
-          </p>
+          {selected.contentHtml ? (
+            <div className="text-gray-700">{selected.contentHtml}</div>
+          ) : (
+            <div>
+              <p className="text-gray-700">
+                Bạn có chắc chắn muốn{" "}
+                <span className="">{selected.content}</span>?
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                Hành động này không thể hoàn tác.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-3 p-4 border-t justify-end">

@@ -19,6 +19,8 @@ import WaitingConfirmStep from "./WaitingConfirmStep";
 import DeliveringStep from "./DeliveringStep";
 import FinishStep from "./FinishStep";
 import OrderChat from "../../sell/order/[product_id]/components/OrderChat";
+import OrderInfoCard from "./OrderInfoCard";
+import CancelledCard from "./CancelledCard";
 
 const stepperIndexDict: Record<OrderStatus, number> = {
   pending: 0,
@@ -71,17 +73,13 @@ const ProductOrderPage = () => {
       ) : user && order && user.id === order.buyer?.id ? (
         <>
           <h1 className="text-2xl">Thông tin đơn hàng</h1>
-          <div className="w-full grid grid-cols-12 gap-5">
-            <div className="col-span-8 border relative bg-white rounded-lg p-6 mb-8 border-slate-200">
+          <div className="w-full grid grid-cols-12 gap-5 items-start">
+            <div className="col-span-8 border relative bg-white rounded-lg p-6 border-slate-200">
               <p className="text-xl font-medium mb-4">Trạng thái đơn hàng</p>
               <BuyingProductCard product={product} order={order} />
 
               {order.status == "cancelled" ? (
-                <div className="w-full h-100 flex justify-center items-center">
-                  <p className="text-red-500 text-3xl font-medium">
-                    Đơn hàng đã bị hủy
-                  </p>
-                </div>
+                <CancelledCard order={order} />
               ) : (
                 <Stepper active={active} className="mt-8">
                   <Stepper.Step
@@ -112,8 +110,13 @@ const ProductOrderPage = () => {
                 </Stepper>
               )}
             </div>
-            <div className="col-span-4 border relative bg-white rounded-lg p-6 mb-8 border-slate-200">
-              <OrderChat productId={product.id}/>
+            <div className="sticky top-20 col-span-4 h-[calc(100vh-100px)] flex flex-col gap-4">
+              <div className="flex-1 min-h-0">
+                <OrderChat productId={product.id} />
+              </div>
+              <div className="shrink-0">
+                <OrderInfoCard product={product} order={order} />
+              </div>
             </div>
           </div>
         </>

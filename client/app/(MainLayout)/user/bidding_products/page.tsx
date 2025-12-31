@@ -3,7 +3,7 @@
 import ProductHook from "@/hooks/useProduct";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSearchParams, useRouter } from "next/navigation";
-import { BiddingProduct } from "../../../../shared/src/types";
+import { BiddingProduct } from "../../../../../shared/src/types";
 import Pagination from "@/components/Pagination";
 import BidProduct from "@/components/BidProduct";
 

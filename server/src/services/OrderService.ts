@@ -12,19 +12,19 @@ import {
 } from "./../../../shared/src/types";
 
 import { MutationResult } from "../../../shared/src/types/Mutation";
-import { ProductService } from "./ProductService";
-import { BidService } from "./BidService";
 
 export class OrderService extends BaseService {
   private static instance: OrderService;
 
-  private constructor() {
+  constructor(private bidService: any) {
     super();
   }
 
-  static getInstance() {
+  static getInstance(bidService?: any) {
     if (!OrderService.instance) {
-      OrderService.instance = new OrderService();
+      OrderService.instance = new OrderService(bidService || null);
+    } else if (bidService) {
+      OrderService.instance.bidService = bidService;
     }
     return OrderService.instance;
   }
@@ -239,7 +239,7 @@ export class OrderService extends BaseService {
         buyer_id,
         seller_id,
       ]),
-      BidService.getInstance().blacklistABuyer(product_id, seller_id, buyer_id),
+      this.bidService.blacklistABuyer(product_id, seller_id, buyer_id),
     ];
 
     const [cancelOrderResult, insertToBlacklistResult] = await Promise.all(
@@ -278,9 +278,12 @@ export class OrderService extends BaseService {
 
     const buyerId = order?.buyer.id;
 
-    const orderMessages = await this.safeQuery<OrderMessageV2>(sql, [productId, buyerId]);
+    const orderMessages = await this.safeQuery<OrderMessageV2>(sql, [
+      productId,
+      buyerId,
+    ]);
     if (!orderMessages) return undefined;
-    
+
     return {
       product_id: productId,
       buyer_id: buyerId,

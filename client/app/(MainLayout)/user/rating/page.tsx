@@ -89,11 +89,13 @@ const RatingPage = () => {
         ))}
       </div>
 
-      <Pagination
-        totalPages={Math.ceil(sumRating / limit)}
-        onPageChange={handlePageChange}
-        currentPage={currentPage}
-      />
+      <div className="w-full flex justify-center mt-5">
+        <Pagination
+          totalPages={Math.ceil(sumRating / limit)}
+          onPageChange={handlePageChange}
+          currentPage={currentPage}
+        />
+      </div>
     </div>
   );
 };

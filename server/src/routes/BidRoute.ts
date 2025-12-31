@@ -4,12 +4,16 @@ import { BaseController } from "../controllers/BaseController";
 import { BidController } from "../controllers/BidController";
 import { BidService } from "../services/BidService";
 import { protectedRoutes } from "../middlewares/authMiddleware";
+import { OrderService } from "../services/OrderService";
 
 export class BidRoute extends BaseRoute {
   private controller: BidController;
+  
   constructor() {
     super();
-    this.controller = new BidController(BidService.getInstance());
+    this.controller = new BidController(
+      BidService.getInstance(OrderService.getInstance())
+    );
     this.initRoutes();
   }
 

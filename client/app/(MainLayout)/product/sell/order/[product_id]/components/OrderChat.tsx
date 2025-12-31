@@ -49,7 +49,7 @@ const OrderChat = ({ productId }: Props) => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-[600px] bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl">
+      <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl">
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 animate-pulse">
             <ShoppingBag className="w-6 h-6 text-blue-600" />
@@ -64,7 +64,7 @@ const OrderChat = ({ productId }: Props) => {
 
   if (!conversation) {
     return (
-      <div className="flex items-center justify-center h-[600px] bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl">
+      <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl">
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-200">
             <ShoppingBag className="w-8 h-8 text-slate-400" />
@@ -76,7 +76,7 @@ const OrderChat = ({ productId }: Props) => {
   }
 
   return (
-    <div className="flex flex-col h-[600px] bg-white rounded-2xl shadow-xl overflow-hidden">
+    <div className="flex flex-col h-full overflow-y-auto bg-white rounded-2xl shadow-xl">
       {/* Header - Modern gradient with glass effect */}
       <div className="relative px-6 py-4 bg-gradient-to-r from-blue-800 via-cyan-500 to-indigo-300 overflow-hidden">
         <div className="relative flex items-center gap-3">
