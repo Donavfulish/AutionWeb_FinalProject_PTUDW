@@ -156,6 +156,8 @@ const API_ROUTES = {
     updateProductRenewTime: `${SYSTEM_API}/renew-time`, //PATCH
     getProductMinTime: `${SYSTEM_API}/min-time`, //GET
     updateProductMinTime: `${SYSTEM_API}/min-time`, //PATCH
+    getProductThresholdTime: `${SYSTEM_API}/threshold-time`, //GET
+    updateProductThresholdTime: `${SYSTEM_API}/threshold-time`, //PATCH
   },
 };
 

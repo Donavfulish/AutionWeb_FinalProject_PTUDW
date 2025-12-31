@@ -24,4 +24,13 @@ export class SystemController extends BaseController {
     const result = await this.service.updateProductMinTime(req.body.time);
     return { result };
   }
+  async getProductThresholdTime(req: Request, res: Response) {
+    const result = await this.service.getProductThresholdTime();
+    console.log(result);
+    return { result };
+  }
+  async updateProductThresholdTime(req: Request, res: Response) {
+    const result = await this.service.updateProductThresholdTime(req.body.time);
+    return { result };
+  }
 }

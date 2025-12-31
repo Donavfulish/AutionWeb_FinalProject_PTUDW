@@ -1,7 +1,7 @@
 import { SystemService } from "@/services/SystemService";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { STALE_10_MIN } from "@/config/query.config";
-import { toast } from "react-toastify"
+import { toast } from "react-toastify";
 
 class SystemHook {
   static useGetProductRenewTime() {
@@ -56,6 +56,35 @@ class SystemHook {
       },
       onError: (error) => {
         toast.error("Cập nhật thời gian nhỏ nhất thất bại!");
+        console.log(error);
+      },
+    });
+  }
+  static useGetProductThresholdTime() {
+    return useQuery({
+      queryKey: ["system_config_threshold_time"],
+      queryFn: () => SystemService.getProductThresholdTime(),
+      staleTime: STALE_10_MIN,
+      select: (data) => {
+        return data.data.result;
+      },
+    });
+  }
+  static useUpdateProductThresholdTime() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (time: number) =>
+        SystemService.updateProductThresholdTime(time),
+
+      onSuccess: () => {
+        toast.success("Cập nhật ngưỡng thời gian gia hạn thành công!");
+        queryClient.invalidateQueries({
+          queryKey: ["system_config_threshold_time"],
+        });
+      },
+      onError: (error) => {
+        toast.error("Cập nhật ngưỡng thời gian gia hạn  thất bại!");
         console.log(error);
       },
     });
