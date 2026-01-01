@@ -283,12 +283,16 @@ export class BidService extends BaseService {
       console.log(2);
       // 2. Lưu thông tin đấu giá mới của người dùng
       const user_max_price = await getUserMaxPrice();
+      console.log("a");
       const saveBidPromise = getSaveUserBid(user_max_price);
-      const productBidStatusPromise = await getProductBidStatusPromise();
+      console.log("b");
+      const productBidStatusPromise = getProductBidStatusPromise();
+      console.log("c");
       const [_, productBidStatusResult] = await Promise.all([
         saveBidPromise,
         productBidStatusPromise,
       ]);
+      console.log("d");
 
       console.log(3);
       // 3. Lấy thông tin đấu giá hiện tại của sản phẩm

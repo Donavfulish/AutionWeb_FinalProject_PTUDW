@@ -4,15 +4,20 @@ import SoldProduct from "@/components/SoldProduct";
 import ProductHook from "@/hooks/useProduct";
 
 import { useState } from "react";
-import { SoldProduct as SoldProductType } from "../../../../../shared/src/types";
+import {
+  FullSoldProduct,
+  Order,
+  Product,
+} from "../../../../../shared/src/types";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
+import OrderHook from "@/hooks/useOrder";
 
 const SoldProductPage = () => {
   const { user } = useAuth();
   const { data: soldProducts, isLoading: isLoadingSoldProducts } =
     ProductHook.useGetSoldProduct() as {
-      data: SoldProductType[];
+      data: FullSoldProduct[];
       isLoading: boolean;
     };
 

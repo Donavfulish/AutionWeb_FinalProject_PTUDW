@@ -24,7 +24,7 @@ export type Product = {
   end_time: Date;
   description: string | null;
   auto_extend: boolean | null;
-  status: Pick<Order, "status"> | "available";
+  status: Order["status"] | "available";
   price_increment: number | null;
   created_at: Date;
   updated_at: Date | null;
@@ -34,6 +34,13 @@ export type SoldProduct = Pick<
   Product,
   "id" | "name" | "current_price" | "initial_price" | "main_image"
 > & { top_bidder: Pick<User, "id" | "name" | "profile_img"> };
+
+export type FullSoldProduct = Product & {
+  buyer: Pick<
+    User,
+    "id" | "name" | "profile_img" | "positive_points" | "negative_points"
+  >;
+};
 
 export type Category = {
   id: number;
