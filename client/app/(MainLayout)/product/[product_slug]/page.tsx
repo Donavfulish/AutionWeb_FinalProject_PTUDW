@@ -35,7 +35,7 @@ import BidHook from "@/hooks/useBid";
 import FavoriteHook from "@/hooks/useFavorite";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import CategoryHook from "@/hooks/useCategory";
-import { formatPrice, parseNumber } from "@/utils";
+import { formatPrice, getTimeDifference, parseNumber } from "@/utils";
 import { X } from "lucide-react";
 import OrderHook from "@/hooks/useOrder";
 import Link from "next/link";
@@ -82,7 +82,7 @@ function EndTime({ endTime }: Time) {
       ) : (
         <p className="text-xl font-bold text-red-500">
           {endTime && isLessThreeDays(now, endTime) ? (
-            <>{diffToHMS(now, endTime)}</>
+            <>{getTimeDifference(new Date(), endTime)}</>
           ) : (
             <>{localString}</>
           )}

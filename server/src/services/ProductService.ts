@@ -50,7 +50,7 @@ export class ProductService extends BaseService {
 
   async getBidCount(productId: number): Promise<number | undefined> {
     const sql = `  
-    SELECT COUNT(DISTINCT(user_id)) AS bid_count
+    SELECT COUNT(*) AS bid_count
     FROM auction.bid_logs bl 
     WHERE bl.product_id = $1
     `;

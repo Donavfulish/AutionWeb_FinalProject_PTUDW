@@ -44,8 +44,14 @@ const OrderChat = ({ productId }: Props) => {
 
   const { mutate: sendMessage, isPending } = OrderHook.useCreateOrderChat();
 
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const el = messagesRef.current;
+    if (!el) return;
+
+    el.scrollTop = el.scrollHeight;
+  }, [conversation?.messages.length]);
 
   if (isLoading) {
     return (
@@ -76,7 +82,7 @@ const OrderChat = ({ productId }: Props) => {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto bg-white rounded-2xl shadow-xl">
+    <div className="flex flex-col h-full bg-white rounded-2xl shadow-xl">
       {/* Header - Modern gradient with glass effect */}
       <div className="relative px-6 py-4 bg-gradient-to-r from-blue-800 via-cyan-500 to-indigo-300 overflow-hidden">
         <div className="relative flex items-center gap-3">
@@ -93,7 +99,9 @@ const OrderChat = ({ productId }: Props) => {
       </div>
 
       {/* Messages - Modern chat bubbles */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-slate-50/50 to-white">
+      <div 
+        ref={messagesRef}
+        className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 bg-gradient-to-b from-slate-50/50 to-white">
         {conversation.messages.map((msg: OrderMessage, idx: number) => {
           const isMe = msg.user.id === user?.id;
           const showAvatar =
@@ -132,7 +140,7 @@ const OrderChat = ({ productId }: Props) => {
                 <div className="relative group">
                   <div
                     className={clsx(
-                      "inline-block px-4 py-2.5 rounded-[20px] text-[15px] shadow-sm transition-all hover:shadow-md",
+                      "inline-block px-4 py-2.5 rounded-[20px] text-[15px] shadow-sm transition-all hover:shadow-md max-w-70 break-words",
                       isMe
                         ? "bg-sky-500 text-white rounded-tr-md"
                         : "bg-slate-100 text-slate-900 rounded-tl-md"
@@ -172,7 +180,6 @@ const OrderChat = ({ productId }: Props) => {
             </div>
           );
         })}
-        <div ref={bottomRef} />
       </div>
 
       {/* Input - Modern floating style */}

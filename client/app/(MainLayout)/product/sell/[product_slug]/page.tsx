@@ -35,7 +35,7 @@ import BidHook from "@/hooks/useBid";
 import FavoriteHook from "@/hooks/useFavorite";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import CategoryHook from "@/hooks/useCategory";
-import { formatPrice, parseNumber } from "@/utils";
+import { formatPrice, getTimeDifference, parseNumber } from "@/utils";
 import { Pencil, X } from "lucide-react";
 import OrderHook from "@/hooks/useOrder";
 import Link from "next/link";
@@ -81,7 +81,7 @@ function EndTime({ endTime }: Time) {
       ) : (
         <p className="text-xl font-bold text-red-500">
           {endTime && isLessThreeDays(now, endTime) ? (
-            <>{diffToHMS(now, endTime)}</>
+            <>{getTimeDifference(new Date(), endTime)}</>
           ) : (
             <>{localString}</>
           )}
@@ -350,7 +350,7 @@ export default function ProductPage() {
                         </p>
                         <p className="text-xs text-slate-600">
                           {bidderRating !== 0
-                            ? `⭐${" "}${bidderRating}%`
+                            ? `⭐${bidderRating}%`
                             : `Chưa có đánh giá`}
                         </p>
                       </>
@@ -384,7 +384,7 @@ export default function ProductPage() {
                       <p className="text-xs text-slate-600">
                         {totalRating === 0
                           ? "Chưa có đánh giá"
-                          : `⭐{" "}${Math.round(
+                          : `⭐${" "}${Math.round(
                               (product.seller.positive_points /
                                 (product.seller.positive_points +
                                   product.seller.negative_points)) *
