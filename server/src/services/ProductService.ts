@@ -11,6 +11,7 @@ import {
   WinningProduct,
   ProductQuestionPagination,
   SoldProduct,
+  FullSoldProduct,
 } from "./../../../shared/src/types/Product";
 import { BaseService } from "./BaseService";
 import { ShortUser, User } from "../../../shared/src/types";
@@ -112,7 +113,11 @@ export class ProductService extends BaseService {
       p.name,
       p.initial_price::INT,
       p.buy_now_price::INT,
-      p.end_time,
+      COALESCE((
+        SELECT created_at
+        FROM auction.orders o
+        WHERE o.product_id = p.id AND o.status != 'cancelled'
+      ), p.end_time) AS end_time,
       p.description,
       p.auto_extend,
       p.price_increment::INT,
@@ -161,7 +166,11 @@ export class ProductService extends BaseService {
       p.main_image,
       p.name,
       p.buy_now_price,
-      p.end_time,
+      COALESCE((
+        SELECT created_at
+        FROM auction.orders o
+        WHERE o.product_id = p.id AND o.status != 'cancelled'
+      ), p.end_time) as end_time,
       p.auto_extend,
       p.created_at,
       p.initial_price,
@@ -304,8 +313,13 @@ export class ProductService extends BaseService {
   ): Promise<ProductPreview[]> {
     let sql = `
         SELECT id
-        FROM product.products
-        ORDER BY product.products.end_time ASC
+        FROM product.products p
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM auction.orders o
+          WHERE o.product_id = p.id
+        )
+        ORDER BY p.end_time ASC
     `;
 
     const params: any[] = [];
@@ -337,7 +351,11 @@ export class ProductService extends BaseService {
     sort: string
   ): Promise<ProductPreview[]> {
     let sql = `
-    SELECT pp.id, GREATEST(COALESCE(bl.current_price, 0), pp.initial_price) AS price, pp.end_time
+    SELECT pp.id, GREATEST(COALESCE(bl.current_price, 0), pp.initial_price) AS price, COALESCE((
+        SELECT created_at
+        FROM auction.orders o
+        WHERE o.product_id = pp.id AND o.status != 'cancelled'
+      ), pp.end_time) AS end_time,
     FROM product.products pp
     LEFT JOIN (
         SELECT 
@@ -367,7 +385,11 @@ export class ProductService extends BaseService {
         sql += `ORDER BY price DESC`;
         params.push(sort);
       } else if (sort == "expiring-soon") {
-        sql += "ORDER BY end_time ASC";
+        sql += ` AND NOT EXISTS (
+          SELECT 1
+          FROM auction.orders o
+          WHERE o.product_id = pp.id
+        ) ORDER BY end_time ASC`;
         params.push(sort);
       }
     }
@@ -493,19 +515,41 @@ export class ProductService extends BaseService {
 
     return newProduct[0];
   }
-  async getSoldProducts(userId: number): Promise<SoldProduct[] | undefined> {
+  async getSoldProducts(
+    userId: number
+  ): Promise<FullSoldProduct[] | undefined> {
     const sql = `
-    SELECT p.id
-    FROM product.products p 
-    WHERE  p.end_time < NOW() AND p.seller_id = $1
+    SELECT 
+      product_id,
+      json_build_object(
+        'id', u.id,
+        'name', u.name,
+        'profile_img', u.profile_img,
+        'positive_points', u.positive_points,
+        'negative_points', u.negative_points
+      ) AS buyer
+    FROM auction.orders o
+    JOIN product.products p ON p.id = o.product_id
+    JOIN admin.users u ON u.id = o.buyer_id
+    WHERE p.seller_id = $1 AND o.status != 'cancelled'
+    ORDER BY o.created_at DESC
     `;
     const params = [userId];
-    const product = await this.safeQuery<SoldProduct>(sql, params);
+    const product = await this.safeQuery<{
+      product_id: number;
+      buyer: Pick<
+        User,
+        "id" | "name" | "profile_img" | "positive_points" | "negative_points"
+      >;
+    }>(sql, params);
 
     const soldProduct = await Promise.all(
       product.map(async (item: any) => {
-        const productType = this.getSoldProductType(item.id);
-        return productType;
+        const productType = await this.getProductType(item.product_id);
+        return {
+          ...productType,
+          buyer: item.buyer,
+        };
       })
     );
 

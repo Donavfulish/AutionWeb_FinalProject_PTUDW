@@ -350,7 +350,7 @@ export default function ProductPage() {
                         </p>
                         <p className="text-xs text-slate-600">
                           {bidderRating !== 0
-                            ? `⭐${" "}${bidderRating}%`
+                            ? `⭐${bidderRating}%`
                             : `Chưa có đánh giá`}
                         </p>
                       </>

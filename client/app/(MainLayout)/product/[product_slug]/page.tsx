@@ -276,8 +276,11 @@ export default function ProductPage() {
       if (!isConfirm) return;
     }
 
-    if (product.current_price && data.price <= product.current_price) {
-      toast.error("Giá đấu phải cao hơn giá sản phẩm hiện tại");
+    if (
+      product.current_price &&
+      data.price < product.current_price + product.price_increment!
+    ) {
+      toast.error("Giá đấu không thể thấp hơn giá tối thiểu");
       return;
     }
 

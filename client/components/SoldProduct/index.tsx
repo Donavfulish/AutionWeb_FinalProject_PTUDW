@@ -1,89 +1,173 @@
+"use client";
+
 import Image from "next/image";
-
-import { useState } from "react";
-import RatingPopup from "../RatingPopUp";
-import { formatCurrency } from "@/app/(MainLayout)/product/[product_slug]/components/Question";
-
 import {
   CreateRating,
+  UserRating,
   Product,
-  ProductPreview,
-  SoldProduct as SoldProductType,
+  Order,
+  FullSoldProduct,
 } from "../../../shared/src/types";
+import { formatCurrency } from "@/app/(MainLayout)/product/[product_slug]/components/Question";
+import Link from "next/link";
+import { User, Star, Clock, ChevronRight, Tag } from "lucide-react";
+import OrderStatusBadge from "../WinProduct/OrderStatusBadge";
+import { useState } from "react";
+import { useAuthStore } from "@/store/auth.store";
 import { RatingHook } from "@/hooks/useRating";
-import Link from "next/link.js";
-interface User {
-  id: string;
-  email: string;
-}
+import FeedbackPopup from "../FeedbackPopup";
 
 interface SoldProps {
-  product: SoldProductType;
+  product: FullSoldProduct;
 }
-const SoldProduct = ({ product }: SoldProps) => {
-  const { mutate: createRating, isPending: isLoadingRating } =
-    RatingHook.useCreateRating();
-  const [openPopup, setOpenPopup] = useState(false);
 
-  const handleSubmitRating = (rating: number, comment: string) => {
-    if (product.top_bidder) {
-      const ratingData: CreateRating = {
-        ratee: product.top_bidder,
-        rating,
-        comment: comment,
-      };
-      createRating(ratingData);
-    }
-    setOpenPopup(false);
+const SoldProduct = ({ product }: SoldProps) => {
+  const [openRatingModal, setOpenRatingModal] = useState<boolean>(false);
+  const user = useAuthStore((s) => s.user);
+
+  // Lấy thông tin rating người mua (ratee là buyer)
+  const { data: rating } = RatingHook.useGetOneRating(
+    user?.id || 0,
+    product?.buyer?.id || 0
+  ) as { data: UserRating };
+
+  const { mutate: createRating } = RatingHook.useCreateRating();
+  const { mutate: updateRating } = RatingHook.useUpdateRating();
+
+  // Tính % uy tín của người mua dựa trên điểm tích lũy
+  const buyerRating = product.buyer
+    ? Math.ceil(
+        (100.0 * product.buyer.positive_points) /
+          (product.buyer.positive_points +
+            (product.buyer.negative_points || 0) || 1)
+      )
+    : 0;
+
+  const handleRatingBuyer = (ratingPoint: number, message: string) => {
+    if (!user || !product.buyer) return;
+
+    const newRating: CreateRating = {
+      ratee: { ...product.buyer, profile_img: "" },
+      rating: ratingPoint,
+      comment: message,
+    };
+
+    if (!rating) createRating(newRating);
+    else updateRating(newRating);
   };
+
   return (
-    <>
-      <RatingPopup
-        isOpen={openPopup}
-        onClose={() => setOpenPopup(false)}
-        onSubmit={handleSubmitRating}
-        buyerName={product.top_bidder?.name ?? "Người mua"}
-      />
-      <div className="flex items-center justify-between bg-white border border-gray-100 rounded-lg shadow-xs p-4 w-full">
-        <Link
-          href={`/product/sell/order/${product.id}`}
-          className="flex items-center gap-3"
-        >
-          <Image
-            src={product.main_image}
-            alt="Ảnh sản phẩm"
-            width={90}
-            height={90}
-            className="rounded-md object-cover p-1 border border-gray-200"
-          />
-          <div className="flex flex-col gap-0.5">
-            <span className="font-semibold text-gray-700 text-[15px]">
-              {product.name}
-            </span>
-            <span className="text-slate-500 font-stretch-10% text-sm">
-              Giá chốt:{" "}
-              <span className="text-[#0D9488] font-bold text-md">
-                {formatCurrency(product.current_price)}
-              </span>
-            </span>
-            <button
-              onClick={() => setOpenPopup(true)}
-              className="mt-1 text-sm bg-gray-200 text-slate-600 px-3 py-1 rounded-md hover:bg-gray-300 transition w-[90px]"
-            >
-              Đánh giá
-            </button>
+    <div className="group relative bg-white border border-slate-200 rounded-2xl p-4 w-full transition-all hover:shadow-lg hover:border-teal-200">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Phần bên trái: Ảnh + Thông tin sản phẩm & Người mua */}
+        <div className="flex items-start gap-4 flex-1">
+          <div className="relative shrink-0">
+            <Image
+              src={product.main_image}
+              alt={product.name}
+              width={90}
+              height={90}
+              className="rounded-xl object-cover border border-slate-100 shadow-sm"
+            />
+            <div className="absolute -top-2 -left-2 bg-indigo-500 text-white p-1.5 rounded-lg shadow-lg">
+              <Tag className="w-3 h-3" />
+            </div>
           </div>
-        </Link>
-        <div className="text-right flex flex-col gap-1">
-          <span className="text-slate-500 font-stretch-10% text-sm">
-            Giá ban đầu
-          </span>
-          <span className="text-[#0D9488] font-bold text-lg">
-            {formatCurrency(product.initial_price)}
-          </span>
+
+          <div className="flex flex-col gap-1 justify-center">
+            <Link
+              href={`/product/sell/order/${product.id}`}
+              className="group/title flex items-center gap-1"
+            >
+              <h3 className="font-bold text-slate-800 text-[16px] line-clamp-1 group-hover/title:text-teal-600 transition-colors">
+                {product.name}
+              </h3>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover/title:translate-x-1 transition-transform" />
+            </Link>
+
+            {/* Thông tin người mua thắng cuộc */}
+            <div className="flex items-baseline text-sm gap-0.5 text-slate-600">
+              <div className="flex items-center gap-1.5 px-1.5 py-1 rounded-full">
+                <User className="w-3.5 h-3.5 text-slate-400" />
+                <span className="font-medium">
+                  {product.buyer?.name || "Chưa có người mua"}
+                </span>
+              </div>
+              {product.buyer && (
+                <div className="flex items-center gap-1 text-amber-500">
+                  <Star className="w-3.5 h-3.5 fill-amber-500" />
+                  <span className="font-semibold text-xs">{buyerRating}%</span>
+                </div>
+              )}
+            </div>
+
+            {/* Trạng thái đơn hàng & Nút đánh giá */}
+            <div className="flex gap-2 items-center">
+              {product.status != "available" && (
+                <OrderStatusBadge status={product.status} />
+              )}
+
+              {/* Chỉ cho phép đánh giá người mua khi đơn hàng đã hoàn thành (shipped) */}
+              {product.status === "shipped" && (
+                <button
+                  onClick={() => {
+                    setOpenRatingModal(true);
+                  }}
+                  className="group flex items-center gap-1.5 px-3 py-1 bg-white border border-emerald-200 text-emerald-600 rounded-full hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all duration-200 shadow-sm active:scale-95"
+                >
+                  <div className="relative">
+                    <Star className="w-3.5 h-3.5 fill-current" />
+                    {/* Hiệu ứng lấp lánh nhỏ khi hover */}
+                    <span className="absolute -top-1 -right-1 w-1 h-1 bg-amber-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping" />
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-wide">
+                    Đánh giá
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Phần bên phải: Giá cả & Thời gian kết thúc */}
+        <div className="flex flex-col items-end gap-3.5 border-t md:border-t-0 pt-3 md:pt-0 border-slate-50">
+          <div className="text-right">
+            <p className="text-slate-400 text-[12px] font-medium uppercase tracking-wider">
+              Giá chốt phiên bán
+            </p>
+            <p className="text-teal-600 font-black text-xl tracking-tight">
+              {formatCurrency(product.current_price)}
+            </p>
+            <p className="text-[11px] text-slate-400">
+              Khởi điểm: {formatCurrency(product.initial_price)}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+            <Clock className="w-3.5 h-3.5" />
+            <div className="text-[12px] leading-none flex flex-row gap-2 items-baseline">
+              <span className="text-slate-700 font-semibold">
+                {product.end_time
+                  ? new Date(product.end_time).toLocaleDateString("vi-VN")
+                  : "---"}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
-    </>
+
+      {/* Trang trí góc khi hover */}
+      <div className="absolute bottom-0 right-0 w-12 h-12 bg-linear-to-br from-transparent to-teal-50/50 rounded-br-2xl -z-10 transition-opacity opacity-0 group-hover:opacity-100" />
+
+      {openRatingModal && (
+        <FeedbackPopup
+          targetName={product.buyer?.name || "Người mua"}
+          rating={rating}
+          onRating={handleRatingBuyer}
+          onClose={() => setOpenRatingModal(false)}
+        />
+      )}
+    </div>
   );
 };
 
