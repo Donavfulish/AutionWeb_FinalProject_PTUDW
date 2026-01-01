@@ -11,6 +11,7 @@ import {
 } from "../../shared/src/types";
 import { api } from "@/config/axios.config";
 import API_ROUTES from "../../shared/src/api";
+import { useRouter } from "next/navigation";
 
 export const authService = {
   signUp: async (user: RegisterRequest) => {
@@ -45,8 +46,6 @@ export const authService = {
       throw error?.response?.data ?? error;
     }
   },
-
- 
 
   verifyOTP: async (user: UserOTP) => {
     try {

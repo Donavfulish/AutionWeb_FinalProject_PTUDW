@@ -669,10 +669,10 @@ export default function ProductPage() {
                           <div className="relative group w-full">
                             {/* Button */}
                             <button
-                              disabled={!isCanBid}
+                              disabled={!canBid}
                               onClick={handleBuyNow}
                               style={{
-                                cursor: !isCanBid ? "not-allowed" : "pointer",
+                                cursor: !canBid ? "not-allowed" : "pointer",
                               }}
                               className="
                                     w-full flex items-center gap-2 justify-center

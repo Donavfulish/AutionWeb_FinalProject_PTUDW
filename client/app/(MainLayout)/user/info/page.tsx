@@ -11,6 +11,7 @@ import UserHook from "@/hooks/useUser";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
+import { useQueryClient } from "@tanstack/react-query";
 
 const InfoPage = () => {
   const { signOut } = useAuthStore();
@@ -31,12 +32,17 @@ const InfoPage = () => {
 
   const handleEditButton = () => setInEditMode(true);
   const handleCancelEditButton = () => setInEditMode(false);
+  const queryClient = useQueryClient();
   const handleLogout = async () => {
+    queryClient.cancelQueries();
+    queryClient.clear();
+
+    router.replace("/login");
+
     try {
       await signOut();
-      router.push("/login");
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.warn("Signout failed (ignored):", err);
     }
   };
 

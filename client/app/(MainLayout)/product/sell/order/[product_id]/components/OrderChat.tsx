@@ -82,7 +82,7 @@ const OrderChat = ({ productId }: Props) => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-2xl shadow-xl">
+    <div className="flex flex-col h-full bg-white rounded-2xl shadow-xl overflow-y-auto">
       {/* Header - Modern gradient with glass effect */}
       <div className="relative px-6 py-4 bg-gradient-to-r from-blue-800 via-cyan-500 to-indigo-300 overflow-hidden">
         <div className="relative flex items-center gap-3">
@@ -99,9 +99,10 @@ const OrderChat = ({ productId }: Props) => {
       </div>
 
       {/* Messages - Modern chat bubbles */}
-      <div 
+      <div
         ref={messagesRef}
-        className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 bg-gradient-to-b from-slate-50/50 to-white">
+        className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 bg-gradient-to-b from-slate-50/50 to-white"
+      >
         {conversation.messages.map((msg: OrderMessage, idx: number) => {
           const isMe = msg.user.id === user?.id;
           const showAvatar =

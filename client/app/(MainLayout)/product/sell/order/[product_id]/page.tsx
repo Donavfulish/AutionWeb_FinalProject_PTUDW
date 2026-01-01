@@ -58,8 +58,7 @@ const ProductOrderPage = () => {
   useEffect(() => {
     if (!router || !user || !order) return;
 
-    if (user.id == order.buyer?.id)
-      router.replace(`/product/order/${product.id}`);
+    if (user.id == order.buyer?.id) router.push(`/product/order/${product.id}`);
   }, [router, user, order]);
 
   console.log(active);
