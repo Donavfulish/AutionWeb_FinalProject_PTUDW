@@ -11,7 +11,8 @@ import {
 } from "../../../../../../shared/src/types";
 import { RatingHook } from "@/hooks/useRating";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { PartyPopper, Star } from "lucide-react";
+import { ChevronRight, PartyPopper, Star } from "lucide-react";
+import Link from "next/link";
 
 type PageProps = {
   order: Order;
@@ -58,13 +59,13 @@ const FinishStep = ({ order }: PageProps) => {
             Giao dịch thành công!
           </h2>
           <p className="text-slate-500 font-medium max-w-[350px]">
-            Hãy để lại đánh giá cho người bán nhé!
+            Hãy để lại đánh giá cho <b>{order.seller.name}</b> nhé!
           </p>
         </div>
       </div>
 
       {isLoadingRating ? (
-        <div className="h-32 flex items-center justify-center">
+        <div className="relative h-32 flex items-center justify-center">
           <LoadingSpinner />
         </div>
       ) : (
@@ -79,6 +80,16 @@ const FinishStep = ({ order }: PageProps) => {
           </div>
         </div>
       )}
+
+      <div className="pt-6 flex flex-col items-center gap-2">
+        <Link
+          href="/user/winning_products"
+          className="group flex items-end gap-1 text-sm text-blue-400 font-medium hover:text-blue-500 transition-colors"
+        >
+          <span>Xem các đơn hàng khác</span>
+          <ChevronRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+        </Link>
+      </div>
     </div>
   );
 };
