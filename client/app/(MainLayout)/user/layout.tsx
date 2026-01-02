@@ -6,6 +6,7 @@ import UserCategoryTable from "@/components/UserCategoryTable";
 import { userCategories } from "@/app/const";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { useAuthStore } from "@/store/auth.store";
+import ShortUserSidebar from "@/components/ShortUserSidebar";
 export default function SidebarLayout({
   children,
 }: {
@@ -24,10 +25,17 @@ export default function SidebarLayout({
       {data && (
         <>
           <ProtectedRoute>
-            <aside>
-              <UserCategoryTable userCategories={visibleCategories} />
-            </aside>
-            <main className="w-full">{children}</main>
+            <div className="flex flex-col lg:flex-row w-full">
+              <aside className="lg:hidden w-full">
+                <ShortUserSidebar />
+              </aside>
+              <aside className="hidden lg:block w-64 shrink-0">
+                <div className="sticky top-24">
+                  <UserCategoryTable userCategories={visibleCategories} />
+                </div>
+              </aside>
+              <main className=" w-full lg:pl-8">{children}</main>
+            </div>
           </ProtectedRoute>
         </>
       )}

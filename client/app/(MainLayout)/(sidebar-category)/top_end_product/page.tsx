@@ -9,9 +9,11 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import FavoriteHook from "@/hooks/useFavorite";
 import { useMemo } from "react";
+import { usePerPage } from "@/utils/getPerPage";
+import ShortCategorySideBar from "@/components/ShortCategorySidebar";
 
 export default function Page() {
-  const per_page = 15;
+  const per_page = usePerPage();
   const searchParams = useSearchParams();
   const router = useRouter();
   const page = searchParams.get("page") || "1";
@@ -46,6 +48,7 @@ export default function Page() {
   };
 
   if (data) {
+    console.log("gia tri product: ", totalProducts);
     totalPages = Math.ceil(Number(totalProducts) / per_page);
     dataResult = topEndingSoonProducts as ProductPreview[];
   }
@@ -68,6 +71,7 @@ export default function Page() {
 
           <div>
             <div className="mt-15">
+              <ShortCategorySideBar />
               <div className="flex justify-between font-medium">
                 <div className=" text-2xl">Sản phẩm sắp kết thúc</div>
                 <Link
@@ -79,7 +83,7 @@ export default function Page() {
                 </Link>
               </div>
             </div>
-            <div className="mt-2 grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-1  sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
               {(dataResult || []).map((item, index) => {
                 const isFavoriteProduct = (item: ProductPreview) =>
                   favoriteIds.has(Number(item.id));

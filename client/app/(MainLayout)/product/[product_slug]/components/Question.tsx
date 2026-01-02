@@ -149,53 +149,118 @@ export const Question = ({ productId }: ProductId) => {
   };
 
   return (
-    <div className="relative bg-white rounded-lg p-3 sm:p-6 mb-8 border border-slate-200">
-      <h3 className="relative text-2xl font-bold text-slate-900 mb-4">
-        Hỏi & Đáp
-      </h3>
-      <div className="relative">
-        <form className=" mb-8" onSubmit={handleSubmit(handleSend)}>
-          <div className="w-full  ">
-            <div className="flex flex-row">
-              <div className="flex-8 md:flex-9 mr-2">
-                <input
-                  {...register("comment")}
-                  placeholder="Bạn có câu hỏi về sản phẩm này?"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  type="text"
-                />
-              </div>
-              <button
-                type="submit"
-                className="flex-2 md:flex-1 bg-blue-600 text-white flex justify-center items-center gap-1 rounded-2xl hover:cursor-pointer"
-              >
-                <FlightOutlineIcon />
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      {/* Header Section */}
+      <div className="p-4 md:p-6 border-b border-slate-100 bg-slate-50/50">
+        <h3 className="text-xl md:text-2xl font-bold text-slate-800">
+          Hỏi & Đáp về sản phẩm
+        </h3>
+        <p className="text-slate-500 text-sm mt-1">
+          {questionPagination?.total || 0} câu hỏi thảo luận
+        </p>
+      </div>
 
-                <span>Gửi</span>
-              </button>
+      <div className="p-4 md:p-6">
+        {/* Input Form */}
+        <form className="mb-8 md:mb-10" onSubmit={handleSubmit(handleSend)}>
+          <div className="flex flex-col sm:flex-row gap-3 items-start">
+            <div className="flex-1 w-full">
+              <input
+                {...register("comment")}
+                placeholder="Bạn muốn biết thêm gì về sản phẩm này?"
+                className={`
+                  w-full px-4 py-3 
+                  bg-slate-50 border 
+                  rounded-xl transition-all duration-200 ease-in-out
+                  placeholder:text-slate-400 text-slate-700
+                  focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100 
+                  ${
+                    errors.comment
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-100"
+                      : "border-slate-200 focus:border-blue-500"
+                  }
+                `}
+                type="text"
+                disabled={isCreateQuestion}
+              />
+              {errors.comment && (
+                <span className="text-red-500 text-sm mt-1.5 ml-1 block animate-fade-in">
+                  {errors.comment.message}
+                </span>
+              )}
             </div>
-            <span className="text-red-600 text-sm mt-1 block mb-2">
-              {errors.comment ? errors.comment.message : ""}
-            </span>
+
+            <button
+              type="submit"
+              disabled={isCreateQuestion}
+              className="
+                w-full sm:w-auto shrink-0
+                px-6 py-3 
+                bg-blue-600 text-white font-medium
+                rounded-xl shadow-md shadow-blue-600/20
+                flex justify-center items-center gap-2 
+                transition-all duration-200 
+                hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5
+                active:translate-y-0 active:scale-95
+                disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none
+              "
+            >
+              {isCreateQuestion ? (
+                // Có thể thay bằng icon loading nhỏ nếu muốn
+                <span>Đang gửi...</span>
+              ) : (
+                <>
+                  <FlightOutlineIcon className="w-5 h-5" />
+                  <span>Gửi câu hỏi</span>
+                </>
+              )}
+            </button>
           </div>
         </form>
-        <div className="relative h-min-25">
-          {isLoadingQuestion && <LoadingSpinner />}
-          {!isLoadingQuestion &&
-            questions &&
-            questions.map((question, index) => (
-              <div key={index} className="py-6 border-t border-gray-200">
-                {" "}
-                <QuestionItem {...question} />{" "}
-              </div>
-            ))}
-          <div className="flex justify-center items-center mt-2">
-            <Pagination
-              totalPages={totalPages}
-              currentPage={page}
-              onPageChange={handlePageChange}
-            />
-          </div>
+
+        {/* Question List Section */}
+        <div className="relative min-h-[100px]">
+          {isLoadingQuestion ? (
+            <div className="flex justify-center items-center py-10">
+              <LoadingSpinner />
+            </div>
+          ) : (
+            <>
+              {questions && questions.length > 0 ? (
+                <div className="flex flex-col gap-6">
+                  {questions.map((question, index) => (
+                    <div
+                      key={index}
+                      className={`
+                        ${
+                          index !== questions.length - 1
+                            ? "border-b border-slate-100 pb-6"
+                            : ""
+                        }
+                      `}
+                    >
+                      <QuestionItem {...question} />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-400 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                  <p>Chưa có câu hỏi nào. Hãy là người đầu tiên đặt câu hỏi!</p>
+                </div>
+              )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center mt-8 pt-4 border-t border-slate-100">
+                  <Pagination
+                    totalPages={totalPages}
+                    currentPage={page}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

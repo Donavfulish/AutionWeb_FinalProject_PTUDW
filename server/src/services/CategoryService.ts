@@ -109,16 +109,19 @@ export class CategoryService extends BaseService {
     SELECT COUNT(*) AS total
     FROM product.products pp 
     JOIN product.product_categories pc on pc.id = pp.category_id
-    WHERE pc.slug = $1;
+    WHERE pc.slug = $1  and pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled')
     `;
     let totalProducts: { total: number }[] = await this.safeQuery(sql, [slug]);
     return totalProducts[0]?.total;
   }
 
   async getCountProductsByCategory(): Promise<
-    { category_id: number; total: number }[] 
+    { category_id: number; total: number }[]
   > {
-  const sql = `
+    const sql = `
       WITH RECURSIVE category_tree AS (
       SELECT id AS root_id, id AS category_id
       FROM product.product_categories
@@ -140,9 +143,8 @@ export class CategoryService extends BaseService {
     ORDER BY ct.root_id;
   `;
 
-  return this.safeQuery<{ category_id: number; total: number }>(sql);
-}
-
+    return this.safeQuery<{ category_id: number; total: number }>(sql);
+  }
 
   async getCategoryNameBySlug(slug: string): Promise<string | undefined> {
     let sql = `
@@ -336,7 +338,10 @@ export class CategoryService extends BaseService {
           FROM auction.bid_logs bl 
           GROUP BY bl.product_id
       ) bl ON bl.product_id = pp.id
-      WHERE pc.slug = $1
+      WHERE pc.slug = $1 and pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' )
       `;
 
     const params: any[] = [slug];

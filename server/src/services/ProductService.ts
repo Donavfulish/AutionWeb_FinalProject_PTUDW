@@ -234,7 +234,11 @@ export class ProductService extends BaseService {
        SELECT COUNT(*) as total
        FROM product.products pp
        WHERE to_tsvector('simple', unaccent(pp.name))
-             @@ websearch_to_tsquery('simple', unaccent($1))
+             @@ websearch_to_tsquery('simple', unaccent($1)) and pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
     `;
     const params: any[] = [query];
 
@@ -252,7 +256,11 @@ export class ProductService extends BaseService {
        SELECT pp.id
        FROM product.products pp
        WHERE to_tsvector('simple', unaccent(pp.name))
-             @@ websearch_to_tsquery('simple', unaccent($1))
+             @@ websearch_to_tsquery('simple', unaccent($1)) and pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
     `;
     const params: any[] = [query];
     if (limit) {
@@ -274,7 +282,7 @@ export class ProductService extends BaseService {
         return productType;
       })
     );
-    
+
     return newProducts;
   }
 
@@ -282,6 +290,11 @@ export class ProductService extends BaseService {
     let sql = `
     SELECT COUNT(*) AS total
     FROM product.products pp
+WHERE pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
     `;
     let totalProducts: { total: number }[] = await this.safeQuery(sql);
     return totalProducts[0]?.total;
@@ -290,8 +303,12 @@ export class ProductService extends BaseService {
   async getTotalProductsByCategory(slug: string): Promise<number | undefined> {
     let sql = `
     SELECT COUNT(*) AS total
-    FROM product.products
-    WHERE pp.category_id = $1;
+    FROM product.products pp
+    WHERE pp.category_id = $1 and pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
     `;
     let totalProducts: { total: number }[] = await this.safeQuery(sql, [slug]);
     return totalProducts[0]?.total;
@@ -300,8 +317,13 @@ export class ProductService extends BaseService {
   async getTotalBiddingProducts(): Promise<number | undefined> {
     let sql = `
     SELECT COUNT(DISTINCT(bl.product_id)) AS total
-    FROM product.products AS products 
-    JOIN auction.bid_logs  AS bl ON bl.product_id = products.id 
+    FROM product.products AS pp
+    JOIN auction.bid_logs  AS bl ON bl.product_id = pp.id 
+ WHERE pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
     `;
     let totalProducts: { total: number }[] = await this.safeQuery(sql);
     return totalProducts[0]?.total;
@@ -313,13 +335,15 @@ export class ProductService extends BaseService {
   ): Promise<ProductPreview[]> {
     let sql = `
         SELECT id
-        FROM product.products p
-        WHERE NOT EXISTS (
-          SELECT 1
-          FROM auction.orders o
-          WHERE o.product_id = p.id
-        )
-        ORDER BY p.end_time ASC
+        FROM product.products pp
+   WHERE pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
+        ORDER BY pp.end_time ASC
+
+
     `;
 
     const params: any[] = [];
@@ -364,7 +388,11 @@ export class ProductService extends BaseService {
         FROM auction.bid_logs bl 
         GROUP BY bl.product_id
     ) bl ON bl.product_id = pp.id
-    WHERE pp.category_id = $1
+    WHERE pp.category_id = $1 and pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
     `;
 
     const params: any[] = [slug];
@@ -411,10 +439,15 @@ export class ProductService extends BaseService {
   ): Promise<ProductPreview[]> {
     let sql = `
   
-  SELECT products.id
-  FROM product.products AS products 
-  JOIN auction.bid_logs  AS bid_logs ON bid_logs.product_id = products.id 
-  GROUP BY products.id 
+  SELECT pp.id
+  FROM product.products pp
+  JOIN auction.bid_logs  AS bid_logs ON bid_logs.product_id = pp.id 
+  WHERE pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
+  GROUP BY pp.id 
   ORDER BY COUNT(DISTINCT bid_logs.user_id) DESC
   `;
     const params: any[] = [];
@@ -452,11 +485,18 @@ export class ProductService extends BaseService {
     let sql = `
    SELECT pp.id
   FROM product.products pp 
+  
   LEFT JOIN (
      SELECT bl.product_id, MAX(bl.price) as current_price
      FROM auction.bid_logs bl 
      GROUP BY bl.product_id
   ) bl on bl.product_id = pp.id 
+
+   WHERE pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
   ORDER BY GREATEST(COALESCE(bl.current_price, 0), pp.initial_price) DESC 
     `;
     let params: any[] = [];
@@ -559,9 +599,13 @@ export class ProductService extends BaseService {
     userId: number
   ): Promise<ProductPreview[] | undefined> {
     const sql = `
-  SELECT p.id
-  FROM product.products p 
-  WHERE  p.end_time > NOW()  AND p.seller_id = $1
+  SELECT pp.id
+  FROM product.products pp
+  WHERE pp.seller_id = $1 and pp.end_time >= NOW()   and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
     `;
     const params = [userId];
 
@@ -573,11 +617,7 @@ export class ProductService extends BaseService {
         return productType;
       })
     );
-    console.log("gia tri selling: ", sellingProduct);
-    const availableProducts = sellingProduct.filter(
-      (p) => p?.status === "available"
-    );
-    return availableProducts;
+    return sellingProduct;
   }
   async getCategoryProductList(): Promise<CategoryProduct[]> {
     let sql = `
@@ -635,7 +675,11 @@ SELECT
               ) as status
 
             FROM product.products pp 
-            WHERE pp.category_id = pc.id 
+            WHERE pp.category_id = pc.id  and pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
             ORDER by pp.id 
             LIMIT 5
           ) pp 
@@ -667,7 +711,11 @@ WHERE pc.parent_id is not null
     )
   FROM product.products pp
   WHERE to_tsvector('simple', unaccent(pp.name))
-        @@ websearch_to_tsquery('simple', unaccent($1))
+        @@ websearch_to_tsquery('simple', unaccent($1)) and pp.end_time >= NOW() and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
   ORDER BY ts_rank(
       to_tsvector('simple', unaccent(pp.name)),
       websearch_to_tsquery('simple', unaccent($1))
@@ -1223,15 +1271,16 @@ RETURNING *;
   ): Promise<BiddingProduct[]> {
     const params: any[] = [userId];
     let sql = `
-    SELECT DISTINCT p.id, p.name, p.slug, p.main_image, b.price as user_price
-                FROM auction.bid_logs as b
-                JOIN product.products as p ON p.id = b.product_id
-                WHERE b.user_id =$1 AND b.price = (
-                    SELECT MAX(price)
-                    FROM auction.bid_logs as c
-                    WHERE c.user_id = $1 AND c.product_id = b.product_id
-                  )
-                   `;
+      SELECT product_id::INT, b.max_price::INT
+      FROM auction.user_bids b
+      JOIN product.products p ON p.id = b.product_id
+      WHERE user_id = $1 AND (p.end_time > NOW() AND NOT EXISTS (
+        SELECT 1
+        FROM auction.orders o
+        WHERE o.product_id = b.product_id AND o.status != 'cancelled'
+      ))
+      ORDER BY p.end_time DESC
+    `;
     if (limit) {
       sql += `LIMIT $2 \n`;
       params.push(limit);
@@ -1241,24 +1290,24 @@ RETURNING *;
       sql += "OFFSET $3 \n";
       params.push(offset);
     }
-    const productsNotPrice: BiddingProduct[] = await this.safeQuery(
-      sql,
-      params
-    );
+    const productIds = await this.safeQuery<{
+      product_id: number;
+      max_price: number;
+    }>(sql, params);
 
-    const productHavePrice = await Promise.all(
-      productsNotPrice.map(async (p) => {
-        const current_price = await this.getCurrentPrice(p.id);
-        if (current_price === undefined) {
-          return { ...p, current_price: null };
-        }
-        return { ...p, current_price };
+    const productPreview = await Promise.all(
+      productIds.map(async (item: any) => {
+        const productType = await this.getProductType(item.product_id);
+        return {
+          ...productType,
+          user_price: item.max_price,
+        };
       })
     );
-    return productHavePrice;
+    return productPreview;
   }
 
-  async getProducts(pagination: Pagination): Promise<ProductPreview[]> {
+  async getProducts(pagination: Pagination): Promise<Product[]> {
     const sql = `
                 SELECT p.id 
                 FROM product.products p
@@ -1272,7 +1321,7 @@ RETURNING *;
 
     const productPreview = await Promise.all(
       product.map(async (item: any) => {
-        const productType = this.getProductPreviewType(item.id);
+        const productType = this.getProductType(item.id);
         return productType;
       })
     );

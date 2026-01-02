@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+
 import {
   ProductPagination,
   ProductPreview,
-} from "../../../../shared/src/types";
+} from "../../../../../shared/src/types";
 import ProductCard from "@/components/ProductCard";
 import FavoriteHook from "@/hooks/useFavorite";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
@@ -51,12 +52,14 @@ const FavoriteProductPage = () => {
       {error && <div>{error.message}</div>}
       {!isLoading && !error && (
         <div className="flex flex-col gap-10">
-            <div className="
+          <div
+            className="
                         grid
-                        [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]
+                        [grid-template-columns:repeat(auto-fill,minmax(200px,1fr))]
                         gap-3
                         w-full
-            ">
+            "
+          >
             {favoriteProducts.map((item) => {
               return (
                 <div key={item.id} className="mt-3">

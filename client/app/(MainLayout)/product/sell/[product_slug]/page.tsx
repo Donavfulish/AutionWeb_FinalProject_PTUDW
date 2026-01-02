@@ -70,7 +70,7 @@ function EndTime({ endTime }: Time) {
   const localString = formatDate(endTime || "");
 
   return (
-    <div className="pb-6 border-b  mb-6 border-slate-200 ">
+    <div className="mb-4 md:mb-6 border-b  pb-4 md:pb-6 border-slate-200 ">
       <p className="text-sm text-slate-600 mb-2 font-light">
         {endTime && isLessThreeDays(now, endTime)
           ? "Thời gian còn lại"
@@ -273,7 +273,7 @@ export default function ProductPage() {
     );
 
   return (
-    <div className="bg-[#F8FAFC] w-full">
+    <div className="xl:bg-[#F8FAFC] w-full">
       {isLoadingProduct ||
       isLoadingFavoriteProducts ||
       isLoadingProductCategory ||
@@ -299,7 +299,7 @@ export default function ProductPage() {
                 />
               </div>
               <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-8 w-full">
-                <div className="pb-6 border-b mb-6  border-slate-200">
+                <div className="mb-4 md:mb-6 border-b pb-4 md:pb-6  border-slate-200">
                   <h1 className="text-2xl font-bold mb-4 text-slate-900">
                     {product.name}
                   </h1>
@@ -308,7 +308,7 @@ export default function ProductPage() {
                       <p className="text-sm font-light mb-2 text-slate-600">
                         Giá hiện tại
                       </p>{" "}
-                      <p className="text-4xl font-bold text-blue-600 mb-2">
+                      <p className="text-2xl md:text-4xl font-bold text-blue-600 mb-2">
                         {product.current_price &&
                           formatCurrency(product.current_price)}
                       </p>
@@ -321,7 +321,7 @@ export default function ProductPage() {
                       <p className="text-sm font-light mb-2 text-slate-600">
                         Giá mua ngay
                       </p>{" "}
-                      <p className="text-4xl font-bold text-red-500 mb-2">
+                      <p className="text-2xl md:text-4xl font-bold text-red-500 mb-2">
                         {product.buy_now_price != null ? (
                           product.current_price &&
                           formatCurrency(product.buy_now_price)
@@ -332,13 +332,13 @@ export default function ProductPage() {
                     </div>
                   </div>
                 </div>
-                <div className="pb-6 border-b mb-6 border-slate-200 grid grid-cols-2">
+                <div className="mb-4 md:mb-6 border-b pb-4 md:pb-6 border-slate-200 grid grid-cols-2">
                   <div>
                     <p className="text-sm text-slate-600 mb-2 flex items-center gap-2">
                       <CalendarOutlineIcon />
                       Thời điểm đăng
                     </p>
-                    <p className="ml-4 text-[16px] font-semibold text-slate-900">
+                    <p className="text-sm lg:ml-4 md:text-[16px] font-semibold text-slate-900">
                       {formatDate(product.created_at)}
                     </p>
                   </div>
@@ -366,7 +366,7 @@ export default function ProductPage() {
                   </div>
                 </div>
 
-                <div className="pb-6 border-b  mb-6 border-slate-200">
+                <div className="mb-4 md:mb-6 border-b pb-4 md:pb-6 border-slate-200">
                   <div>
                     <p className="text-sm font-medium  text-slate-600 mb-3">
                       Người bán
@@ -399,11 +399,11 @@ export default function ProductPage() {
                   </div>
                 </div>
 
-                <div className="pb-6 border-b  mb-6 border-slate-200 ">
+                <div className="mb-4 md:mb-6 border-b pb-4 md:pb-6 border-slate-200 ">
                   <p className="text-sm text-slate-600 mb-2 font-light">
                     Giá đấu tiếp theo
                   </p>
-                  <p className="text-3xl font-bold text-blue-600">
+                  <p className="text-2xl md:text-3xl font-bold text-blue-600">
                     {formatCurrency(
                       Number(product.current_price || 0) +
                         Number(product.price_increment || 0)
@@ -425,9 +425,18 @@ export default function ProductPage() {
                         <div className="">
                           <Link
                             href={`/product/sell/order/${product.id}`}
-                            className="w-full flex items-center gap-2 justify-center border border-blue-600 text-blue-600 py-2 px-5 font-medium rounded-lg hover:bg-blue-600 hover:border-blue-600 hover:text-white transition-colors duration-200"
+                            className="
+                              w-full flex items-center justify-center gap-2 
+                              py-2.5 px-4 rounded-lg                              
+                              font-medium text-sm sm:text-base text-blue-600                              
+                              border border-blue-600 bg-transparent                             
+                              sm:w-auto sm:px-6 sm:py-2                           
+                              transition-all duration-200
+                              hover:bg-blue-600 hover:text-white hover:shadow-md
+                              active:scale-95
+                            "
                           >
-                            Đi tới đơn hàng
+                            <span>Đi tới đơn hàng</span>
                           </Link>
                         </div>
                       </div>
@@ -460,23 +469,29 @@ export default function ProductPage() {
               </div>
             </div>
           )}
-          <div className="bg-white rounded-lg p-3 sm:p-6 mb-8 border border-slate-200">
-            <h3 className="text-2xl font-bold text-slate-900 mb-4">
-              Thông tin chi tiết sản phẩm
-            </h3>
+          <div className="bg-white rounded-xl shadow-sm   mb-4 sm:mb-8 border border-slate-200">
+            <div className="border-b border-slate-100 bg-slate-50/50 p-4">
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">
+                Thông tin chi tiết sản phẩm
+              </h3>
+            </div>
 
-            {product && (
-              <p
-                dangerouslySetInnerHTML={{ __html: product.description || "" }}
-              />
-            )}
+            <div className="p-4">
+              {product && (
+                <p
+                  dangerouslySetInnerHTML={{
+                    __html: product.description || "",
+                  }}
+                />
+              )}
+            </div>
           </div>
           {product && (
-            <div className="grid grid-cols-11 gap-5">
-              <div className="col-span-4">
+            <div className="grid grid-cols-1 lg:flex lg:flex-row lg:gap-x-1 xl:gap-x-2 mb-4">
+              <div className="lg:flex-4 ">
                 <BidHistory productId={product.id} />
               </div>
-              <div className="col-span-7">
+              <div className="lg:flex-7">
                 <Question productId={product.id} />
               </div>
             </div>

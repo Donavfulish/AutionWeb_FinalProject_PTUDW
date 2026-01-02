@@ -49,12 +49,8 @@ export class RatingService extends BaseService {
       rating,
     ];
 
-    const promises = [
-      this.safeQuery(insertRatingSql, insertRatingParams),
-      this.safeQuery(updateUserSql, [ratee.id]),
-    ];
-
-    await Promise.all(promises);
+    await this.safeQuery(insertRatingSql, insertRatingParams);
+    await this.safeQuery(updateUserSql, [ratee.id]);
   }
 
   async updateRating(raterId: number, payload: CreateRating) {
@@ -89,12 +85,8 @@ export class RatingService extends BaseService {
       ratee.id,
     ];
 
-    const promises = [
-      this.safeQuery(updateRatingSql, updateRatingParams),
-      this.safeQuery(updateUserSql, [ratee.id]),
-    ];
-
-    await Promise.all(promises);
+    await this.safeQuery(updateRatingSql, updateRatingParams);
+    await this.safeQuery(updateUserSql, [ratee.id]);
   }
 
   async getOneRating(

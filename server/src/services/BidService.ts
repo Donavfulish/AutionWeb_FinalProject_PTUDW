@@ -250,6 +250,12 @@ export class BidService extends BaseService {
       extend: number
     ) => {
       if (!auto_extend) return;
+      console.log("auto extend: ", {
+        auto_extend,
+        end_time,
+        threshold,
+        extend,
+      });
       const nowTime = new Date();
       const diffInMinutes: number =
         (end_time.getTime() - nowTime.getTime()) / (1000 * 60);

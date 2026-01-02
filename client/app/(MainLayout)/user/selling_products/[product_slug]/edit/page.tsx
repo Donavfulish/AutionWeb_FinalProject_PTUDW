@@ -66,7 +66,7 @@ const EditProductPage = () => {
   };
 
   return (
-    <div className="bg-[#F8FAFC] w-full">
+    <div className=" w-full">
       {(isLoadingProduct ||
         isUpdatingProductDescription ||
         isLoadingCategory) && (
@@ -89,8 +89,8 @@ const EditProductPage = () => {
               <div className="p-8 md:p-0 md:w-1/2 ">
                 <ImageCarousel images={productImages} />
               </div>
-              <div className="bg-white border  border-gray-200 rounded-lg p-4 sm:p-8 w-full">
-                <div className="pb-6 border-b mb-6  border-slate-200">
+              <div className="bg-white border shadow-sm  border-gray-200 rounded-lg p-4 sm:p-8 w-full">
+                <div className="pb-4 md:pb-6 border-b mb-4 md:mb-6  border-slate-200">
                   <h1 className="text-2xl font-bold mb-4 text-slate-900">
                     {product.name}
                   </h1>
@@ -107,7 +107,7 @@ const EditProductPage = () => {
                     {10} Lượt đấu giá
                   </p>
                 </div>
-                <div className="pb-6 border-b mb-6 border-slate-200 grid grid-cols-2">
+                <div className="pb-4 md:pb-6 border-b mb-4 md:mb-6 border-slate-200 grid grid-cols-2">
                   <div>
                     <p className="text-sm text-slate-600 mb-2 flex items-center gap-2">
                       <CalendarOutlineIcon />
@@ -129,7 +129,7 @@ const EditProductPage = () => {
                   </div>
                 </div>
 
-                <div className="pb-6 border-b  mb-6 border-slate-200 ">
+                <div className="pb-4 md:pb-6 border-b  mb-4 md:mb-6 border-slate-200 ">
                   <p className="text-sm text-slate-600 mb-2 font-light">
                     Thời gian còn lại
                   </p>
@@ -137,7 +137,7 @@ const EditProductPage = () => {
                     {getTimeDifference(new Date(), new Date(product.end_time))}
                   </p>
                 </div>
-                <div className="pb-6 border-b  mb-6 border-slate-200 ">
+                <div className="pb-4 md:pb-6 border-b  mb-4 md:mb-6 border-slate-200 ">
                   <p className="text-sm text-slate-600 mb-2 font-light">
                     Giá mua ngay
                   </p>
@@ -150,11 +150,16 @@ const EditProductPage = () => {
                 <div></div>
               </div>
             </div>
-            <div className="bg-white rounded-lg p-3 sm:p-6 mb-8 border border-slate-200">
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">
-                Thông tin chi tiết sản phẩm
-              </h3>
+            <div className="bg-white rounded-xl shadow-sm   mb-4 sm:mb-8 border border-slate-200">
+              <div className="border-b border-slate-100 bg-slate-50/50 p-4">
+                {" "}
+                <h3 className="text-2xl font-bold text-slate-900 mb-1 sm:mb-4">
+                  Thông tin chi tiết sản phẩm
+                </h3>
+              </div>
+
               <div
+                className="p-4"
                 dangerouslySetInnerHTML={{ __html: product.description || "" }}
               />
             </div>

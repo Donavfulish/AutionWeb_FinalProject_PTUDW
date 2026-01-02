@@ -19,7 +19,7 @@ export const authService = {
       });
       return res.data;
     } catch (error: any) {
-      throw error?.response?.data ?? error;
+      throw new Error(error?.response?.data?.message ?? "Lỗi khi đăng kí");
     }
   },
 
@@ -30,7 +30,7 @@ export const authService = {
       });
       return res.data;
     } catch (error: any) {
-      throw error?.response?.data ?? error;
+      throw new Error(error?.response?.data?.message ?? "Lỗi khi đăng nhập");
     }
   },
 
@@ -41,7 +41,9 @@ export const authService = {
       });
       return res.data;
     } catch (error: any) {
-      throw error?.response?.data ?? error;
+      throw new Error(
+        error?.response?.data?.message ?? "Lỗi khi quên mật khẩu"
+      );
     }
   },
 
@@ -52,7 +54,7 @@ export const authService = {
       });
       return res.data;
     } catch (error: any) {
-      throw error?.response?.data ?? error;
+      throw new Error(error?.response?.data?.message ?? "Lỗi khi xác thực OTP");
     }
   },
 
@@ -63,7 +65,7 @@ export const authService = {
       });
       return res.data;
     } catch (error: any) {
-      throw error?.response?.data ?? error;
+      throw new Error(error?.response?.data?.message ?? "Lỗi khi xác thực OTP");
     }
   },
 
@@ -76,7 +78,7 @@ export const authService = {
       );
       return res.data;
     } catch (error: any) {
-      throw error?.response?.data ?? error;
+      throw new Error(error?.response?.data?.message ?? "Lỗi khi đăng xuất");
     }
   },
 
@@ -111,7 +113,9 @@ export const authService = {
 
       return res.data;
     } catch (error: any) {
-      throw error?.response?.data;
+      throw new Error(
+        error?.response?.data?.message ?? "Lỗi khi đặt lại mật khẩu"
+      );
     }
   },
 };

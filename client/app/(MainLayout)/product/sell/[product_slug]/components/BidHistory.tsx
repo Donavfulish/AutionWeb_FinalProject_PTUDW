@@ -46,65 +46,66 @@ export const BidHistory = ({ productId }: ProductId) => {
   };
 
   return (
-    <div className="relative bg-white rounded-lg p-6 mb-8 border border-slate-200">
+    <div className="relative bg-white rounded-xl shadow-sm  mb-6 sm:mb-8 border border-slate-200">
       {isLoadingBigLogs && <LoadingSpinner />}
 
-      <div className="flex flex-row justify-between items-center mb-4">
+      <div className="p-4 md:p-6 lg:p-1 border-b border-slate-100 bg-slate-50/50">
         <h3 className="text-2xl w-fit font-bold text-slate-900">
           Lịch sử đấu giá
         </h3>
       </div>
-
-      <table className="w-full">
-        <thead>
-          <tr>
-            <th className="text-left py-3 text-sm font-semibold text-gray-600">
-              Thời gian
-            </th>
-            <th className="text-left py-3 text-sm font-semibold text-gray-600">
-              Người đấu giá
-            </th>
-            <th className="text-right py-3 pl-5 text-sm font-semibold text-gray-600">
-              Giá đấu
-            </th>
-            <th className="text-right py-3 pl-5 text-sm font-semibold text-gray-600">
-              Từ chối
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {bidLogs &&
-            bidLogs.map((his, index) => (
-              <tr
-                key={index}
-                className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition"
-              >
-                <td className="py-3 px-1 sm:px-3 truncate text-[12px] sm:text-sm text-gray-700">
-                  {new Date(String(his.created_at)).toLocaleString("vi-VN")}
-                </td>
-                <td className="py-3 px-1 sm:px-3 truncate max-w-[90px] text-[12px] sm:text-sm font-medium text-gray-700">
-                  {user?.id === his.user.id
-                    ? `${his.user.name} (Bạn)`
-                    : `${his.user.name}`}
-                </td>
-                <td className="py-3 px-1 sm:px-3 truncate text-[12px] sm:text-sm font-bold text-blue-600 text-right">
-                  {formatCurrency(his.price)}
-                </td>
-                <td className="py-3 px-1 sm:px-3 truncate text-[12px] sm:text-sm font-bold text-red-400 text-right">
-                  <div className="w-full flex justify-end items-center">
-                    <UserMinus
-                      onClick={() => {
-                        setBlacklistConfirm(true);
-                        setBlacklistUser(his.user);
-                      }}
-                      className="hover:text-red-600 cursor-pointer"
-                    />
-                  </div>
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+      <div className="px-4 md:p-6 lg:p-1">
+        <table className="w-full">
+          <thead>
+            <tr>
+              <th className="text-left py-3 text-sm font-semibold text-gray-600">
+                Thời gian
+              </th>
+              <th className="text-left py-3 text-sm font-semibold text-gray-600">
+                Người đấu giá
+              </th>
+              <th className="text-right py-3 pl-5 text-sm font-semibold text-gray-600">
+                Giá đấu
+              </th>
+              <th className="text-right py-3 pl-5 text-sm font-semibold text-gray-600">
+                Từ chối
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {bidLogs &&
+              bidLogs.map((his, index) => (
+                <tr
+                  key={index}
+                  className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition"
+                >
+                  <td className="py-3 px-1 sm:px-3 truncate text-[12px] sm:text-sm text-gray-700">
+                    {new Date(String(his.created_at)).toLocaleString("vi-VN")}
+                  </td>
+                  <td className="py-3 px-1 sm:px-3 truncate max-w-[90px] text-[12px] sm:text-sm font-medium text-gray-700">
+                    {user?.id === his.user.id
+                      ? `${his.user.name} (Bạn)`
+                      : `${his.user.name}`}
+                  </td>
+                  <td className="py-3 px-1 sm:px-3 truncate text-[12px] sm:text-sm font-bold text-blue-600 text-right">
+                    {formatCurrency(his.price)}
+                  </td>
+                  <td className="py-3 px-1 sm:px-3 truncate text-[12px] sm:text-sm font-bold text-red-400 text-right">
+                    <div className="w-full flex justify-end items-center">
+                      <UserMinus
+                        onClick={() => {
+                          setBlacklistConfirm(true);
+                          setBlacklistUser(his.user);
+                        }}
+                        className="hover:text-red-600 cursor-pointer"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
 
       {blacklistConfirm && (
         <ConfirmPopup
