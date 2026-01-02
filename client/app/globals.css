@@ -6,6 +6,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  /* Khai báo breakpoint mới */
+  --breakpoint-xs: 462px;
+}
+
 :root {
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.13 0.028 261.692);

@@ -343,6 +343,7 @@ export default function ProductPage() {
     setOpenBuyNowModal(true);
   };
 
+  console.log("end time: ", product?.end_time);
   return (
     <div className="bg-[#F8FAFC] w-full">
       {isLoadingProduct ||

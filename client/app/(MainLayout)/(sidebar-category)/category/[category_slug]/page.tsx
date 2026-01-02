@@ -8,6 +8,8 @@ import Pagination from "@/components/Pagination";
 import FavoriteHook from "@/hooks/useFavorite";
 import { use } from "react";
 import { useMemo } from "react";
+import { usePerPage } from "@/utils/getPerPage";
+import ShortCategorySideBar from "@/components/ShortCategorySidebar";
 
 function CategorySlugPage({
   params,
@@ -15,7 +17,7 @@ function CategorySlugPage({
   params: Promise<{ category_slug: string }>;
 }) {
   const { category_slug } = use(params);
-  const per_page = 15;
+  const per_page = usePerPage();
   const searchParams = useSearchParams();
   const router = useRouter();
   const page = searchParams.get("page") || "1";
@@ -73,8 +75,11 @@ function CategorySlugPage({
               Tìm kiếm và đấu giá hàng triệu sản phẩm từ những người bán uy tín
             </div>
           </div>
-          <div className="text-2xl font-medium mt-10">{categoryName}</div>
-          <div className="mt-2 grid grid-cols-5 gap-3">
+          <div className=" mt-10">
+            <ShortCategorySideBar />
+            <div className="text-2xl font-medium">{categoryName}</div>
+          </div>
+          <div className="grid grid-cols-1  sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
             {(products || []).map((item: ProductPreview, index: number) => {
               const isFavoriteProduct = (item: ProductPreview) =>
                 favoriteIds.has(Number(item.id));

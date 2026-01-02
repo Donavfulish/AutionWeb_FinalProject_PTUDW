@@ -8,6 +8,7 @@ import ProductHook from "@/hooks/useProduct";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import FavoriteHook from "@/hooks/useFavorite";
 import { useMemo } from "react";
+import ShortCategorySideBar from "@/components/ShortCategorySidebar";
 
 function Page() {
   const {
@@ -53,6 +54,7 @@ function Page() {
               return (
                 <div key={index}>
                   <div className="mt-15">
+                    <ShortCategorySideBar />
                     <div className="flex justify-between font-medium">
                       <div className=" text-2xl">{item.category_name}</div>
                       <Link
@@ -64,7 +66,7 @@ function Page() {
                       </Link>
                     </div>
                   </div>
-                  <div className="mt-2 grid grid-cols-5 gap-3">
+                  <div className="grid grid-cols-1  sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
                     {(item.products || []).map((item, index) => {
                       const isFavoriteProduct = (item: ProductPreview) =>
                         favoriteIds.has(Number(item.id));

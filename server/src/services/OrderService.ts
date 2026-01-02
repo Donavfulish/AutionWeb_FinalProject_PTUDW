@@ -100,13 +100,19 @@ export class OrderService extends BaseService {
     ]);
     if (orderExistedResult.length != 0) return { success: false };
 
+    // --- SỬA ĐOẠN NÀY ---
     const createOrderSql = `
-      INSERT INTO AUCTION.ORDERS (PRODUCT_ID, BUYER_ID, STATUS, SHIPPING_ADDRESS, PAYMENT_INVOICE, PRICE, CREATED_AT, UPDATED_AT)
-      SELECT $1, $2, 'pending', $3, null, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-      FROM PRODUCT.PRODUCTS P
-      WHERE P.id = $1 AND P.seller_id != $2
-      ON CONFLICT(product_id, buyer_id) DO NOTHING
-      RETURNING *
+      WITH inserted_order AS (
+        INSERT INTO AUCTION.ORDERS (PRODUCT_ID, BUYER_ID, STATUS, SHIPPING_ADDRESS, PAYMENT_INVOICE, PRICE, CREATED_AT, UPDATED_AT)
+        SELECT $1, $2, 'pending', $3, null, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+        FROM PRODUCT.PRODUCTS P
+        WHERE P.id = $1 AND P.seller_id != $2
+        ON CONFLICT(product_id, buyer_id) DO NOTHING
+        RETURNING product_id 
+      )
+      SELECT P.slug
+      FROM inserted_order I
+      JOIN PRODUCT.PRODUCTS P ON P.id = I.product_id
     `;
 
     const createOrderResult = await this.safeQuery<any>(createOrderSql, [
@@ -118,7 +124,7 @@ export class OrderService extends BaseService {
     if (createOrderResult.length == 0) {
       console.log("Seller không thể mua sản phẩm của chính mình");
       return { success: false };
-    } else return { success: true };
+    } else return { success: true, slug: createOrderResult[0].slug };
   }
 
   async updateOrderStatus(
