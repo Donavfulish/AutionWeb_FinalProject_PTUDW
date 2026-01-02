@@ -344,7 +344,7 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="bg-[#F8FAFC] w-full">
+    <div className="xl:bg-[#F8FAFC] w-full">
       {isLoadingProduct ||
       isLoadingFavoriteProducts ||
       isLoadingProductCategory ||
@@ -370,8 +370,8 @@ export default function ProductPage() {
                   images={[product.main_image, ...(product.extra_images || [])]}
                 />
               </div>
-              <div className="bg-white border  border-gray-200 rounded-lg p-4 sm:p-8 w-full">
-                <div className="pb-6 border-b mb-6  border-slate-200">
+              <div className="bg-white border  border-gray-200 rounded-lg p-4 sm:p-8 w-full shadow-sm">
+                <div className="pb-4 md:pb-6 border-b mb-4 md:mb-6  border-slate-200">
                   <h1 className="text-2xl font-bold mb-4 text-slate-900">
                     {product.name}
                   </h1>
@@ -380,7 +380,7 @@ export default function ProductPage() {
                       <p className="text-sm font-light mb-2 text-slate-600">
                         Giá hiện tại
                       </p>{" "}
-                      <p className="text-4xl font-bold text-blue-600 mb-2">
+                      <p className="text-2xl md:text-4xl font-bold text-blue-600 mb-2">
                         {product.current_price &&
                           formatCurrency(product.current_price)}
                       </p>
@@ -393,7 +393,7 @@ export default function ProductPage() {
                       <p className="text-sm font-light mb-2 text-slate-600">
                         Giá mua ngay
                       </p>{" "}
-                      <p className="text-4xl font-bold text-red-500 mb-2">
+                      <p className="text-2xl md:text-4xl font-bold text-red-500 mb-2">
                         {product.buy_now_price != null ? (
                           product.current_price &&
                           formatCurrency(product.buy_now_price)
@@ -404,13 +404,13 @@ export default function ProductPage() {
                     </div>
                   </div>
                 </div>
-                <div className="pb-6 border-b mb-6 border-slate-200 grid grid-cols-2">
+                <div className="pb-4 md:pb-6 border-b mb-4 md:mb-6 border-slate-200 grid grid-cols-2">
                   <div>
                     <p className="text-sm text-slate-600 mb-2 flex items-center gap-2">
                       <CalendarOutlineIcon />
                       Thời điểm đăng
                     </p>
-                    <p className="ml-4 text-[16px] font-semibold text-slate-900">
+                    <p className="text-sm lg:ml-4 md:text-[16px] font-semibold text-slate-900">
                       {formatDate(product.created_at)}
                     </p>
                   </div>
@@ -444,7 +444,7 @@ export default function ProductPage() {
                   </div>
                 </div>
 
-                <div className="pb-6 border-b  mb-6 border-slate-200">
+                <div className="pb-4 md:pb-6 border-b  mb-4 md:mb-6 border-slate-200">
                   <div>
                     <p className="text-sm font-medium  text-slate-600 mb-3">
                       Người bán
@@ -472,11 +472,11 @@ export default function ProductPage() {
                   </div>
                 </div>
 
-                <div className="pb-6 border-b  mb-6 border-slate-200 ">
+                <div className="pb-4 md:pb-6 border-b  mb-4 md:mb-6 border-slate-200 ">
                   <p className="text-sm text-slate-600 mb-2 font-light">
                     Giá đấu tiếp theo
                   </p>
-                  <p className="text-3xl font-bold text-blue-600">
+                  <p className="text-2xl md:text-3xl font-bold text-blue-600">
                     {formatCurrency(
                       Number(product.current_price || 0) +
                         Number(product.price_increment || 0)
@@ -531,19 +531,37 @@ export default function ProductPage() {
 
                           {isBid && (
                             <>
-                              <div className="z-1000 fixed inset-0 w-screen h-screen bg-black opacity-50 flex justify-center items-center"></div>
-                              <div className="z-1001 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-200 rounded-lg px-4 py-4 shadow-lg">
-                                <div className="bg-white w-full">
+                              <div
+                                className="z-[1000] fixed inset-0 w-screen h-screen bg-black/50 backdrop-blur-sm transition-opacity"
+                                onClick={() => setIsBid(false)}
+                              ></div>
+
+                              <div
+                                className="
+                                          z-[1001] 
+                                          fixed 
+                                          top-1/2 left-1/2 
+                                          -translate-x-1/2 -translate-y-1/2 
+                                          w-[90%] sm:w-[450px] 
+                                          bg-white 
+                                          border border-gray-200 
+                                          rounded-xl 
+                                          p-6 
+                                          shadow-2xl
+                                      "
+                              >
+                                <div className="w-full">
                                   <form
-                                    className="px-2 w-full"
+                                    className="w-full"
                                     onSubmit={handleSubmitBid(handleBid)}
                                   >
                                     <label
                                       htmlFor="price"
-                                      className="block font-medium text-heading text-xl"
+                                      className="block font-bold text-slate-800 text-lg sm:text-xl mb-1"
                                     >
                                       Đặt lệnh đấu giá
                                     </label>
+
                                     <input
                                       type="text"
                                       id="price"
@@ -557,7 +575,18 @@ export default function ProductPage() {
                                         setValue("price", String(parsed));
                                       }}
                                       autoComplete="off"
-                                      className="border border-gray-300 mt-4 rounded-2xl text-heading text-3xl! text-blue-500 rounded-base  w-full px-3 py-2.5 shadow-xs placeholder:text-body"
+                                      className="
+                                              w-full 
+                                              border border-gray-300 
+                                              mt-4 
+                                              rounded-xl 
+                                              text-blue-600 font-bold
+                                              text-2xl sm:text-3xl 
+                                              px-4 py-3 
+                                              shadow-sm 
+                                              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                              placeholder:text-gray-300
+                                                    "
                                       placeholder={
                                         product.current_price &&
                                         userBid.max_price &&
@@ -573,58 +602,61 @@ export default function ProductPage() {
                                             )
                                       }
                                     />
-                                    <span className="text-red-600 text-sm mt-1 block mb-2">
+
+                                    <span className="text-red-500 text-sm mt-2 block min-h-[20px]">
                                       {formStateBid.errors.price
                                         ? formStateBid.errors.price.message
                                         : ""}
                                     </span>
 
-                                    <div className="text-md mt-4">
-                                      <p>
-                                        <span className="">Giá hiện tại: </span>
-                                        <span className="ml-1 text-blue-600 font-medium text-lg">
+                                    <div className="text-sm sm:text-base mt-2 space-y-1 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                      <p className="flex justify-between">
+                                        <span className="text-slate-600">
+                                          Giá hiện tại:
+                                        </span>
+                                        <span className="font-semibold text-blue-600">
                                           {formatCurrency(
                                             product.current_price
                                           )}
                                         </span>
                                       </p>
-                                      <p>
-                                        <span className="">Bước nhảy: </span>
-                                        <span className="ml-2 text-blue-600 font-medium text-lg">
+                                      <p className="flex justify-between">
+                                        <span className="text-slate-600">
+                                          Bước nhảy:
+                                        </span>
+                                        <span className="font-semibold text-blue-600">
                                           {formatCurrency(
                                             product.price_increment
                                           )}
                                         </span>
                                       </p>
-                                      {userBid?.max_price ? (
-                                        <p className="">
-                                          <span className="">Giá đấu cũ: </span>
-                                          <span className="ml-2 text-orange-600 font-medium text-lg">
-                                            {formatCurrency(userBid.max_price)}
-                                          </span>
-                                        </p>
-                                      ) : (
-                                        <p className="text-slate-600">
-                                          Bạn chưa từng đấu giá sản phẩm này
-                                        </p>
-                                      )}
+                                      <p className="flex justify-between">
+                                        <span className="text-slate-600">
+                                          Giá đấu cũ của bạn:
+                                        </span>
+                                        <span className="font-semibold text-orange-600">
+                                          {userBid?.max_price
+                                            ? formatCurrency(userBid.max_price)
+                                            : "Chưa có"}
+                                        </span>
+                                      </p>
                                     </div>
 
-                                    <div className="mt-2">
+                                    <div className="mt-3 text-sm text-slate-500 text-center">
                                       {product.current_price &&
                                       userBid.max_price &&
                                       userBid.max_price >
                                         product.current_price ? (
                                         <p>
-                                          Bạn cần đặt giá lớn hơn{" "}
-                                          <span className="text-orange-600">
+                                          Cần đặt lớn hơn{" "}
+                                          <span className="font-bold text-orange-600">
                                             {formatCurrency(userBid.max_price)}
                                           </span>
                                         </p>
                                       ) : (
                                         <p>
-                                          Bạn cần đặt giá tối thiểu là{" "}
-                                          <span className="font-medium text-orange-600">
+                                          Tối thiểu:{" "}
+                                          <span className="font-bold text-orange-600">
                                             {formatCurrency(
                                               Number(product.current_price) +
                                                 Number(product.price_increment)
@@ -634,11 +666,16 @@ export default function ProductPage() {
                                       )}
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-2 mt-5 ">
+                                    <div className="grid grid-cols-2 gap-3 mt-6">
                                       <button
                                         onClick={() => setIsPopup(true)}
                                         type="button"
-                                        className="font-medium mx-auto block text-white bg-[#1447E6] box-border border border-blue-300 rounded-4xl hover:bg-[#2957e3] hover:cursor-pointer  shadow-xs  leading-5  text-sm w-full py-2.5"
+                                        className="
+                                            font-medium text-white bg-blue-600 
+                                            rounded-full hover:bg-blue-700 
+                                            transition-colors shadow-md 
+                                            text-sm sm:text-base py-3 w-full
+                                        "
                                       >
                                         Xác nhận
                                       </button>
@@ -647,7 +684,12 @@ export default function ProductPage() {
                                           e.preventDefault();
                                           handleOnclickCancleBid();
                                         }}
-                                        className="font-medium mx-auto block text-white bg-gray-500 box-border border border-gray-200 rounded-4xl hover:bg-gray-400 hover:cursor-pointer  shadow-xs  leading-5  text-sm w-full py-2.5"
+                                        className="
+                                            font-medium text-slate-700 bg-gray-100 
+                                            border border-gray-300 rounded-full 
+                                            hover:bg-gray-200 transition-colors 
+                                            text-sm sm:text-base py-3 w-full
+                                          "
                                       >
                                         Hủy
                                       </button>
@@ -656,9 +698,9 @@ export default function ProductPage() {
                                 </div>
                                 <button
                                   onClick={(e) => setIsBid(false)}
-                                  className="absolute top-2.5 right-3 "
+                                  className="absolute top-3 right-3 p-1 rounded-full hover:bg-slate-100 transition-colors"
                                 >
-                                  <X className="text-gray-500 hover:text-red-600 cursor-pointer" />
+                                  <X className="w-5 h-5 text-gray-400 hover:text-red-500" />
                                 </button>
                               </div>
                             </>
@@ -740,49 +782,83 @@ export default function ProductPage() {
 
                     {openBuyNowModal && (
                       <>
-                        <div className="z-1000 fixed inset-0 w-screen h-screen bg-black opacity-50 flex justify-center items-center"></div>
-                        <div className="z-1001 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-200 rounded-lg px-4 py-4 shadow-lg max-w-md">
-                          <p className="text-2xl font-bold text-center">
+                        <div
+                          className="z-[1000] fixed inset-0 w-screen h-screen bg-black/50 backdrop-blur-sm transition-opacity"
+                          onClick={() => setOpenBuyNowModal(false)}
+                        ></div>
+
+                        <div
+                          className="
+                                z-[1001] 
+                                fixed 
+                                top-1/2 left-1/2 
+                                -translate-x-1/2 -translate-y-1/2 
+                                w-[90%] sm:w-full sm:max-w-md
+                                bg-white 
+                                border border-gray-200 
+                                rounded-xl 
+                                p-6 
+                                shadow-2xl
+                              "
+                        >
+                          <p className="text-xl sm:text-2xl font-bold text-center text-slate-800">
                             Xác nhận mua ngay
                           </p>
-                          <p className="text-lg mt-5 text-center">
-                            Bạn xác nhận đồng ý mua ngay sản phẩm với giá
+
+                          <p className="text-sm sm:text-base mt-4 text-center text-slate-600">
+                            Bạn xác nhận đồng ý mua ngay sản phẩm với giá:
                           </p>
-                          <p className="text-red-500 text-4xl font-medium text-center">
+
+                          <p className="text-red-600 text-3xl sm:text-4xl font-bold text-center my-4 break-words">
                             {formatCurrency(product.buy_now_price)}
                           </p>
-                          <p className="mt-3">
-                            Sau khi mua ngay, bạn có 24 giờ để thanh toán và
-                            nhập thông tin nhận hàng.
-                          </p>
+
+                          <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-800 text-center">
+                            Sau khi xác nhận, bạn có <strong>24 giờ</strong> để
+                            thanh toán và nhập thông tin nhận hàng.
+                          </div>
+
                           {product.top_bidder?.id == userBid.user_id &&
                             userBid?.max_price && (
-                              <p className="mt-3 font-medium text-slate-600">
-                                Nhắc nhở: Bạn vẫn đang dẫn đầu đấu giá với{" "}
-                                <span className="text-blue-600">
+                              <div className="mt-3 bg-orange-50 border border-orange-100 p-3 rounded-lg text-sm text-orange-800">
+                                <p className="font-semibold mb-1">⚠️ Lưu ý:</p>
+                                Bạn vẫn đang dẫn đầu đấu giá với mức giá{" "}
+                                <span className="font-bold">
                                   {formatCurrency(userBid.max_price)}
                                 </span>
-                              </p>
+                              </div>
                             )}
-                          <div className="grid grid-cols-2 gap-2 mt-5">
+
+                          <div className="grid grid-cols-2 gap-3 mt-6">
                             <button
                               onClick={handleOrder}
-                              className="font-medium mx-auto block text-white bg-[#1447E6] box-border border border-blue-300 rounded-4xl hover:bg-[#2957e3] hover:cursor-pointer  shadow-xs  leading-5  text-sm w-full py-2.5"
+                              className="
+                                  font-medium text-white bg-blue-600 
+                                  rounded-full hover:bg-blue-700 
+                                  transition-colors shadow-md 
+                                  text-sm sm:text-base py-3 w-full
+                                "
                             >
                               Mua ngay
                             </button>
                             <button
                               onClick={() => setOpenBuyNowModal(false)}
-                              className="font-medium mx-auto block text-white bg-gray-500 box-border border border-gray-200 rounded-4xl hover:bg-gray-400 hover:cursor-pointer  shadow-xs  leading-5  text-sm w-full py-2.5"
+                              className="
+                            font-medium text-slate-700 bg-gray-100 
+                            border border-gray-300 rounded-full 
+                            hover:bg-gray-200 transition-colors 
+                            text-sm sm:text-base py-3 w-full
+                          "
                             >
                               Hủy
                             </button>
                           </div>
+
                           <button
-                            onClick={(e) => setOpenBuyNowModal(false)}
-                            className="absolute top-2.5 right-3 "
+                            onClick={() => setOpenBuyNowModal(false)}
+                            className="absolute top-3 right-3 p-1 rounded-full hover:bg-slate-100 transition-colors"
                           >
-                            <X className="text-gray-500 hover:text-red-600 cursor-pointer" />
+                            <X className="w-5 h-5 text-gray-400 hover:text-red-500" />
                           </button>
                         </div>
                       </>
@@ -801,32 +877,41 @@ export default function ProductPage() {
               </div>
             </div>
           )}
-          <div className="bg-white rounded-lg p-3 sm:p-6 mb-8 border border-slate-200">
-            <h3 className="text-2xl font-bold text-slate-900 mb-4">
-              Thông tin chi tiết sản phẩm
-            </h3>
+          <div className="bg-white rounded-xl shadow-sm   mb-4 sm:mb-8 border border-slate-200">
+            <div className="border-b border-slate-100 bg-slate-50/50 p-4">
+              {" "}
+              <h3 className="text-2xl font-bold text-slate-900 mb-1 sm:mb-4">
+                Thông tin chi tiết sản phẩm
+              </h3>
+            </div>
 
-            {product && (
-              <p
-                dangerouslySetInnerHTML={{ __html: product.description || "" }}
-              />
-            )}
+            <div className="p-4">
+              {product && (
+                <p
+                  dangerouslySetInnerHTML={{
+                    __html: product.description || "",
+                  }}
+                />
+              )}
+            </div>
           </div>
           {product && (
-            <div className="grid grid-cols-10 gap-5">
-              <div className="col-span-3">
+            <div className="grid grid-cols-1 lg:flex lg:flex-row lg:gap-x-1 xl:gap-x-2 mb-4">
+              <div className="lg:flex-3 ">
                 <BidHistory productId={product.id} />
               </div>
-              <div className="col-span-7">
+              <div className="lg:flex-7">
                 <Question productId={product.id} />
               </div>
             </div>
           )}
           {product && setFavorites && (
-            <RelatedProducts
-              categoryId={product.category_id}
-              favorite_products={setFavorites}
-            />
+            <div className="w-full">
+              <RelatedProducts
+                categoryId={product.category_id}
+                favorite_products={setFavorites}
+              />
+            </div>
           )}
           <SimpleConfirmPopup
             isOpen={isPopup}
