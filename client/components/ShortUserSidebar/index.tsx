@@ -66,8 +66,6 @@ const ShortUserSidebar = () => {
 
   return (
     <>
-  
-
       {/* --- TOGGLE BUTTON --- */}
       {/* Sửa: Thêm md:hidden hoặc lg:hidden nếu bạn chỉ muốn hiện nút này trên mobile */}
       {/* Nếu bạn muốn hiện nút này trên cả Desktop thì giữ nguyên class, nhưng logic Drawer bên dưới phải bỏ lg:hidden */}
@@ -108,11 +106,11 @@ const ShortUserSidebar = () => {
 
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
               {/* Chỉ render Table khi có data để tránh lỗi undefined */}
-              
-                <UserCategoryTable
-                  userCategories={visibleCategories}
-                  isMobile={true}
-                />
+
+              <UserCategoryTable
+                userCategories={visibleCategories}
+                isMobile={true}
+              />
             </div>
           </div>
         </div>

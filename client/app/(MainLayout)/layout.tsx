@@ -14,7 +14,7 @@ export default function RootLayout({
     <>
       <AuthRoute>
         <Header />
-        <div className="mt-[100px] flex container-layout gap-8 mb-[50px]">
+        <div className="mt-20 lg:mt-[100px] flex container-layout gap-8 mb-[50px]">
           {children}
         </div>
         <Footer />
