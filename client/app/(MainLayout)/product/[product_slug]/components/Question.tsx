@@ -15,6 +15,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import Pagination from "@/components/Pagination";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { useAuthStore } from "@/store/auth.store";
 export function formatDate(date?: Date | string): string {
   if (!date) return "--";
   const d = date instanceof Date ? date : new Date(date);
@@ -103,6 +104,7 @@ export const Question = ({ productId }: ProductId) => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const user = useAuthStore((s) => s.user);
 
   const page = Number(searchParams.get("page")) || 1;
   const per_page = Number(searchParams.get("limit")) || 5;
@@ -162,13 +164,14 @@ export const Question = ({ productId }: ProductId) => {
 
       <div className="p-4 md:p-6">
         {/* Input Form */}
-        <form className="mb-8 md:mb-10" onSubmit={handleSubmit(handleSend)}>
-          <div className="flex flex-col sm:flex-row gap-3 items-start">
-            <div className="flex-1 w-full">
-              <input
-                {...register("comment")}
-                placeholder="Bạn muốn biết thêm gì về sản phẩm này?"
-                className={`
+        {user ? (
+          <form className="mb-8 md:mb-10" onSubmit={handleSubmit(handleSend)}>
+            <div className="flex flex-col sm:flex-row gap-3 items-start">
+              <div className="flex-1 w-full">
+                <input
+                  {...register("comment")}
+                  placeholder="Bạn muốn biết thêm gì về sản phẩm này?"
+                  className={`
                   w-full px-4 py-3 
                   bg-slate-50 border 
                   rounded-xl transition-all duration-200 ease-in-out
@@ -180,20 +183,20 @@ export const Question = ({ productId }: ProductId) => {
                       : "border-slate-200 focus:border-blue-500"
                   }
                 `}
-                type="text"
-                disabled={isCreateQuestion}
-              />
-              {errors.comment && (
-                <span className="text-red-500 text-sm mt-1.5 ml-1 block animate-fade-in">
-                  {errors.comment.message}
-                </span>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={isCreateQuestion}
-              className="
+                  type="text"
+                  disabled={isCreateQuestion}
+                />
+                {errors.comment && (
+                  <span className="text-red-500 text-sm mt-1.5 ml-1 block animate-fade-in">
+                    {errors.comment.message}
+                  </span>
+                )}
+              </div>
+              {user ? (
+                <button
+                  type="submit"
+                  disabled={isCreateQuestion}
+                  className="
                 w-full sm:w-auto shrink-0
                 px-6 py-3 
                 bg-blue-600 text-white font-medium
@@ -204,19 +207,25 @@ export const Question = ({ productId }: ProductId) => {
                 active:translate-y-0 active:scale-95
                 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none
               "
-            >
-              {isCreateQuestion ? (
-                // Có thể thay bằng icon loading nhỏ nếu muốn
-                <span>Đang gửi...</span>
+                >
+                  {isCreateQuestion ? (
+                    // Có thể thay bằng icon loading nhỏ nếu muốn
+                    <span>Đang gửi...</span>
+                  ) : (
+                    <>
+                      <FlightOutlineIcon className="w-5 h-5" />
+                      <span>Gửi câu hỏi</span>
+                    </>
+                  )}
+                </button>
               ) : (
-                <>
-                  <FlightOutlineIcon className="w-5 h-5" />
-                  <span>Gửi câu hỏi</span>
-                </>
+                <></>
               )}
-            </button>
-          </div>
-        </form>
+            </div>
+          </form>
+        ) : (
+          <></>
+        )}
 
         {/* Question List Section */}
         <div className="relative min-h-[100px]">
@@ -245,7 +254,10 @@ export const Question = ({ productId }: ProductId) => {
                 </div>
               ) : (
                 <div className="text-center py-8 text-slate-400 bg-slate-50 rounded-lg border border-dashed border-slate-200">
-                  <p>Chưa có câu hỏi nào. Hãy là người đầu tiên đặt câu hỏi!</p>
+                  {user 
+                    ? (<p>Chưa có câu hỏi nào. Hãy là người đầu tiên đặt câu hỏi!</p>)
+                    : (<p>Chưa có câu hỏi nào.</p>)
+                  }
                 </div>
               )}
 

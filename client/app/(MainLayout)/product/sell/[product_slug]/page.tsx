@@ -417,12 +417,12 @@ export default function ProductPage() {
           )}
           <div className="bg-white rounded-xl shadow-sm   mb-4 sm:mb-8 border border-slate-200">
             <div className="border-b border-slate-100 bg-slate-50/50 p-4">
-              <h3 className="text-2xl font-bold text-slate-900 mb-4">
+              <h3 className="text-2xl font-bold text-slate-900">
                 Thông tin chi tiết sản phẩm
               </h3>
             </div>
 
-            <div className="p-4">
+            <div className="py-4 px-6">
               {product && (
                 <p
                   dangerouslySetInnerHTML={{

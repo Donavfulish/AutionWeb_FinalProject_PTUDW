@@ -15,24 +15,24 @@ import SecondaryButton from "@/components/SecondaryButton";
 import { UserMinus } from "lucide-react";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
 import ProductHook from "@/hooks/useProduct";
+import { useAuthStore } from "@/store/auth.store";
 
 interface ProductId {
   productId: number;
 }
 export const BidHistory = ({ productId }: ProductId) => {
+  const { user } = useAuth();
   const [blacklistConfirm, setBlacklistConfirm] = useState<boolean>(false);
   const [blacklistUser, setBlacklistUser] = useState<Pick<User, "id" | "name">>(
     { id: -1, name: "" }
   );
 
   const { data: bidLogs, isLoading: isLoadingBigLogs } = BidHook.useBidLogs(
-    productId
+    productId, user ? true : false
   ) as { data: BidLog[]; isLoading: boolean };
 
   const { mutate: createBlacklist, isPending: isCreatingBlacklist } =
     BidHook.useCreateBlacklist();
-
-  const { user } = useAuth();
 
   const handleBlacklist = () => {
     setBlacklistConfirm(false);

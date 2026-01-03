@@ -6,6 +6,7 @@ import {
   ProductCategoryTree,
   UpdateCategory,
 } from "../../shared/src/types";
+import { publicApi } from "@/config/publicApi.config";
 
 export class CategoryService {
   static async getCategories(): Promise<any> {
@@ -15,9 +16,11 @@ export class CategoryService {
     });
   }
 
-  static async getCategoryDetailById(id: number): Promise<any> {
+  static async getCategoryDetailById(id: number, isPrivate: boolean = true): Promise<any> {
     return safeRequest(async () => {
-      const res = await api.get(API_ROUTES.category.getCategoryDetailById(id));
+      const res = isPrivate 
+        ? await api.get(API_ROUTES.category.getCategoryDetailById(id))
+        : await publicApi.get(API_ROUTES.category.getCategoryDetailById(id));
       return res.data;
     });
   }

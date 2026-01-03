@@ -17,11 +17,11 @@ class CategoryHook {
     });
   }
 
-  static useCategoryDetailById(id: number) {
+  static useCategoryDetailById(id: number, isPrivate: boolean = true) {
     return useQuery({
       queryKey: ["category_by_id", id],
       enabled: !!id,
-      queryFn: () => CategoryService.getCategoryDetailById(id),
+      queryFn: () => CategoryService.getCategoryDetailById(id, isPrivate),
       staleTime: STALE_10_MIN,
       select: (data) => {
         return data.data.category;

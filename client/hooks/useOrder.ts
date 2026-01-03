@@ -24,13 +24,13 @@ class OrderHook {
     });
   }
 
-  static useOrderById(productId: number) {
+  static useOrderById(productId: number, isPrivate: boolean = true) {
     return useQuery({
       queryKey: ["order_by_id", productId],
 
       queryFn: () => OrderService.getOrderById(productId),
 
-      enabled: !!productId,
+      enabled: !!productId && !!isPrivate,
 
       select: (data) => {
         return data.data;

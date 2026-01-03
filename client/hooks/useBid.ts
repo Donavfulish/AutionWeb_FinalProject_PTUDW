@@ -10,24 +10,24 @@ import {
 import { toast } from "react-toastify";
 import { success } from "zod";
 class BidHook {
-  static useBidLogs(product_id: number) {
+  static useBidLogs(product_id: number, isPrivate: boolean = true) {
     return useQuery({
       queryKey: ["bid_logs", product_id],
       queryFn: () => BidService.getBidlogs(product_id),
       staleTime: STALE_10_MIN,
-      enabled: !!product_id,
+      enabled: !!product_id && !!isPrivate,
       select: (data) => {
         return data.data.bid_logs;
       },
     });
   }
 
-  static useUserBid(product_id: number) {
+  static useUserBid(product_id: number, isPrivate: boolean = true) {
     return useQuery({
       queryKey: ["user_bid", product_id],
       queryFn: () => BidService.getUserBid(product_id),
       staleTime: STALE_10_MIN,
-      enabled: !!product_id,
+      enabled: !!product_id && !!isPrivate,
       select: (data) => {
         return data.data.userBid;
       },
@@ -97,12 +97,12 @@ class BidHook {
       },
     });
   }
-  static useGetCanBid(productSlug: string) {
+  static useGetCanBid(productSlug: string, isPrivate: boolean = true) {
     return useQuery({
       queryKey: ["can_bid", productSlug],
       queryFn: () => BidService.getCanBid(productSlug),
       staleTime: STALE_10_MIN,
-      enabled: !!productSlug,
+      enabled: !!productSlug && !!isPrivate,
       select: (data) => {
         return data.data.canBid;
       },

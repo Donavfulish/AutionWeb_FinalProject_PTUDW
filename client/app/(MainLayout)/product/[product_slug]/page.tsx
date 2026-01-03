@@ -43,6 +43,7 @@ import { defaultImage } from "@/app/const";
 import { ConfirmPopup } from "@/app/(MainLayout)/product/[product_slug]/components/ConfirmPopup";
 import { SimpleConfirmPopup } from "@/components/SimpleConfirmPopup";
 import { toast } from "react-toastify";
+import { useAuthStore } from "@/store/auth.store";
 
 function isLessThreeDays(dateA: Date, dateB: Date): boolean {
   const diffMs = Math.abs(dateA.getTime() - dateB.getTime()); // hiệu số milliseconds
@@ -97,7 +98,8 @@ export default function ProductPage() {
   const router = useRouter();
   const { product_slug } = useParams();
   const { user } = useAuth();
-  const [isFavorite, setIsFavorite] = useState<boolean>();
+  const isPrivate = user ? true : false;
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [setFavorites, setSetFavorites] = useState<Set<number>>();
   const [isBid, setIsBid] = useState(false);
   const [openBuyNowModal, setOpenBuyNowModal] = useState<boolean>(false);
@@ -132,28 +134,31 @@ export default function ProductPage() {
   });
 
   const { data: product, isLoading: isLoadingProduct } =
-    ProductHook.useGetProductBySlug(product_slug as string) as {
+    ProductHook.useGetProductBySlug(product_slug as string, isPrivate) as {
       data: Product;
       isLoading: boolean;
     };
   const { data: favorite_products, isLoading: isLoadingFavoriteProducts } =
     FavoriteHook.useAllFavorite();
   const { data: category, isLoading: isLoadingProductCategory } =
-    CategoryHook.useCategoryDetailById(product?.category_id) as {
+    CategoryHook.useCategoryDetailById(product?.category_id, isPrivate) as {
       data: ProductCategoryTree;
       isLoading: boolean;
     };
   const { data: userBid, isLoading: isLoadingUserBid } = BidHook.useUserBid(
-    product?.id
+    product?.id,
+    isPrivate
   ) as { data: UserBidInfo; isLoading: boolean };
   const { data: order, isLoading: isLoadingOrder } = OrderHook.useOrderById(
-    product?.id
+    product?.id,
+    isPrivate
   ) as {
     data: Order;
     isLoading: boolean;
   };
   const { data: isCanBid, isLoading: isLoadingIsCanBid } = BidHook.useGetCanBid(
-    product_slug as string
+    product_slug as string,
+    isPrivate
   ) as {
     data: boolean;
     isLoading: boolean;
@@ -163,7 +168,6 @@ export default function ProductPage() {
     BidHook.useCreateBid();
   const { mutate: createOrder, isPending: isCreatingOrder } =
     OrderHook.useCreateOrder();
-
   const { mutate: addFavorite, isPending: isAddFavorite } =
     FavoriteHook.useAddFavorite();
   const { mutate: removeFavorite, isPending: isRemoveFavorite } =
@@ -191,8 +195,9 @@ export default function ProductPage() {
     return Math.round((positive_points / total) * 100);
   }, [product?.top_bidder]);
 
+  // Check co phai san pham yeu thich hay khong (them user ton tai de loai bo guest)
   useEffect(() => {
-    if (favorite_products && product) {
+    if (user && favorite_products && product) {
       const newSetFavorites: Set<number> = new Set(
         favorite_products.map((p: Product) => Number(p.id))
       );
@@ -203,8 +208,9 @@ export default function ProductPage() {
         setIsFavorite(false);
       }
     }
-  }, [favorite_products, product]);
+  }, [favorite_products, product, user]);
 
+  // Check can bid (guest no)
   useEffect(() => {
     if (!user || !product || !order || !searchParams || !isCanBid) return;
 
@@ -246,14 +252,16 @@ export default function ProductPage() {
     }
   }, [user, order, product, searchParams, isCanBid]);
 
+  // Check role
   useEffect(() => {
     if (!router || !user || !product) return;
 
     if (user.id == product.seller.id) {
       router.replace(`/product/sell/${product_slug}`);
     }
-  }, [router, user, product]);
+  }, [router, user, product, product_slug]);
 
+  // Set value
   useEffect(() => {
     setValue("price", "");
   }, []);
@@ -279,7 +287,6 @@ export default function ProductPage() {
     }
   };
 
-  console.log("gia tri user: ", user);
   const handleBid: SubmitHandler<{ price: number }> = async (data) => {
     if (product.buy_now_price && data.price >= product.buy_now_price) {
       setWarningAutoBuyNowModal(true);
@@ -348,12 +355,11 @@ export default function ProductPage() {
       }
     }
   };
+
   const handleBuyNow = () => {
     setOpenBuyNowModal(true);
   };
 
-  console.log("end time: ", product?.end_time);
-  console.log(product);
   return (
     <div className="xl:bg-[#F8FAFC] w-full">
       {isLoadingProduct ||
@@ -500,26 +506,26 @@ export default function ProductPage() {
                 </div>
 
                 <EndTime endTime={new Date(product.end_time || "")} />
+                {user ? (
+                  <div className="pb-6 border-b mb-6 border-slate-200 gap-4 flex flex-col">
+                    {product.status == "available" && !isEnd ? (
+                      <>
+                        <div className="relative">
+                          <div className="relative group inline-block w-full">
+                            <PrimaryButton
+                              backgroundColor={canBid ? "#2563eb" : "#5d97fc"}
+                              hoverBackgroundColor={
+                                canBid ? "#3376eb" : "#dc2626"
+                              }
+                              text="Đặt lệnh đấu giá"
+                              onClick={handleOnclickBid}
+                              disabled={!canBid}
+                            />
 
-                <div className="pb-6 border-b mb-6 border-slate-200 gap-4 flex flex-col">
-                  {product.status == "available" && !isEnd ? (
-                    <>
-                      <div className="relative">
-                        <div className="relative group inline-block w-full">
-                          <PrimaryButton
-                            backgroundColor={canBid ? "#2563eb" : "#5d97fc"}
-                            hoverBackgroundColor={
-                              canBid ? "#3376eb" : "#dc2626"
-                            }
-                            text="Đặt lệnh đấu giá"
-                            onClick={handleOnclickBid}
-                            disabled={!canBid}
-                          />
-
-                          {/* Tooltip */}
-                          {!canBid && (
-                            <div
-                              className="
+                            {/* Tooltip */}
+                            {!canBid && (
+                              <div
+                                className="
                                     absolute
                                     bottom-full
                                     left-1/2
@@ -537,21 +543,21 @@ export default function ProductPage() {
                                     shadow-lg
                                     z-50
                                   "
-                            >
-                              Bạn không đủ điều kiện để đấu giá
-                            </div>
-                          )}
-                        </div>
+                              >
+                                Bạn không đủ điều kiện để đấu giá
+                              </div>
+                            )}
+                          </div>
 
-                        {isBid && (
-                          <>
-                            <div
-                              className="z-[1000] fixed inset-0 w-screen h-screen bg-black/50 backdrop-blur-sm transition-opacity"
-                              onClick={() => setIsBid(false)}
-                            ></div>
+                          {isBid && (
+                            <>
+                              <div
+                                className="z-[1000] fixed inset-0 w-screen h-screen bg-black/50 backdrop-blur-sm transition-opacity"
+                                onClick={() => setIsBid(false)}
+                              ></div>
 
-                            <div
-                              className="
+                              <div
+                                className="
                                           z-[1001] 
                                           fixed 
                                           top-1/2 left-1/2 
@@ -563,33 +569,33 @@ export default function ProductPage() {
                                           p-6 
                                           shadow-2xl
                                       "
-                            >
-                              <div className="w-full">
-                                <form
-                                  className="w-full"
-                                  onSubmit={handleSubmitBid(handleBid)}
-                                >
-                                  <label
-                                    htmlFor="price"
-                                    className="block font-bold text-slate-800 text-lg sm:text-xl mb-1"
+                              >
+                                <div className="w-full">
+                                  <form
+                                    className="w-full"
+                                    onSubmit={handleSubmitBid(handleBid)}
                                   >
-                                    Đặt lệnh đấu giá
-                                  </label>
+                                    <label
+                                      htmlFor="price"
+                                      className="block font-bold text-slate-800 text-lg sm:text-xl mb-1"
+                                    >
+                                      Đặt lệnh đấu giá
+                                    </label>
 
-                                  <input
-                                    type="text"
-                                    id="price"
-                                    value={formatPrice(
-                                      Number(watch("price") || undefined)
-                                    )}
-                                    onChange={(e) => {
-                                      const parsed = parseNumber(
-                                        e.target.value
-                                      );
-                                      setValue("price", String(parsed));
-                                    }}
-                                    autoComplete="off"
-                                    className="
+                                    <input
+                                      type="text"
+                                      id="price"
+                                      value={formatPrice(
+                                        Number(watch("price") || undefined)
+                                      )}
+                                      onChange={(e) => {
+                                        const parsed = parseNumber(
+                                          e.target.value
+                                        );
+                                        setValue("price", String(parsed));
+                                      }}
+                                      autoComplete="off"
+                                      className="
                                               w-full 
                                               border border-gray-300 
                                               mt-4 
@@ -601,132 +607,135 @@ export default function ProductPage() {
                                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                                               placeholder:text-gray-300
                                                     "
-                                    placeholder={
-                                      product.current_price &&
-                                      userBid.max_price &&
-                                      userBid.max_price > product.current_price
-                                        ? formatCurrency(
-                                            Number(userBid.max_price) +
-                                              Number(product.price_increment)
-                                          )
-                                        : formatCurrency(
-                                            Number(product.current_price) +
-                                              Number(product.price_increment)
-                                          )
-                                    }
-                                  />
+                                      placeholder={
+                                        product.current_price &&
+                                        userBid.max_price &&
+                                        userBid.max_price >
+                                          product.current_price
+                                          ? formatCurrency(
+                                              Number(userBid.max_price) +
+                                                Number(product.price_increment)
+                                            )
+                                          : formatCurrency(
+                                              Number(product.current_price) +
+                                                Number(product.price_increment)
+                                            )
+                                      }
+                                    />
 
-                                  <span className="text-red-500 text-sm mt-2 block min-h-[20px]">
-                                    {formStateBid.errors.price
-                                      ? formStateBid.errors.price.message
-                                      : ""}
-                                  </span>
+                                    <span className="text-red-500 text-sm mt-2 block min-h-[20px]">
+                                      {formStateBid.errors.price
+                                        ? formStateBid.errors.price.message
+                                        : ""}
+                                    </span>
 
-                                  <div className="text-sm sm:text-base mt-2 space-y-1 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <p className="flex justify-between">
-                                      <span className="text-slate-600">
-                                        Giá hiện tại:
-                                      </span>
-                                      <span className="font-semibold text-2xl text-blue-600">
-                                        {formatCurrency(product.current_price)}
-                                      </span>
-                                    </p>
-                                    <p className="flex justify-between">
-                                      <span className="text-slate-600">
-                                        Bước nhảy:
-                                      </span>
-                                      <span className="font-semibold text-2xl text-blue-600">
-                                        {formatCurrency(
-                                          product.price_increment
-                                        )}
-                                      </span>
-                                    </p>
-                                    <p className="flex justify-between">
-                                      <span className="text-slate-600">
-                                        Giá đấu cũ của bạn:
-                                      </span>
-                                      <span className="font-semibold text-2xl text-orange-600">
-                                        {userBid?.max_price
-                                          ? formatCurrency(userBid.max_price)
-                                          : "Chưa có"}
-                                      </span>
-                                    </p>
-                                  </div>
-
-                                  <div className="mt-3 text-sm text-slate-500 text-center">
-                                    {product.current_price &&
-                                    userBid.max_price &&
-                                    userBid.max_price >
-                                      product.current_price ? (
-                                      <p>
-                                        Cần đặt lớn hơn{" "}
-                                        <span className="font-bold text-2xl text-orange-600">
-                                          {formatCurrency(userBid.max_price)}
+                                    <div className="text-sm sm:text-base mt-2 space-y-1 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                      <p className="flex justify-between">
+                                        <span className="text-slate-600">
+                                          Giá hiện tại:
                                         </span>
-                                      </p>
-                                    ) : (
-                                      <p>
-                                        Tối thiểu:{" "}
-                                        <span className="font-bold text-2xl text-orange-600">
+                                        <span className="font-semibold text-2xl text-blue-600">
                                           {formatCurrency(
-                                            Number(product.current_price) +
-                                              Number(product.price_increment)
+                                            product.current_price
                                           )}
                                         </span>
                                       </p>
-                                    )}
-                                  </div>
+                                      <p className="flex justify-between">
+                                        <span className="text-slate-600">
+                                          Bước nhảy:
+                                        </span>
+                                        <span className="font-semibold text-2xl text-blue-600">
+                                          {formatCurrency(
+                                            product.price_increment
+                                          )}
+                                        </span>
+                                      </p>
+                                      <p className="flex justify-between">
+                                        <span className="text-slate-600">
+                                          Giá đấu cũ của bạn:
+                                        </span>
+                                        <span className="font-semibold text-2xl text-orange-600">
+                                          {userBid?.max_price
+                                            ? formatCurrency(userBid.max_price)
+                                            : "Chưa có"}
+                                        </span>
+                                      </p>
+                                    </div>
 
-                                  <div className="grid grid-cols-2 gap-3 mt-6">
-                                    <button
-                                      onClick={() => setIsPopup(true)}
-                                      type="button"
-                                      className="
+                                    <div className="mt-3 text-sm text-slate-500 text-center">
+                                      {product.current_price &&
+                                      userBid.max_price &&
+                                      userBid.max_price >
+                                        product.current_price ? (
+                                        <p>
+                                          Cần đặt lớn hơn{" "}
+                                          <span className="font-bold text-2xl text-orange-600">
+                                            {formatCurrency(userBid.max_price)}
+                                          </span>
+                                        </p>
+                                      ) : (
+                                        <p>
+                                          Tối thiểu:{" "}
+                                          <span className="font-bold text-2xl text-orange-600">
+                                            {formatCurrency(
+                                              Number(product.current_price) +
+                                                Number(product.price_increment)
+                                            )}
+                                          </span>
+                                        </p>
+                                      )}
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3 mt-6">
+                                      <button
+                                        onClick={() => setIsPopup(true)}
+                                        type="button"
+                                        className="
                                             font-medium text-white bg-blue-600 
                                             rounded-full hover:bg-blue-700 
                                             transition-colors shadow-md 
                                             text-sm sm:text-base py-3 w-full
                                         "
-                                    >
-                                      Xác nhận
-                                    </button>
-                                    <button
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        handleOnclickCancleBid();
-                                      }}
-                                      className="
+                                      >
+                                        Xác nhận
+                                      </button>
+                                      <button
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          handleOnclickCancleBid();
+                                        }}
+                                        className="
                                             font-medium text-slate-700 bg-gray-100 
                                             border border-gray-300 rounded-full 
                                             hover:bg-gray-200 transition-colors 
                                             text-sm sm:text-base py-3 w-full
                                           "
-                                    >
-                                      Hủy
-                                    </button>
-                                  </div>
-                                </form>
+                                      >
+                                        Hủy
+                                      </button>
+                                    </div>
+                                  </form>
+                                </div>
+                                <button
+                                  onClick={(e) => setIsBid(false)}
+                                  className="absolute top-3 right-3 p-1 rounded-full hover:bg-slate-100 transition-colors"
+                                >
+                                  <X className="w-5 h-5 text-gray-400 hover:text-red-500" />
+                                </button>
                               </div>
-                              <button
-                                onClick={(e) => setIsBid(false)}
-                                className="absolute top-3 right-3 p-1 rounded-full hover:bg-slate-100 transition-colors"
-                              >
-                                <X className="w-5 h-5 text-gray-400 hover:text-red-500" />
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                      {product.buy_now_price != null ? (
-                        <div className="relative group w-full">
-                          {/* Button */}
-                          <button
-                            disabled={!canBid}
-                            onClick={handleBuyNow}
-                            style={{
-                              cursor: !canBid ? "not-allowed" : "pointer",
-                            }}
-                            className="
+                            </>
+                          )}
+                        </div>
+                        {product.buy_now_price != null ? (
+                          <div className="relative group w-full">
+                            {/* Button */}
+                            <button
+                              disabled={!canBid}
+                              onClick={handleBuyNow}
+                              style={{
+                                cursor: !canBid ? "not-allowed" : "pointer",
+                              }}
+                              className="
                                     w-full flex items-center gap-2 justify-center
                                     border border-red-600 text-red-600
                                     py-2 font-medium rounded-lg
@@ -735,14 +744,14 @@ export default function ProductPage() {
                                     disabled:hover:bg-transparent
                                     disabled:hover:text-red-600
                                   "
-                          >
-                            {"Mua ngay " +
-                              formatCurrency(product.buy_now_price || 0)}
-                          </button>
-                          {/* Tooltip */}
-                          {!isCanBid && (
-                            <div
-                              className=" absolute bottom-full left-1/2
+                            >
+                              {"Mua ngay " +
+                                formatCurrency(product.buy_now_price || 0)}
+                            </button>
+                            {/* Tooltip */}
+                            {!isCanBid && (
+                              <div
+                                className=" absolute bottom-full left-1/2
                                       -translate-x-1/2
                                       mb-2
                                       hidden
@@ -757,47 +766,47 @@ export default function ProductPage() {
                                       shadow-lg
                                       z-50
                                     "
-                            >
-                              Bạn không đủ điều kiện để mua sản phẩm này
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <></>
-                      )}
-                    </>
-                  ) : (
-                    <div>
-                      {order && order.buyer?.id == user?.id ? (
-                        <div className="flex flex-row gap-2 justify-between items-center">
-                          <p className="text-blue-500 text-2xl font-medium">
-                            Bạn đã mua ngay sản phẩm này
-                          </p>
-                          <div className="">
-                            <Link
-                              href={`/product/order/${product.id}`}
-                              className="w-full flex items-center gap-2 justify-center border border-blue-600 text-blue-600 py-2 px-5 font-medium rounded-lg hover:bg-blue-600 hover:border-blue-600 hover:text-white transition-colors duration-200"
-                            >
-                              Đi tới đơn hàng
-                            </Link>
+                              >
+                                Bạn không đủ điều kiện để mua sản phẩm này
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      ) : (
-                        <p className="text-red-500 text-2xl font-medium">
-                          Đã có người mua ngay
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  {openBuyNowModal && (
-                    <>
-                      <div
-                        className="z-[1000] fixed inset-0 w-screen h-screen bg-black/50 backdrop-blur-sm transition-opacity"
-                        onClick={() => setOpenBuyNowModal(false)}
-                      ></div>
+                        ) : (
+                          <></>
+                        )}
+                      </>
+                    ) : (
+                      <div>
+                        {order && order.buyer?.id == user?.id ? (
+                          <div className="flex flex-row gap-2 justify-between items-center">
+                            <p className="text-blue-500 text-2xl font-medium">
+                              Bạn đã mua ngay sản phẩm này
+                            </p>
+                            <div className="">
+                              <Link
+                                href={`/product/order/${product.id}`}
+                                className="w-full flex items-center gap-2 justify-center border border-blue-600 text-blue-600 py-2 px-5 font-medium rounded-lg hover:bg-blue-600 hover:border-blue-600 hover:text-white transition-colors duration-200"
+                              >
+                                Đi tới đơn hàng
+                              </Link>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-red-500 text-2xl font-medium">
+                            Đã có người mua ngay
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    {openBuyNowModal && (
+                      <>
+                        <div
+                          className="z-[1000] fixed inset-0 w-screen h-screen bg-black/50 backdrop-blur-sm transition-opacity"
+                          onClick={() => setOpenBuyNowModal(false)}
+                        ></div>
 
-                      <div
-                        className="
+                        <div
+                          className="
                                 z-[1001] 
                                 fixed 
                                 top-1/2 left-1/2 
@@ -809,84 +818,92 @@ export default function ProductPage() {
                                 p-6 
                                 shadow-2xl
                               "
-                      >
-                        <p className="text-xl sm:text-2xl font-bold text-center text-slate-800">
-                          Xác nhận mua ngay
-                        </p>
+                        >
+                          <p className="text-xl sm:text-2xl font-bold text-center text-slate-800">
+                            Xác nhận mua ngay
+                          </p>
 
-                        <p className="text-sm sm:text-base mt-4 text-center text-slate-600">
-                          Bạn xác nhận đồng ý mua ngay sản phẩm với giá:
-                        </p>
+                          <p className="text-sm sm:text-base mt-4 text-center text-slate-600">
+                            Bạn xác nhận đồng ý mua ngay sản phẩm với giá:
+                          </p>
 
-                        <p className="text-red-600 text-3xl sm:text-4xl font-bold text-center my-4 break-words">
-                          {formatCurrency(product.buy_now_price)}
-                        </p>
+                          <p className="text-red-600 text-3xl sm:text-4xl font-bold text-center my-4 break-words">
+                            {formatCurrency(product.buy_now_price)}
+                          </p>
 
-                        <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-800 text-center">
-                          Sau khi xác nhận, bạn có <strong>24 giờ</strong> để
-                          thanh toán và nhập thông tin nhận hàng.
-                        </div>
+                          <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-800 text-center">
+                            Sau khi xác nhận, bạn có <strong>24 giờ</strong> để
+                            thanh toán và nhập thông tin nhận hàng.
+                          </div>
 
-                        {product.top_bidder?.id == userBid.user_id &&
-                          userBid?.max_price && (
-                            <div className="mt-3 bg-orange-50 border border-orange-100 p-3 rounded-lg text-sm text-orange-800">
-                              <p className="font-semibold mb-1">⚠️ Lưu ý:</p>
-                              Bạn vẫn đang dẫn đầu đấu giá với mức giá{" "}
-                              <span className="font-bold">
-                                {formatCurrency(userBid.max_price)}
-                              </span>
-                            </div>
-                          )}
+                          {product.top_bidder?.id == userBid.user_id &&
+                            userBid?.max_price && (
+                              <div className="mt-3 bg-orange-50 border border-orange-100 p-3 rounded-lg text-sm text-orange-800">
+                                <p className="font-semibold mb-1">⚠️ Lưu ý:</p>
+                                Bạn vẫn đang dẫn đầu đấu giá với mức giá{" "}
+                                <span className="font-bold">
+                                  {formatCurrency(userBid.max_price)}
+                                </span>
+                              </div>
+                            )}
 
-                        <div className="grid grid-cols-2 gap-3 mt-6">
-                          <button
-                            onClick={handleOrder}
-                            className="
+                          <div className="grid grid-cols-2 gap-3 mt-6">
+                            <button
+                              onClick={handleOrder}
+                              className="
                                   font-medium text-white bg-blue-600 
                                   rounded-full hover:bg-blue-700 
                                   transition-colors shadow-md 
                                   text-sm sm:text-base py-3 w-full
                                 "
-                          >
-                            Mua ngay
-                          </button>
-                          <button
-                            onClick={() => setOpenBuyNowModal(false)}
-                            className="
+                            >
+                              Mua ngay
+                            </button>
+                            <button
+                              onClick={() => setOpenBuyNowModal(false)}
+                              className="
                             font-medium text-slate-700 bg-gray-100 
                             border border-gray-300 rounded-full 
                             hover:bg-gray-200 transition-colors 
                             text-sm sm:text-base py-3 w-full
                           "
+                            >
+                              Hủy
+                            </button>
+                          </div>
+
+                          <button
+                            onClick={() => setOpenBuyNowModal(false)}
+                            className="absolute top-3 right-3 p-1 rounded-full hover:bg-slate-100 transition-colors"
                           >
-                            Hủy
+                            <X className="w-5 h-5 text-gray-400 hover:text-red-500" />
                           </button>
                         </div>
-
-                        <button
-                          onClick={() => setOpenBuyNowModal(false)}
-                          className="absolute top-3 right-3 p-1 rounded-full hover:bg-slate-100 transition-colors"
-                        >
-                          <X className="w-5 h-5 text-gray-400 hover:text-red-500" />
-                        </button>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <></>
+                )}
+                {user ? (
+                  <div>
+                    {isAddFavorite || isRemoveFavorite ? (
+                      <LoadingSpinner />
+                    ) : user ? (
+                      <div
+                        onClick={handleLike}
+                        className="flex-1 flex items-center justify-center gap-2 py-2 border border-slate-300 rounded-lg hover:bg-slate-100  hover:cursor-pointer"
+                      >
+                        {isFavorite ? <LoveFullIcon /> : <LoveIcon />}
+                        <span className="text-sm font-medium">Yêu thích</span>
                       </div>
-                    </>
-                  )}
-                </div>
-
-                <div>
-                  {isAddFavorite || isRemoveFavorite ? (
-                    <LoadingSpinner />
-                  ) : (
-                    <div
-                      onClick={handleLike}
-                      className="flex-1 flex items-center justify-center gap-2 py-2 border border-slate-300 rounded-lg hover:bg-slate-100  hover:cursor-pointer"
-                    >
-                      {isFavorite ? <LoveFullIcon /> : <LoveIcon />}
-                      <span className="text-sm font-medium">Yêu thích</span>
-                    </div>
-                  )}
-                </div>
+                    ) : (
+                      <></>
+                    )}
+                  </div>
+                ) : (
+                  <></>
+                )}
               </div>
             </div>
           )}
@@ -918,7 +935,7 @@ export default function ProductPage() {
               </div>
             </div>
           )}
-          {product && setFavorites && (
+          {user && product && setFavorites && (
             <div className="w-full">
               <RelatedProducts
                 categoryId={product.category_id}

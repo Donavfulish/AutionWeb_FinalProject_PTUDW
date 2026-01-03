@@ -13,10 +13,10 @@ interface ProductId {
   productId: number;
 }
 export const BidHistory = ({ productId }: ProductId) => {
-  const { data: bidLogs, isLoading: isLoadingBigLogs } = BidHook.useBidLogs(
-    productId
-  ) as { data: BidLog[]; isLoading: boolean };
   const { user } = useAuth();
+  const { data: bidLogs, isLoading: isLoadingBigLogs } = BidHook.useBidLogs(
+    productId, user ? true : false
+  ) as { data: BidLog[]; isLoading: boolean };
   return (
     <div className="relative bg-white rounded-xl shadow-sm overflow-hidden  mb-8 border border-slate-200">
       {isLoadingBigLogs && <LoadingSpinner />}

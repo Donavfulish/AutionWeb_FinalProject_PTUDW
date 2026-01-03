@@ -60,11 +60,11 @@ class ProductHook {
       },
     });
   }
-  static useGetProductBySlug(slug: string) {
+  static useGetProductBySlug(slug: string, isPrivate: boolean = true) {
     return useQuery({
       queryKey: ["product_by_slug", slug],
 
-      queryFn: () => ProductService.getProductBySlug(slug),
+      queryFn: () => ProductService.getProductBySlug(slug, isPrivate),
 
       staleTime: STALE_10_MIN,
 
