@@ -63,7 +63,7 @@ const page = () => {
 
   // Full text search
   const fuse = new Fuse(categoriesData, {
-    keys: ["name"],
+    keys: ["name", "children.name"],
     threshold: 0.4,
   });
 
