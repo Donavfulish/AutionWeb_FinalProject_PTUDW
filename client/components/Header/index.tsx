@@ -5,9 +5,11 @@ import Link from "next/link";
 import { Menu, X, ShoppingCart, User } from "lucide-react";
 import { SearchBar } from "../SearchBar";
 import Image from "next/image";
+import { useAuthStore } from "@/store/auth.store";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const role = useAuthStore().user?.role;
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 shadow-sm z-50">
@@ -27,23 +29,34 @@ const Header = () => {
           <div className="hidden md:flex flex-1 max-w-md mx-8 relative">
             <SearchBar />
           </div>
-
-          <div className="hidden md:flex items-center gap-6">
-            <Link
-              href="/user/favorite_products"
-              className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
-            >
-              <ShoppingCart size={20} />
-              <span className="text-sm">Watch List</span>
-            </Link>
-            <Link
-              href="/user/info"
-              className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
-            >
-              <User size={20} />
-              <span className="text-sm">Profile</span>
-            </Link>
-          </div>
+          {(role && role !== "guest") ? (
+            <div className="hidden md:flex items-center gap-6">
+              <Link
+                href="/user/favorite_products"
+                className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
+              >
+                <ShoppingCart size={20} />
+                <span className="text-sm">Yêu thích</span>
+              </Link>
+              <Link
+                href="/user/info"
+                className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
+              >
+                <User size={20} />
+                <span className="text-sm">Hồ sơ cá nhân</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center gap-6">
+              <Link
+                href="/user/info"
+                className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
+              >
+                <User size={20} />
+                <span className="text-sm">Đăng nhập/Đăng ký</span>
+              </Link>
+            </div>
+          )}
 
           {/* Mobile Menu Button */}
           <button
