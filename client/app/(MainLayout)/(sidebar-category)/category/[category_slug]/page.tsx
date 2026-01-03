@@ -22,8 +22,8 @@ function CategorySlugPage({
   const router = useRouter();
   const page = searchParams.get("page") || "1";
   const sort = searchParams.get("sort") || "ascending-price";
-  let totalPages  = 1;
-  
+  let totalPages = 1;
+
   const {
     data,
     isLoading: isLoadingProducts,

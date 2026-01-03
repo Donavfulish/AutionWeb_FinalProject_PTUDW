@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label"; // Sử dụng Label chuẩn
+import { Label } from "@/components/ui/label";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,7 +19,8 @@ import { ResetPasswordRequest } from "../../shared/src/types";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2 } from "lucide-react"; // Thêm icon
+import { ArrowLeft, Loader2, Eye, EyeOff } from "lucide-react"; // Import thêm icon mắt
+import { useState } from "react";
 
 const resetPasswordSchema = z
   .object({
@@ -37,8 +38,12 @@ export function ResetPasswordForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const  resetPassword  = useAuthStore(s => s.resetPassword);
+  const resetPassword = useAuthStore((s) => s.resetPassword);
   const router = useRouter();
+
+  // State quản lý ẩn hiện mật khẩu cho từng trường
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -55,7 +60,6 @@ export function ResetPasswordForm({
       router.push("/login");
     } catch (error) {
       console.error(error);
-      // Nên thêm toast thông báo lỗi ở đây
     }
   };
 
@@ -79,16 +83,32 @@ export function ResetPasswordForm({
             {/* New Password Field */}
             <div className="space-y-2">
               <Label htmlFor="newPassword">Mật khẩu mới</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                disabled={isSubmitting}
-                {...register("newPassword")}
-                className={cn(
-                  errors.newPassword &&
-                    "border-destructive focus-visible:ring-destructive"
-                )}
-              />
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type={showNewPassword ? "text" : "password"}
+                  disabled={isSubmitting}
+                  {...register("newPassword")}
+                  className={cn(
+                    "pr-10", // Thêm padding-right để không bị icon che chữ
+                    errors.newPassword &&
+                      "border-destructive focus-visible:ring-destructive"
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  disabled={isSubmitting}
+                  tabIndex={-1} // Để không bị tập trung khi dùng phím Tab
+                >
+                  {showNewPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
               {errors.newPassword && (
                 <p className="text-destructive text-xs font-medium animate-in fade-in-0 slide-in-from-top-1">
                   {errors.newPassword.message}
@@ -99,16 +119,32 @@ export function ResetPasswordForm({
             {/* Confirm Password Field */}
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                disabled={isSubmitting}
-                {...register("confirmPassword")}
-                className={cn(
-                  errors.confirmPassword &&
-                    "border-destructive focus-visible:ring-destructive"
-                )}
-              />
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  disabled={isSubmitting}
+                  {...register("confirmPassword")}
+                  className={cn(
+                    "pr-10",
+                    errors.confirmPassword &&
+                      "border-destructive focus-visible:ring-destructive"
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  disabled={isSubmitting}
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
               {errors.confirmPassword && (
                 <p className="text-destructive text-xs font-medium animate-in fade-in-0 slide-in-from-top-1">
                   {errors.confirmPassword.message}

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Avatar from "./Avatar";
-import SecondaryButton from "@/components/SecondaryButton";
 import UserHook from "@/hooks/useUser";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { EditProfileInputs, EditProfileSchema } from "./validation";
@@ -12,7 +11,7 @@ import { ChangePasswordRequest, User } from "../../../../../shared/src/types";
 import { formatDate } from "../../product/[product_slug]/components/Question";
 import PrimaryButton from "@/components/PrimaryButton";
 import { useRouter } from "next/navigation";
-import { LockIcon, UserIcon } from "lucide-react"; // Thêm icon cho sinh động
+import { LockIcon, UserIcon, Eye, EyeOff } from "lucide-react"; // Bổ sung Eye, EyeOff
 import { formatDateISO } from "@/utils";
 
 interface EditDetailProps {
@@ -34,6 +33,11 @@ export default function EditDetail({
   const [isEditingPassword, setIsEditingPassword] = useState<boolean>(false);
   const [avatar, setAvatar] = useState<string>(user.profile_img);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+
+  // State ẩn/hiện mật khẩu
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // --- Custom Hook ---
   const { mutate: updateProfile, isPending: isLoading } =
@@ -77,20 +81,12 @@ export default function EditDetail({
       formData.append("name", data.name);
       formData.append("email", data.email);
       formData.append("address", data.address);
-      if (data.day_of_birth) {
-        formData.append("day_of_birth", data.day_of_birth);
-      }
-      if (avatarFile) {
-        formData.append("profile_img", avatarFile);
-      }
+      if (data.day_of_birth) formData.append("day_of_birth", data.day_of_birth);
+      if (avatarFile) formData.append("profile_img", avatarFile);
 
       updateProfile(formData, {
-        onSuccess: () => {
-          onSaveSuccess();
-        },
-        onError: (error) => {
-          console.error("Lỗi cập nhật:", error);
-        },
+        onSuccess: () => onSaveSuccess(),
+        onError: (error) => console.error("Lỗi cập nhật:", error),
       });
     },
     [updateProfile, onSaveSuccess, avatarFile]
@@ -99,25 +95,22 @@ export default function EditDetail({
   const onSubmitPassword: SubmitHandler<ChangePasswordInputs> = async (
     data
   ) => {
-    try {
-      const userReq: ChangePasswordRequest = data;
-      changePassword(userReq, {
-        onSuccess: () => {
-          // Reset form và tắt chế độ edit khi thành công
-          setIsEditingPassword(false);
-          resetPasswordForm();
-        },
-      });
-    } catch (error) {
-      console.error(error);
-    }
+    const userReq: ChangePasswordRequest = data;
+    changePassword(userReq, {
+      onSuccess: () => {
+        setIsEditingPassword(false);
+        resetPasswordForm();
+        setShowOldPassword(false);
+        setShowNewPassword(false);
+        setShowConfirmPassword(false);
+      },
+    });
   };
 
   const handleChangeAvatar = useCallback(
     (data: { file: File; url: string }) => {
       setAvatar(data.url);
       setAvatarFile(data.file);
-      // Khi đổi avatar, coi như form đã dirty để nút Save ở cha sáng lên (nếu logic cha cần)
       setIsDirty(true);
     },
     [setIsDirty]
@@ -127,9 +120,7 @@ export default function EditDetail({
   useEffect(() => {
     setIsSaving(isLoading);
   }, [isLoading, setIsSaving]);
-
   useEffect(() => {
-    // Nếu có avatar file mới thì cũng coi là dirty
     setIsDirty(isFormDirty || !!avatarFile);
   }, [isFormDirty, avatarFile, setIsDirty]);
 
@@ -149,11 +140,13 @@ export default function EditDetail({
     onProfileSubmit(() => handleSubmit(onSubmit));
   }, [handleSubmit, onSubmit, onProfileSubmit]);
 
-  // --- Common Input Styles ---
+  // --- Styles ---
   const inputClass =
     "w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 text-gray-800 text-sm";
   const labelClass = "block text-sm font-semibold text-gray-700 mb-1.5";
   const errorClass = "text-red-500 text-xs mt-1 ml-1";
+  const eyeBtnClass =
+    "absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors";
 
   return (
     <div className="flex flex-col gap-8 mt-5 pb-10">
@@ -173,8 +166,6 @@ export default function EditDetail({
         <p className="text-xs text-gray-400">Nhấn vào ảnh để thay đổi</p>
       </div>
 
-      {/* 2. SECTION FORMS (GRID LAYOUT) */}
-      {/* BREAKPOINT: 1 cột ở mobile, 2 cột ở desktop (lg) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
         {/* --- LEFT: EDIT PROFILE --- */}
         <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-lg flex flex-col gap-4 h-full">
@@ -184,7 +175,6 @@ export default function EditDetail({
               Thông tin cá nhân
             </h3>
           </div>
-
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4"
@@ -204,7 +194,6 @@ export default function EditDetail({
                 <p className={errorClass}>{errors.name.message}</p>
               )}
             </div>
-
             <div>
               <label htmlFor="email" className={labelClass}>
                 Email <span className="text-red-500">*</span>
@@ -219,7 +208,6 @@ export default function EditDetail({
                 <p className={errorClass}>{errors.email.message}</p>
               )}
             </div>
-
             <div>
               <label htmlFor="address" className={labelClass}>
                 Địa chỉ <span className="text-red-500">*</span>
@@ -235,7 +223,6 @@ export default function EditDetail({
                 <p className={errorClass}>{errors.address.message}</p>
               )}
             </div>
-
             <div>
               <label htmlFor="day_of_birth" className={labelClass}>
                 Ngày sinh
@@ -250,22 +237,17 @@ export default function EditDetail({
                 <p className={errorClass}>{errors.day_of_birth.message}</p>
               )}
             </div>
-
-            {/* Hidden button triggered by parent */}
             <button type="submit" hidden aria-hidden="true" tabIndex={-1} />
           </form>
         </div>
 
         {/* --- RIGHT: CHANGE PASSWORD --- */}
         <div
-          className={`
-            bg-white p-6 sm:p-8 rounded-3xl border shadow-lg flex flex-col gap-4 h-full transition-colors duration-300
-            ${
-              isEditingPassword
-                ? "border-blue-200 shadow-blue-100"
-                : "border-gray-100"
-            }
-        `}
+          className={`bg-white p-6 sm:p-8 rounded-3xl border shadow-lg flex flex-col gap-4 h-full transition-colors duration-300 ${
+            isEditingPassword
+              ? "border-blue-200 shadow-blue-100"
+              : "border-gray-100"
+          }`}
         >
           <div className="flex items-center justify-between mb-2 pb-4 border-b border-gray-100">
             <div className="flex items-center gap-2">
@@ -276,8 +258,6 @@ export default function EditDetail({
               />
               <h3 className="font-bold text-gray-800 text-lg">Bảo mật</h3>
             </div>
-
-            {/* Switch Toggle nhỏ gọn */}
             <div className="flex items-center gap-2">
               <label
                 htmlFor="edit-password-toggle"
@@ -290,7 +270,7 @@ export default function EditDetail({
                 type="checkbox"
                 checked={isEditingPassword}
                 onChange={(e) => setIsEditingPassword(e.target.checked)}
-                className="toggle toggle-primary toggle-sm border border-slate-400" // Nếu dùng DaisyUI, hoặc checkbox thường
+                className="toggle toggle-primary toggle-sm border border-slate-400"
               />
             </div>
           </div>
@@ -301,26 +281,34 @@ export default function EditDetail({
               !isEditingPassword ? "opacity-50 select-none" : "opacity-100"
             }`}
           >
-            {/* Overlay chặn click khi không edit */}
             {!isEditingPassword && (
               <div className="absolute inset-0 z-10 cursor-not-allowed" />
             )}
 
+            {/* Mật khẩu cũ */}
             <div>
               <label htmlFor="old-password" className={labelClass}>
                 Mật khẩu cũ
               </label>
-              <div className="flex gap-2">
+              <div className="relative">
                 <input
                   id="old-password"
-                  type="password"
+                  type={showOldPassword ? "text" : "password"}
                   disabled={!isEditingPassword}
                   placeholder="••••••••"
-                  className={`${inputClass} flex-1`}
+                  className={`${inputClass} pr-10`}
                   {...registerPassword("oldPassword")}
                 />
+                <button
+                  type="button"
+                  className={eyeBtnClass}
+                  onClick={() => setShowOldPassword(!showOldPassword)}
+                  disabled={!isEditingPassword}
+                  tabIndex={-1}
+                >
+                  {showOldPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
-              {/* Nút quên mật khẩu đặt ở dưới input để đỡ rối */}
               <div className="flex justify-end mt-1">
                 <button
                   type="button"
@@ -338,18 +326,30 @@ export default function EditDetail({
               )}
             </div>
 
+            {/* Mật khẩu mới */}
             <div>
               <label htmlFor="new-password" className={labelClass}>
                 Mật khẩu mới
               </label>
-              <input
-                id="new-password"
-                type="password"
-                disabled={!isEditingPassword}
-                placeholder="••••••••"
-                className={inputClass}
-                {...registerPassword("newPassword")}
-              />
+              <div className="relative">
+                <input
+                  id="new-password"
+                  type={showNewPassword ? "text" : "password"}
+                  disabled={!isEditingPassword}
+                  placeholder="••••••••"
+                  className={`${inputClass} pr-10`}
+                  {...registerPassword("newPassword")}
+                />
+                <button
+                  type="button"
+                  className={eyeBtnClass}
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  disabled={!isEditingPassword}
+                  tabIndex={-1}
+                >
+                  {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
               {passwordErrors.newPassword && (
                 <p className={errorClass}>
                   {passwordErrors.newPassword.message}
@@ -357,18 +357,34 @@ export default function EditDetail({
               )}
             </div>
 
+            {/* Xác nhận mật khẩu */}
             <div>
               <label htmlFor="confirm-password" className={labelClass}>
                 Xác nhận mật khẩu
               </label>
-              <input
-                id="confirm-password"
-                type="password"
-                disabled={!isEditingPassword}
-                placeholder="••••••••"
-                className={inputClass}
-                {...registerPassword("confirmPassword")}
-              />
+              <div className="relative">
+                <input
+                  id="confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  disabled={!isEditingPassword}
+                  placeholder="••••••••"
+                  className={`${inputClass} pr-10`}
+                  {...registerPassword("confirmPassword")}
+                />
+                <button
+                  type="button"
+                  className={eyeBtnClass}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  disabled={!isEditingPassword}
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={16} />
+                  ) : (
+                    <Eye size={16} />
+                  )}
+                </button>
+              </div>
               {passwordErrors.confirmPassword && (
                 <p className={errorClass}>
                   {passwordErrors.confirmPassword.message}
