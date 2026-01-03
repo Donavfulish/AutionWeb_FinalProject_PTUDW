@@ -5,7 +5,10 @@ import {
   SignRequest,
   UserEntity,
 } from "../../shared/src/types";
-import { UserOTP, UserRegisterOTP } from "../../shared/src/types/ResetPasswordOTP";
+import {
+  UserOTP,
+  UserRegisterOTP,
+} from "../../shared/src/types/ResetPasswordOTP";
 
 export interface AuthState {
   /**
@@ -23,11 +26,11 @@ export interface AuthState {
 
   forgetUserId: number | null;
 
-  resetToken: string | null,
+  resetToken: string | null;
 
-  verifyOTPType: string | null,
+  verifyOTPType: string | null;
 
-  pendingUserEmail: string | null,
+  pendingUserEmail: string | null;
 
   /**
    * Cập nhật access token vào store
@@ -49,7 +52,6 @@ export interface AuthState {
 
   setPendingUserEmail: (pendingUserEmail: string) => void;
   clearState: () => void;
-
 
   /**
    * Đăng ký tài khoản mới và lưu vào db
@@ -109,9 +111,8 @@ export interface AuthState {
    */
   refresh: () => Promise<void>;
 
-
-    /**
-   * Kiểm tra OTP người dùng gửi lên, nếu thành công thì lưu  resetToken vào store 
+  /**
+   * Kiểm tra OTP người dùng gửi lên, nếu thành công thì lưu  resetToken vào store
    *
    * @description
    * - Gửi request refresh token (qua httpOnly cookie)
@@ -127,4 +128,8 @@ export interface AuthState {
   verifyRegisterOTP: (user: UserRegisterOTP) => Promise<void>;
 
   resetPassword: (user: ResetPasswordRequest) => Promise<void>;
+
+  reSendRegisterOTP: () => Promise<void>;
+
+  reSendRResetPasswordOTP: () => Promise<void>;
 }

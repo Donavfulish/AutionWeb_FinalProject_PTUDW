@@ -121,11 +121,11 @@ class ProductHook {
       },
     });
   }
-  static useGetProductsBySearch(query: string, limit: number, page: number) {
+  static useGetProductsBySearch(query: string, limit: number, page: number, sort: string) {
     return useQuery({
-      queryKey: ["product_by_search", query, limit, page],
+      queryKey: ["product_by_search", query, limit, page, sort],
 
-      queryFn: () => ProductService.getProductsBySearch(query, limit, page),
+      queryFn: () => ProductService.getProductsBySearch(query, limit, page, sort),
 
       staleTime: STALE_10_MIN,
 

@@ -118,4 +118,26 @@ export const authService = {
       );
     }
   },
+
+  reSendRegisterOTP: async (email: string | null) => {
+    try {
+      console.log("email service: ", email);
+      const res = await api.post(API_ROUTES.auth.reSendRegisterOTP, { email });
+      return res.data;
+    } catch (error: any) {
+      throw new Error(error?.response?.data?.message ?? "Lỗi khi gửi lại OTP");
+    }
+  },
+
+  reSendRResetPasswordOTP: async (userId: number | null) => {
+    try {
+      const res = await api.post(API_ROUTES.auth.reSendResetPasswordOTP, {
+        userId,
+      });
+
+      return res.data;
+    } catch (error: any) {
+      throw new Error(error?.response?.data?.message ?? "Lỗi khi gửi lại OTP");
+    }
+  },
 };

@@ -3,7 +3,6 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { ToastContainer } from "react-toastify";
 import AuthRoute from "@/components/auth/AuthRoute";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
@@ -32,9 +31,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthRoute>
-          <ProtectedRoute>
             <Providers>{children}</Providers>
-          </ProtectedRoute>
         </AuthRoute>
         <ToastContainer />
       </body>

@@ -250,19 +250,38 @@ export class ProductService extends BaseService {
   async getProductsBySearch(
     query: string,
     limit: number,
-    page: number
+    page: number,
+    sort: string
   ): Promise<ProductPreview[]> {
     let sql = `
-       SELECT pp.id
+   SELECT pp.id, GREATEST(COALESCE(bl.current_price, 0), pp.initial_price) AS price, pp.end_time
        FROM product.products pp
+       LEFT JOIN (
+          SELECT 
+            bl.product_id, 
+            MAX(bl.price) AS current_price
+          FROM auction.bid_logs bl 
+          GROUP BY bl.product_id
+      ) bl ON bl.product_id = pp.id
        WHERE to_tsvector('simple', unaccent(pp.name))
-             @@ websearch_to_tsquery('simple', unaccent($1)) and pp.end_time >= NOW() and not exists (
-   select 1
-   from auction.orders o 
-   where o.product_id = pp.id and o.status <> 'cancelled' 
-   )
+             @@ to_tsquery('simple', unaccent($1) || ':*')
+             AND pp.end_time >= NOW() 
+             AND NOT EXISTS (
+                SELECT 1
+                FROM auction.orders o 
+                WHERE o.product_id = pp.id AND o.status <> 'cancelled'
+             )
     `;
     const params: any[] = [query];
+    if (sort) {
+      if (sort == "ascending-price") {
+        sql += `ORDER BY price ASC \n`;
+      } else if (sort == "descending-price") {
+        sql += `ORDER BY price DESC \n`;
+      } else if (sort == "expiring-soon") {
+        sql += "ORDER BY end_time ASC \n";
+      }
+    }
     if (limit) {
       sql += `LIMIT $2 \n`;
       params.push(limit);
@@ -711,7 +730,7 @@ WHERE pc.parent_id is not null
     )
   FROM product.products pp
   WHERE to_tsvector('simple', unaccent(pp.name))
-        @@ websearch_to_tsquery('simple', unaccent($1)) and pp.end_time >= NOW() and not exists (
+        @@ to_tsquery('simple', unaccent($1) || ':*')and pp.end_time >= NOW() and not exists (
    select 1
    from auction.orders o 
    where o.product_id = pp.id and o.status <> 'cancelled' 

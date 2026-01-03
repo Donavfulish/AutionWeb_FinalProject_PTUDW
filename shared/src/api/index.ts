@@ -88,8 +88,8 @@ const API_ROUTES = {
       `${PRODUCT_API}?page=${pagination.page}&limit=${pagination.limit}`, //GET
     getCategoryProductList: `${PRODUCT_API}/category`,
     getProductTop: `${PRODUCT_API}/top`, // GET
-    getProductsBySearch: (query: string, limit: number, page: number) =>
-      `${PRODUCT_API}/search?page=${page}&limit=${limit}&query=${query}`, // GET
+    getProductsBySearch: (query: string, limit: number, page: number, sort: string) =>
+      `${PRODUCT_API}/search?page=${page}&limit=${limit}&query=${query}&sort=${sort}`, // GET
     getProductsBySearchSuggestion: (query: string, limit: number) =>
       `${PRODUCT_API}/search-suggestion?query=${query}&limit=${limit}`, // GET
     getProductById: (id: number) => `${PRODUCT_API}/${id}`, // GET

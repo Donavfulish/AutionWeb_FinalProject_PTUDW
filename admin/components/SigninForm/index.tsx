@@ -112,12 +112,26 @@ export function SigninForm({
                     "border-destructive focus-visible:ring-destructive"
                 )}
               />
+              <div className="flex justify-end">
+                <Link
+                  href="/forget-password"
+                  className="text-xs text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+                  tabIndex={-1}
+                >
+                  Quên mật khẩu?
+                </Link>
+              </div>
+              {errors.password && (
+                <p className="text-destructive text-xs font-medium animate-in fade-in-0 slide-in-from-top-1">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full mt-4"
+              className="w-full mt-1"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

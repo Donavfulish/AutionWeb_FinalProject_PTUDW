@@ -17,11 +17,12 @@ export class ProductService {
   static async getProductsBySearch(
     query: string,
     limit: number,
-    page: number
+    page: number,
+    sort: string
   ): Promise<any> {
     return safeRequest(async () => {
       const res = await api.get(
-        API_ROUTES.product.getProductsBySearch(query, limit, page)
+        API_ROUTES.product.getProductsBySearch(query, limit, page, sort)
       );
       return res.data;
     });

@@ -21,11 +21,12 @@ export class ProductController extends BaseController {
 
   async getProductsBySearch(req: Request, res: Response) {
     const page = Number(req.query.page) || null;
-    const limit = Number(req.query.limit) || null;
+    const limit = Number(req.query.limit) || 5;
     const query = req.query.query;
+    const sort = req.query.sort;
     console.log(page, limit, query);
     const [products, totalProducts] = await Promise.all([
-      this.service.getProductsBySearch(query, limit, page),
+      this.service.getProductsBySearch(query, limit, page, sort),
       this.service.getTotalProductsBySearch(query),
     ]);
 

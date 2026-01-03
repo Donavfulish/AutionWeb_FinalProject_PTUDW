@@ -16,13 +16,14 @@ function SearchPage() {
   const router = useRouter();
   const page = searchParams.get("page") || "1";
   const query = searchParams.get("query") || "";
+  const sort = searchParams.get("sort") || "ascending-price";
   let totalPages = 1;
   let dataResult = null;
   const {
     data,
     isLoading: isLoadingProducts,
     error: errorProducts,
-  } = ProductHook.useGetProductsBySearch(query, per_page, Number(page));
+  } = ProductHook.useGetProductsBySearch(query, per_page, Number(page), sort);
 
   const {
     data: favoriteProductData,

@@ -58,6 +58,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
     } finally {
       set({ loading: false });
     }
@@ -67,7 +68,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       set({ loading: true });
 
-      // Khi đăng nhập thành công thì lấy accessToken của user đó
+      // Khi đăng nhập Ethành công thì lấy accessToken của user đó
       const { accessToken, message } = await authService.signIn(user);
       get().setAccessToken(accessToken);
 
@@ -78,6 +79,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
     } finally {
       set({ loading: false });
     }
@@ -95,6 +97,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
+    } finally {
+      set({ loading: false });
     }
   },
 
@@ -106,6 +111,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
+    } finally {
+      set({ loading: false });
     }
   },
 
@@ -151,6 +159,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
+    } finally {
+      set({ loading: false });
     }
   },
 
@@ -162,6 +173,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
+    } finally {
+      set({ loading: false });
     }
   },
 
@@ -176,6 +190,40 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  reSendRegisterOTP: async () => {
+    try {
+      const email = get().pendingUserEmail;
+      set({ loading: true });
+      console.log("gia tri email: ", email);
+      const data = await authService.reSendRegisterOTP(email);
+      toast.success(data.message);
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.message);
+      throw new Error(error.message);
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  reSendRResetPasswordOTP: async () => {
+    try {
+      set({ loading: true });
+      const userId = get().forgetUserId;
+      const data = await authService.reSendRResetPasswordOTP(userId);
+      toast.success(data.message);
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.message);
+      throw new Error(error.message);
+    } finally {
+      set({ loading: false });
     }
   },
 }));

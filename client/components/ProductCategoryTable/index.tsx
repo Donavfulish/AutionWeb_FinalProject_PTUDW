@@ -245,8 +245,8 @@ export default function ProductCategoryTable({
   );
 
   const shouldShowSort =
-    pathname.startsWith("/category") && pathname !== "/category";
-
+    (pathname.startsWith("/category") && pathname !== "/category") ||
+    pathname.startsWith("/search");
   const toggleCategory = (category_id: number) => {
     setExpandedCategories((prev) => {
       const newSet = new Set(prev);
