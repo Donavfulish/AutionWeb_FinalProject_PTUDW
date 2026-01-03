@@ -39,7 +39,7 @@ function SearchPage() {
 
   const totalProducts = data?.totalProducts ?? 0;
   const products = data?.products ?? [];
-  const totalPages = Math.ceil(Number(totalProducts) / per_page);
+  totalPages = Math.ceil(Number(totalProducts) / per_page);
 
   const handlePageChange = (value: number) => {
     const next = new URLSearchParams(searchParams);
