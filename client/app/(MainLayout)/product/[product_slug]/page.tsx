@@ -292,11 +292,7 @@ export default function ProductPage() {
     );
     if (
       product.current_price &&
-<<<<<<< HEAD
-      Number(data.price) <
-=======
       data.price <
->>>>>>> feed97c9bbbac271e501eacc51c934de50554828
         Number(product.current_price) + Number(product.price_increment!)
     ) {
       toast.error("Giá đấu không thể thấp hơn giá tối thiểu");
@@ -362,6 +358,7 @@ export default function ProductPage() {
       isLoadingProductCategory ||
       isLoadingOrder ||
       isLoadingUserBid ||
+      isLoadingIsCanBid ||
       isCreatingOrder ? (
         <div className="fixed inset-0 z-100">
           <LoadingSpinner />
@@ -595,7 +592,7 @@ export default function ProductPage() {
                                               mt-4 
                                               rounded-xl 
                                               text-blue-600 font-bold
-                                              text-2xl sm:text-3xl 
+                                              text-4xl!
                                               px-4 py-3 
                                               shadow-sm 
                                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
@@ -628,7 +625,7 @@ export default function ProductPage() {
                                         <span className="text-slate-600">
                                           Giá hiện tại:
                                         </span>
-                                        <span className="font-semibold text-blue-600">
+                                        <span className="font-semibold text-2xl text-blue-600">
                                           {formatCurrency(
                                             product.current_price
                                           )}
@@ -638,7 +635,7 @@ export default function ProductPage() {
                                         <span className="text-slate-600">
                                           Bước nhảy:
                                         </span>
-                                        <span className="font-semibold text-blue-600">
+                                        <span className="font-semibold text-2xl text-blue-600">
                                           {formatCurrency(
                                             product.price_increment
                                           )}
@@ -648,7 +645,7 @@ export default function ProductPage() {
                                         <span className="text-slate-600">
                                           Giá đấu cũ của bạn:
                                         </span>
-                                        <span className="font-semibold text-orange-600">
+                                        <span className="font-semibold text-2xl text-orange-600">
                                           {userBid?.max_price
                                             ? formatCurrency(userBid.max_price)
                                             : "Chưa có"}
@@ -663,14 +660,14 @@ export default function ProductPage() {
                                         product.current_price ? (
                                         <p>
                                           Cần đặt lớn hơn{" "}
-                                          <span className="font-bold text-orange-600">
+                                          <span className="font-bold text-2xl text-orange-600">
                                             {formatCurrency(userBid.max_price)}
                                           </span>
                                         </p>
                                       ) : (
                                         <p>
                                           Tối thiểu:{" "}
-                                          <span className="font-bold text-orange-600">
+                                          <span className="font-bold text-2xl text-orange-600">
                                             {formatCurrency(
                                               Number(product.current_price) +
                                                 Number(product.price_increment)
