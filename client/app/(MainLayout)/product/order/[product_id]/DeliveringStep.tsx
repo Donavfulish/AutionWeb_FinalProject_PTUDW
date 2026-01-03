@@ -82,7 +82,7 @@ const DeliveringStep = ({ setActive, order }: ComponentProps) => {
 
       <DeliveryAnimation />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 px-2 md:px-0">
+      <div className="grid grid-cols-1 min-[900px]:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 px-2 md:px-0">
         {/* Card 1: Thông tin người nhận */}
         <div className="bg-white border border-slate-200 rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm flex flex-col gap-4">
           <h3 className="font-bold text-slate-800 flex items-center gap-2 border-b border-slate-50 pb-3 text-base md:text-lg">
