@@ -15,7 +15,8 @@ import ShortUserSidebar from "@/components/ShortUserSidebar";
 
 import { LogoutIcon } from "@/components/icons";
 const InfoPage = () => {
-  const { signOut, user } = useAuthStore();
+  const signOut = useAuthStore((s) => s.signOut);
+  const user = useAuthStore((s) => s.user);
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -31,6 +32,7 @@ const InfoPage = () => {
   const { data: userProfile, isLoading, error } = UserHook.useGetProfile();
 
   // --- React hook ---
+  console.log("hello ba");
   useEffect(() => {
     if (!user || user.role === "guest") router.replace("/login");
     else return;

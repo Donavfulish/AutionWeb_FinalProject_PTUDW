@@ -16,7 +16,8 @@ import { useAuthStore } from "@/store/auth.store";
 import Image from "next/image";
 
 const Header = () => {
-  const { signOut, user } = useAuthStore(); // Giả sử store có trả về info user
+  const signOut = useAuthStore((s) => s.signOut);
+  const user = useAuthStore((s) => s.user);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openLogout, setOpenLogout] = useState(false);
   const logoutRef = useRef<HTMLDivElement>(null);

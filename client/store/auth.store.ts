@@ -62,6 +62,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
     } finally {
       set({ loading: false });
     }
@@ -82,6 +83,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
     } finally {
       set({ loading: false });
     }
@@ -114,6 +116,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
     } finally {
       set({ loading: false });
     }
@@ -127,6 +130,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
     }
   },
 
@@ -172,6 +176,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
     } finally {
       set({ loading: false });
     }
@@ -185,6 +190,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
     } finally {
       set({ loading: false });
     }
@@ -201,6 +207,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
     } finally {
       set({ loading: false });
     }
@@ -216,6 +223,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
     } finally {
       set({ loading: false });
     }
@@ -230,6 +238,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.log(error);
       toast.error(error.message);
+      throw new Error(error.message);
     } finally {
       set({ loading: false });
     }

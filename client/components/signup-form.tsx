@@ -2,26 +2,26 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-} from "@/components/ui/field";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-
+import { Label } from "@/components/ui/label"; // Sử dụng Label chuẩn
+import Link from "next/link";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { RegisterRequest } from "../../shared/src/types";
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
-
+import { useRef } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
+import { Loader2 } from "lucide-react"; // Icon loading
 
 const signUpSchema = z
   .object({
@@ -32,7 +32,7 @@ const signUpSchema = z
     password: z.string().min(6, "Mật khẩu phải có ít nhất 8 kí tự"),
     confirmPassword: z.string().min(1, "Vui lòng nhập lại mật khẩu"),
     captchaToken: z
-      .string("Vui lòng xác nhận bạn không phải là robot!")
+      .string({ required_error: "Vui lòng xác thực bạn không phải là robot" })
       .min(1, "Vui lòng xác thực bạn không phải là robot"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -49,6 +49,7 @@ export function SignupForm({
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const signUp = useAuthStore((s) => s.signUp);
   const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -61,167 +62,209 @@ export function SignupForm({
 
   const onCaptchaChange = (token: string | null) => {
     if (token) {
-      setValue("captchaToken", token); // Đưa token vào form data
-      trigger("captchaToken"); // Xóa lỗi validation (nếu có) ngay lập tức
+      setValue("captchaToken", token);
+      trigger("captchaToken");
     } else {
-      setValue("captchaToken", ""); // Reset về rỗng nếu token hết hạn
+      setValue("captchaToken", "");
     }
   };
 
   const onSubmit = async (data: SignUpFormValues) => {
-    // goi api backend
     try {
       const user: RegisterRequest = data;
       await signUp(user);
       router.push("/verify-otp");
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      // Có thể thêm Toast thông báo lỗi tại đây
     } finally {
       recaptchaRef.current?.reset();
     }
   };
+
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 ">
-          <form className="p-6 md:p-8" onSubmit={handleSubmit(onSubmit)}>
-            <FieldGroup>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Tạo tài khoản</h1>
-                <p className="text-muted-foreground text-sm text-balance">
-                  Vùi lòng nhập thông tin dưới đây để tạo tại khoản
-                </p>
-              </div>
-              <Field>
-                <FieldLabel htmlFor="name">
-                  Họ và tên <span className="text-red-500 mt-1">*</span>
-                </FieldLabel>
+    <div
+      className={cn("flex flex-col gap-6 w-full max-w-xl mx-auto", className)}
+      {...props}
+    >
+      <Card className="shadow-lg">
+        <CardHeader className="text-center space-y-1">
+          <CardTitle className="text-2xl font-bold tracking-tight">
+            Tạo tài khoản
+          </CardTitle>
+          <CardDescription>
+            Vui lòng nhập thông tin dưới đây để tạo tài khoản mới
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Row 1: Name & Username */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">
+                  Họ và tên <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="name"
-                  type="text"
-                  placeholder="mtri123"
+                  placeholder="Nguyễn Văn A"
                   {...register("name")}
+                  className={cn(
+                    errors.name &&
+                      "border-destructive focus-visible:ring-destructive"
+                  )}
                 />
                 {errors.name && (
-                  <p className="text-destructive text-sm">
+                  <p className="text-destructive text-xs">
                     {errors.name.message}
                   </p>
                 )}
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="username">
-                  Tên đăng nhập <span className="text-red-500 mt-1">*</span>
-                </FieldLabel>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="username">
+                  Tên đăng nhập <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="username"
-                  type="text"
-                  placeholder="mtri123"
+                  placeholder="nguyenvana123"
                   {...register("username")}
+                  className={cn(
+                    errors.username &&
+                      "border-destructive focus-visible:ring-destructive"
+                  )}
                 />
                 {errors.username && (
-                  <p className="text-destructive text-sm">
+                  <p className="text-destructive text-xs">
                     {errors.username.message}
                   </p>
                 )}
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="email">
-                  Email <span className="text-red-500 mt-1">*</span>
-                </FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  {...register("email")}
-                />
-                {errors.email && (
-                  <p className="text-destructive text-sm">
-                    {errors.email.message}
-                  </p>
+              </div>
+            </div>
+
+            {/* Row 2: Email */}
+            <div className="space-y-2">
+              <Label htmlFor="email">
+                Email <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="email@example.com"
+                {...register("email")}
+                className={cn(
+                  errors.email &&
+                    "border-destructive focus-visible:ring-destructive"
                 )}
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="address">
-                  Địa chỉ <span className="text-red-500 mt-1">*</span>
-                </FieldLabel>
-                <Input
-                  id="address"
-                  type="text"
-                  placeholder="Đồng tháp"
-                  {...register("address")}
-                />
-                {errors.address && (
-                  <p className="text-destructive text-sm">
-                    {errors.address.message}
-                  </p>
+              />
+              {errors.email && (
+                <p className="text-destructive text-xs">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            {/* Row 3: Address */}
+            <div className="space-y-2">
+              <Label htmlFor="address">
+                Địa chỉ <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="address"
+                placeholder="123 Đường ABC, Phường X..."
+                {...register("address")}
+                className={cn(
+                  errors.address &&
+                    "border-destructive focus-visible:ring-destructive"
                 )}
-              </Field>
-              <Field>
-                <Field className="grid gap-4">
-                  <Field>
-                    <FieldLabel htmlFor="password">
-                      Mật khẩu <span className="text-red-500 mt-1">*</span>{" "}
-                    </FieldLabel>
-                    <Input
-                      id="password"
-                      type="password"
-                      {...register("password")}
-                    />
-                    {errors.password && (
-                      <p className="text-destructive text-sm">
-                        {errors.password.message}
-                      </p>
-                    )}
-                    <FieldDescription>
-                      Mật khẩu phải có ít nhất 8 kí tự
-                    </FieldDescription>
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="confirm-password">
-                      Xác nhận mật khẩu
-                    </FieldLabel>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      {...register("confirmPassword")}
-                    />
-                    {errors.confirmPassword && (
-                      <p className="text-destructive text-sm">
-                        {errors.confirmPassword.message}
-                      </p>
-                    )}
-                  </Field>
-                </Field>
-              </Field>
-              {/* ReCAPTCHA */}
-              <div>
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
-                  onChange={onCaptchaChange}
+              />
+              {errors.address && (
+                <p className="text-destructive text-xs">
+                  {errors.address.message}
+                </p>
+              )}
+            </div>
+
+            {/* Row 4: Passwords */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="password">
+                  Mật khẩu <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  {...register("password")}
+                  className={cn(
+                    errors.password &&
+                      "border-destructive focus-visible:ring-destructive"
+                  )}
                 />
-                {/* Hiển thị lỗi Zod cho Captcha */}
-                {errors.captchaToken && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.captchaToken.message}
+                {errors.password && (
+                  <p className="text-destructive text-xs">
+                    {errors.password.message}
                   </p>
                 )}
               </div>
-              <Field>
-                <Button type="submit" disabled={isSubmitting}>
-                  Tạo tài khoản
-                </Button>
-              </Field>
 
-              <FieldDescription className="text-center">
-                Bạn đã có tài khoản chưa{" "}
-                <Link href="/login" className="text-blue-500">
-                  Đăng nhập
-                </Link>
-              </FieldDescription>
-            </FieldGroup>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  {...register("confirmPassword")}
+                  className={cn(
+                    errors.confirmPassword &&
+                      "border-destructive focus-visible:ring-destructive"
+                  )}
+                />
+                {errors.confirmPassword && (
+                  <p className="text-destructive text-xs">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* ReCAPTCHA Section */}
+            <div className=" pt-2">
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+                onChange={onCaptchaChange}
+                theme="light"
+              />
+              {errors.captchaToken && (
+                <p className="text-destructive text-xs mt-2 font-medium">
+                  {errors.captchaToken.message}
+                </p>
+              )}
+            </div>
+
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : (
+                "Đăng ký tài khoản"
+              )}
+            </Button>
           </form>
         </CardContent>
+
+        <CardFooter className="flex justify-center border-t pt-6 bg-muted/20">
+          <div className="text-center text-sm text-muted-foreground">
+            Bạn đã có tài khoản?{" "}
+            <Link
+              href="/login"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Đăng nhập ngay
+            </Link>
+          </div>
+        </CardFooter>
       </Card>
     </div>
   );

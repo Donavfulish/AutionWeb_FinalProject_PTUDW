@@ -2,15 +2,16 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-} from "@/components/ui/field";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label"; // Sử dụng Label chuẩn của Shadcn hoặc FieldLabel của bạn
 import Link from "next/link";
 
 import { z } from "zod";
@@ -19,6 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SignRequest } from "../../../shared/src/types";
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react"; // Cần cài lucide-react nếu chưa có
 
 const signInSchema = z.object({
   username: z.string().min(1, "Tên đăng nhập không được để trống"),
@@ -33,6 +35,7 @@ export function SigninForm({
 }: React.ComponentProps<"div">) {
   const router = useRouter();
   const signIn = useAuthStore((s) => s.signIn);
+
   const {
     register,
     handleSubmit,
@@ -42,82 +45,119 @@ export function SigninForm({
   });
 
   const onSubmit = async (data: SignInFormValues) => {
-    // goi api backend
-    const user: SignRequest = data;
+    try {
+      const user: SignRequest = data;
+      await signIn(user);
 
-    await signIn(user);
-    if (useAuthStore.getState().user) {
-      router.replace("/");
+      // Kiểm tra lại state an toàn hơn
+      if (useAuthStore.getState().user) {
+        router.replace("/");
+      }
+    } catch (error) {
+      console.error("Login failed", error);
+      // Có thể thêm toast error ở đây
     }
   };
+
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 ">
-          <form className="p-6 md:p-8" onSubmit={handleSubmit(onSubmit)}>
-            <FieldGroup>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Đăng nhập</h1>
-                <p className="text-muted-foreground text-sm text-balance">
-                  Vui lòng nhập thông tin dưới đây để đăng nhập
-                </p>
-              </div>
+    <div
+      className={cn("flex flex-col gap-6 w-full max-w-md mx-auto", className)}
+      {...props}
+    >
+      <Card className="shadow-lg">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold tracking-tight">
+            Đăng nhập
+          </CardTitle>
+          <CardDescription>
+            Nhập thông tin tài khoản của bạn để truy cập hệ thống
+          </CardDescription>
+        </CardHeader>
 
-              <Field>
-                <FieldLabel htmlFor="username">Tên đăng nhập</FieldLabel>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="mtri123"
-                  {...register("username")}
-                />
-                {errors.username && (
-                  <p className="text-destructive text-sm">
-                    {errors.username.message}
-                  </p>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Username Field */}
+            <div className="space-y-2">
+              <Label htmlFor="username">Tên đăng nhập</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="mtri123"
+                disabled={isSubmitting}
+                {...register("username")}
+                className={cn(
+                  errors.username &&
+                    "border-destructive focus-visible:ring-destructive"
                 )}
-              </Field>
+              />
+              {errors.username && (
+                <p className="text-destructive text-xs font-medium animate-in fade-in-0 slide-in-from-top-1">
+                  {errors.username.message}
+                </p>
+              )}
+            </div>
 
-              <Field>
-                <Field className="grid gap-4">
-                  <Field>
-                    <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
-                    <Input
-                      id="password"
-                      type="password"
-                      {...register("password")}
-                    />
-                    {errors.password && (
-                      <p className="text-destructive text-sm">
-                        {errors.password.message}
-                      </p>
-                    )}
-                    <FieldDescription>
-                      Mật khẩu phải có ít nhất 8 kí tự
-                    </FieldDescription>
-                  </Field>
-                </Field>
-              </Field>
-              <Field>
-                <Button type="submit" disabled={isSubmitting}>
-                  Đăng nhập
-                </Button>
-              </Field>
+            {/* Password Field */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Mật khẩu</Label>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                disabled={isSubmitting}
+                {...register("password")}
+                className={cn(
+                  errors.password &&
+                    "border-destructive focus-visible:ring-destructive"
+                )}
+              />
+              <div className="flex justify-end">
+                <Link
+                  href="/forget-password"
+                  className="text-xs text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+                  tabIndex={-1}
+                >
+                  Quên mật khẩu?
+                </Link>
+              </div>
+              {errors.password && (
+                <p className="text-destructive text-xs font-medium animate-in fade-in-0 slide-in-from-top-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
 
-              <FieldDescription className="text-center">
-                Bạn đã có tài khoản chưa?
-                <br />
-                <Link href="/sign-up" className="text-blue-500 mr-1">
-                  Đăng kí
-                </Link>
-                <span className="mr-1">hoặc</span>
-                <Link href="/forget-password" className="text-blue-500">
-                  Quên tài khoản
-                </Link>
-              </FieldDescription>
-            </FieldGroup>
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className="w-full mt-1"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : (
+                "Đăng nhập"
+              )}
+            </Button>
           </form>
         </CardContent>
+
+        {/* Footer / Sign Up Link */}
+        <CardFooter className="flex flex-col gap-2 border-t pt-6 bg-muted/20">
+          <div className="text-center text-sm text-muted-foreground">
+            Bạn chưa có tài khoản?{" "}
+            <Link
+              href="/sign-up"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Đăng ký ngay
+            </Link>
+          </div>
+        </CardFooter>
       </Card>
     </div>
   );
