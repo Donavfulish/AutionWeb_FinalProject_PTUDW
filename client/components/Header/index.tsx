@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X, ShoppingCart, User } from "lucide-react";
+import { Menu, X, ShoppingCart, User, UserPen } from "lucide-react";
 import { SearchBar } from "../SearchBar";
 import Image from "next/image";
 import { useAuthStore } from "@/store/auth.store";
@@ -29,7 +29,7 @@ const Header = () => {
           <div className="hidden md:flex flex-1 max-w-md mx-8 relative">
             <SearchBar />
           </div>
-          {(role && role !== "guest") ? (
+          {role && role !== "guest" ? (
             <div className="hidden md:flex items-center gap-6">
               <Link
                 href="/user/favorite_products"
@@ -53,7 +53,14 @@ const Header = () => {
                 className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
               >
                 <User size={20} />
-                <span className="text-sm">Đăng nhập/Đăng ký</span>
+                <span className="text-sm">Đăng nhập</span>
+              </Link>
+              <Link
+                href="/sign-up"
+                className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
+              >
+                <UserPen size={20} />
+                <span className="text-sm">Đăng ký</span>
               </Link>
             </div>
           )}

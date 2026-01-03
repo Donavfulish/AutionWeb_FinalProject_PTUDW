@@ -8,7 +8,7 @@ export default function RootLayout({
 }) {
   return (
     <div className="flex flex-col">
-      <header className="fixed top-0 left-0 right-0 h-[70px] bg-white z-50 shadow">
+      <header className="fixed top-0 left-0 right-0 z-50 shadow">
         <Header />
       </header>
 
