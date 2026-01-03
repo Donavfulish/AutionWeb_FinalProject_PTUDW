@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import ViewDetail from "./ViewDetail";
 import PrimaryButton from "@/components/PrimaryButton";
 import { EditIcon, SaveIcon, XIcon } from "lucide-react";
@@ -15,7 +15,7 @@ import ShortUserSidebar from "@/components/ShortUserSidebar";
 
 import { LogoutIcon } from "@/components/icons";
 const InfoPage = () => {
-  const { signOut } = useAuthStore();
+  const { signOut, user } = useAuthStore();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -29,7 +29,14 @@ const InfoPage = () => {
 
   // --- Custom hook ---
   const { data: userProfile, isLoading, error } = UserHook.useGetProfile();
-
+  
+  // --- React hook ---
+  useEffect(() => {
+    if (!user || user.role === 'guest')
+        router.replace('/login');
+    else 
+        return;
+  }, [user, router])
   // --- Handler ---
 
   const handleEditButton = () => setInEditMode(true);

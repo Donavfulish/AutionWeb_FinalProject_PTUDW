@@ -7,17 +7,27 @@ import { userCategories } from "@/app/const";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { useAuthStore } from "@/store/auth.store";
 import ShortUserSidebar from "@/components/ShortUserSidebar";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 export default function SidebarLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const { data, isLoading, error } = CategoryHook.useCategories();
+  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const role = user?.role;
   const visibleCategories = userCategories.filter((c) =>
     c.roles.includes(role)
   );
+
+  useEffect(() => {
+    if (!user || user.role === "guest") router.replace("/login");
+    else return;
+  }, [user, router]);
+
   return (
     <>
       {isLoading && <LoadingSpinner />}
