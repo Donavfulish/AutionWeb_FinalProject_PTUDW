@@ -176,7 +176,7 @@ const CreateProductPage = () => {
   };
   return (
     <div className="relative  w-full  lg:px-8">
-      <div className="xl:px-20">
+      <div className="xl:pr-20">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Đăng sản phẩm mới
         </h1>

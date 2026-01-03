@@ -54,6 +54,9 @@ class OrderHook {
         queryClient.invalidateQueries({
           queryKey: ["product_by_slug", data.data.slug],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["product_bidding"],
+        });
       },
       onError: (error) => {
         toast.error("Tạo đơn hàng thất bại");

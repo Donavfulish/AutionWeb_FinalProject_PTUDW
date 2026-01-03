@@ -50,6 +50,9 @@ class BidHook {
         queryClient.invalidateQueries({
           queryKey: ["user_bid", params.product_id],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["product_bidding"],
+        });
       },
 
       onError: (error) => {

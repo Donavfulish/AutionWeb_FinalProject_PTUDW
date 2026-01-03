@@ -38,9 +38,9 @@ const FavoriteProductPage = () => {
         !error &&
         (sellingProducts && sellingProducts.length === 0 ? (
           <EmptyList
-              content=" Bạn hiện không bán sản phẩm nào. Hãy tìm kiếm những
+            content=" Bạn hiện không bán sản phẩm nào. Hãy tìm kiếm những
                 món đồ ưng ý và từ đó đưa ra lựa chọn để tạo sản phẩm nhé"
-            />
+          />
         ) : (
           <div className="mt-2 grid min-[390px]:grid-cols-2 min-[500px]:grid-cols-3 min-[700px]:grid-cols-4 min-[900px]:grid-cols-5 gap-3">
             {sellingProducts.map((item) => {

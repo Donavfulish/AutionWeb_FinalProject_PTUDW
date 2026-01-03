@@ -1255,7 +1255,7 @@ RETURNING *;
   ): Promise<number | undefined> {
     const sql = `
     SELECT COUNT (DISTINCT b.product_id) as total
-     FROM auction.bid_logs b
+     FROM auction.user_bids b
      JOIN product.products p ON p.id = b.product_id
      WHERE b.user_id = $1 AND (p.end_time >= NOW() AND NOT EXISTS (
         SELECT 1
