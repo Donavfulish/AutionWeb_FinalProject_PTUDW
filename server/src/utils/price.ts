@@ -1,4 +1,9 @@
-export const formatPrice = (num: number | undefined): string => {
-  if (num === undefined || isNaN(num)) return "";
-  return num.toLocaleString("de-DE");
-};
+export function formatPrice(value: number | null, currency = "đ"): string {
+  if (value === null || value === undefined) return "0" + currency;
+
+  const numberValue = typeof value === "string" ? parseFloat(value) : value;
+
+  if (isNaN(numberValue)) return "0" + currency;
+
+  return numberValue.toLocaleString("vi-VN") + currency;
+}
