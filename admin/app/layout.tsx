@@ -4,6 +4,24 @@ import { Providers } from "./providers";
 import { ToastContainer } from "react-toastify";
 import AuthRoute from "@/components/auth/AuthRoute";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { Metadata, Viewport } from "next";
+
+export const metadata: Metadata = {
+  title: "AuctionHub Admin",
+  description: "Quản lý website đấu giá uy tín thịnh hành số 1 quốc tế",
+  icons: {
+    icon: [
+      { url: "/short-logo.png" }, // Đường dẫn tới file logo trong thư mục public/
+      { url: "/short-logo.png", sizes: "32x32", type: "image/png" },
+    ],
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
 
 export default function RootLayout({
   children,

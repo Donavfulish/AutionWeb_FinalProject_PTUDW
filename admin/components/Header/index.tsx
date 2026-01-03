@@ -13,6 +13,7 @@ import {
   Info,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
+import Image from "next/image";
 
 const Header = () => {
   const { signOut, user } = useAuthStore(); // Giả sử store có trả về info user
@@ -50,11 +51,12 @@ const Header = () => {
         <div className="flex justify-between h-16 items-center">
           {/* --- LOGO --- */}
           <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="text-2xl font-bold text-blue-600 tracking-tight">
-                4<span className="text-amber-500"> thằng lỏ nha</span>
-              </div>
-            </Link>
+            <Image
+              src="/logo.png"
+              alt="ActionHub Logo"
+              width={190}
+              height={190}
+            />
           </div>
 
           {/* --- DESKTOP USER MENU --- */}

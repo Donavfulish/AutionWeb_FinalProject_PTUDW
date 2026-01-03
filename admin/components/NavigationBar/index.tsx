@@ -158,30 +158,6 @@ export const NavigationBar = () => {
           );
         })}
       </nav>
-
-      {/* Profile Footer */}
-      <div className="p-6">
-        <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-100 transition-all hover:border-blue-100 hover:bg-white hover:shadow-xl hover:shadow-blue-200/30 group/card">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              {/* Profile Avatar chuyển sang màu blue/sky */}
-              <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white text-sm font-black shadow-inner">
-                AD
-              </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-sky-400 border-2 border-white rounded-full" />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-xs font-bold text-slate-800 truncate group-hover/card:text-blue-600 transition-colors">
-                Administrator
-              </span>
-              <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
-                <span className="w-1 h-1 rounded-full bg-sky-400" />
-                Sẵn sàng
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
     </aside>
   );
 };
