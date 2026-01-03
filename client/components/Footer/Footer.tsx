@@ -18,15 +18,15 @@ export const footerColumns: FooterColumn[] = [
     links: [
       {
         name: "Trợ giúp",
-        href: "https://flowbite.com/",
+        href: "",
       },
       {
         name: "Liên hệ",
-        href: "https://tailwindcss.com/",
+        href: "",
       },
       {
         name: "FAQs",
-        href: "https://tailwindcss.com/",
+        href: "",
       },
     ],
   },
@@ -35,15 +35,15 @@ export const footerColumns: FooterColumn[] = [
     links: [
       {
         name: "Về AuctionHub",
-        href: "https://github.com/themesberg/flowbite",
+        href: "",
       },
       {
         name: "Điều khoản",
-        href: "https://discord.gg/4eeurUVvTy",
+        href: "",
       },
       {
         name: "Quyền riêng tư",
-        href: "https://discord.gg/4eeurUVvTy",
+        href: "",
       },
     ],
   },
@@ -52,51 +52,69 @@ export const footerColumns: FooterColumn[] = [
     links: [
       {
         name: "Facebook",
-        href: "https://github.com/themesberg/flowbite",
+        href: "",
       },
       {
         name: "Twitter",
-        href: "https://discord.gg/4eeurUVvTy",
+        href: "",
       },
       {
         name: "Instagram",
-        href: "https://discord.gg/4eeurUVvTy",
+        href: "",
       },
     ],
   },
 ];
 export const Footer = () => {
   return (
-    <div className="w-full  mx-auto p-4 md:py-8 bg-(--color-primary)  text-white">
-      <div className="md:flex md:justify-center">
-        <div className="grid grid-cols-1 gap-8 sm:gap-16 md:gap-32 sm:grid-cols-3">
-          {footerColumns.map((column, indexCol) => (
-            <div key={indexCol}>
-              <h2 className="mb-6 text-md font-semibold ">{column.title}</h2>
-              <ul className="">
-                {column.links.map((link, indexLink) => (
-                  <li key={indexLink}>
-                    <Link className="hover:text-gray-200" href={link.href}>
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+    // Dùng thẻ semantic <footer> thay cho <div> để tốt hơn cho SEO
+    <footer className="w-full bg-(--color-primary) text-white font-sans">
+      <div className="mx-auto w-full max-w-screen-xl px-6 py-10 lg:py-16">
+        {/* Container chính căn giữa */}
+        <div className="flex justify-center">
+          <div className="grid grid-cols-1 gap-10 text-center sm:grid-cols-3 sm:gap-16 sm:text-left md:gap-24 lg:gap-32">
+            {footerColumns.map((column, indexCol) => (
+              <div key={indexCol}>
+                {/* Tiêu đề: In hoa, đậm vừa phải, giãn chữ tạo cảm giác cao cấp */}
+                <h2 className="mb-6 text-sm font-bold uppercase tracking-widest text-white">
+                  {column.title}
+                </h2>
+
+                {/* Danh sách link */}
+                <ul className="space-y-4 font-medium text-gray-200/80">
+                  {column.links.map((link, indexLink) => (
+                    <li key={indexLink}>
+                      <Link
+                        className="transition-colors duration-300 hover:text-white hover:underline decoration-1 underline-offset-4"
+                        href={link.href}
+                      >
+                        {link.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Đường kẻ ngang: Làm mờ bớt (opacity) để tinh tế hơn */}
+        <hr className="my-8 border-white/20 sm:mx-auto lg:my-10" />
+
+        {/* Phần bản quyền */}
+        <div className="flex flex-col items-center justify-center">
+          <span className="text-sm text-gray-300 sm:text-center">
+            © 2025{" "}
+            <Link
+              href=""
+              className="font-bold text-white transition-opacity hover:opacity-80"
+            >
+              AuctionHub
+            </Link>
+            . All Rights Reserved.
+          </span>
         </div>
       </div>
-
-      <hr className="my-6  lg:w-3/4 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
-      <div className="mx-auto">
-        <span className="block text-sm sm:text-center">
-          © 2025{" "}
-          <Link href="https://flowbite.com/" className="">
-            AuctionHub
-          </Link>
-          . All Rights Reserved.
-        </span>
-      </div>
-    </div>
+    </footer>
   );
 };
