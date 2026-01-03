@@ -19,10 +19,10 @@ export interface UserCategory {
 
 export default function UserCategoryTable({
   userCategories,
-   isMobile = false,
+  isMobile = false,
 }: {
   userCategories: UserCategory[];
-   isMobile?: boolean;
+  isMobile?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -40,9 +40,10 @@ export default function UserCategoryTable({
 
   return (
     <div
-      className={`relative w-68 ${
+      className={`relative w-70 ${
         // isBidder ? "h-[468px]" : "h-[508px]"
-        isBidder ? "h-[520px]" : "h-[580px]"
+        //isBidder ? "h-[520px]" : "h-[580px]"
+        " "
       } flex flex-col bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden`}
     >
       {/* Header Sidebar */}
@@ -53,7 +54,7 @@ export default function UserCategoryTable({
       </div>
 
       {/* Menu List */}
-      <div className="grow px-3 pb-4 minimal-scrollbar space-y-1">
+      <div className="grow px-3 pb-4 max-h-[60vh] min-h-0 overflow-y-auto minimal-scrollbar space-y-1">
         {categories.map((item) => {
           // const isActive = item.id === idCurrent;
           console.log("/user" + item.slug);
