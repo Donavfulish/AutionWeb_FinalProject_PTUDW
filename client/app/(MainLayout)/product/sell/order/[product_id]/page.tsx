@@ -207,7 +207,9 @@ const ProductOrderPage = () => {
           </div>
         </>
       ) : (
-        <UnauthorizedAccess />
+        user &&
+        order.buyer &&
+        order.seller.id != user.id && <UnauthorizedAccess />
       )}
     </div>
   );
