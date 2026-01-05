@@ -146,6 +146,8 @@ class ProductHook {
 
       staleTime: STALE_10_MIN,
 
+      enabled: !!query,
+
       // Transform data tại Hook (select)
       select: (data) => {
         // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
