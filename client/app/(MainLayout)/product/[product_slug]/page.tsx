@@ -404,19 +404,7 @@ export default function ProductPage() {
                 `}
               >
                 {product.top_bidder?.id === user?.id && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-                    <span
-                      className="
-                            flex items-center gap-1.5
-                            bg-green-600 text-white 
-                            px-4 py-1.5 
-                            rounded-full 
-                            text-sm font-bold uppercase tracking-wide
-                            shadow-lg shadow-green-600/30
-                            whitespace-nowrap
-                            border-2 border-white
-                          "
-                    >
+                 
                       🏆 Bạn đang dẫn đầu
                     </span>
                   </div>
