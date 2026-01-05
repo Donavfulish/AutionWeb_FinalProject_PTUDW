@@ -398,13 +398,13 @@ export default function ProductPage() {
                 className={`
                  relative rounded-lg p-4 sm:p-8 w-full transition-all duration-300
                   ${
-                    product.top_bidder?.id === user?.id
+                    user?.id && product.top_bidder?.id === user?.id
                       ? "bg-green-50/30 relative border-2 border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
                       : "bg-white border border-gray-200 shadow-sm"
                   }
                 `}
               >
-                {product.top_bidder?.id === user?.id && (
+                {user?.id && product.top_bidder?.id === user?.id && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
                     <span
                       className="
