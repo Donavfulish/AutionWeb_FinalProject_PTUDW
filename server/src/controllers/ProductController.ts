@@ -156,8 +156,10 @@ export class ProductController extends BaseController {
       page,
       limit
     );
+    const totalSellingProducts = (await this.service.getSellingProducts(userId)).length
     return {
       sellingProducts: sellingProducts,
+      totalSellingProducts,
     };
   }
   async createProduct(req: Request, res: Response) {

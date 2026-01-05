@@ -103,7 +103,7 @@ class ProductHook {
       // Transform data tại Hook (select)
       select: (data) => {
         // Cần BE trả dạng gì ví dụ { data: { ... } } → thì sửa ở đây
-        return data.data.sellingProducts;
+        return data.data;
       },
     });
   }

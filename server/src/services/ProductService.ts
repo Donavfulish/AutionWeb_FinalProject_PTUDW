@@ -23,6 +23,7 @@ import { PoolClient } from "pg";
 import { sendEmailToUser } from "../utils/mailer";
 import { MutationResult } from "../../../shared/src/types/Mutation.js";
 import { Hmac } from "crypto";
+import { ListTodo } from "lucide-react";
 
 export class ProductService extends BaseService {
   private static instance: ProductService;
@@ -624,8 +625,8 @@ WHERE pp.end_time >= NOW() and not exists (
   }
   async getSellingProducts(
     userId: number,
-    page: number,
-    limit: number
+    page?: number,
+    limit?: number
   ): Promise<ProductPreview[] | undefined> {
     const sql = `
   SELECT pp.id
@@ -637,10 +638,26 @@ WHERE pp.end_time >= NOW() and not exists (
    )
   LIMIT $2 OFFSET $3
     `;
-    const offset = (page - 1) * limit;
-    const params = [userId, limit, offset];
 
-    const product = await this.safeQuery<ProductPreview>(sql, params);
+    const totalSql = `
+  SELECT pp.id
+  FROM product.products pp
+  WHERE pp.seller_id = $1 and pp.end_time >= NOW()   and not exists (
+   select 1
+   from auction.orders o 
+   where o.product_id = pp.id and o.status <> 'cancelled' 
+   )
+    `;
+    const offset = limit && page ? (page - 1) * limit : 0;
+    // const params = [userId, limit, offset];
+    console.log("gia tri offset: ", offset, limit, page);
+
+    const params = limit && page ? [userId, limit, offset] : [userId];
+
+    const product = await this.safeQuery<ProductPreview>(
+      limit && page ? sql : totalSql,
+      params
+    );
 
     const sellingProduct = await Promise.all(
       product.map(async (item: any) => {

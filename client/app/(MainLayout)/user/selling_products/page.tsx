@@ -26,16 +26,21 @@ const FavoriteProductPage = () => {
   };
 
   const page = Number(searchParams.get("page")) || 1;
-  const limit = 10;
+  const limit = 5;
 
-  const { data: sellingProducts, isLoading: isLoadingSellingProducts } =
-    ProductHook.useGetSellingProduct({page, limit}) as {
-      data: ProductPreview[];
+  const { data: dataSelling, isLoading: isLoadingSellingProducts } =
+    ProductHook.useGetSellingProduct({ page, limit }) as {
+      data: {
+        sellingProducts: ProductPreview[];
+        totalSellingProducts: number;
+      };
       isLoading: boolean;
     };
 
   const favoriteSet = new Set(favoriteProducts.map((item) => item.id));
-  const totalPages = Math.ceil((sellingProducts?.length ?? 0) / limit);
+  const totalPages = Math.ceil(
+    (dataSelling?.totalSellingProducts ?? 0) / limit
+  );
 
   const handlePageChange = (value: number) => {
     const next = new URLSearchParams(searchParams);
@@ -55,7 +60,8 @@ const FavoriteProductPage = () => {
       {!isLoading &&
         !isLoadingSellingProducts &&
         !error &&
-        (sellingProducts && sellingProducts.length === 0 ? (
+        (dataSelling?.sellingProducts &&
+        dataSelling?.sellingProducts?.length === 0 ? (
           <EmptyList
             content=" Bạn hiện không bán sản phẩm nào. Hãy tìm kiếm những
                 món đồ ưng ý và từ đó đưa ra lựa chọn để tạo sản phẩm nhé"
@@ -63,7 +69,7 @@ const FavoriteProductPage = () => {
         ) : (
           <div className="flex flex-col gap-10">
             <div className="mt-2 grid min-[390px]:grid-cols-2 min-[500px]:grid-cols-3 min-[700px]:grid-cols-4 min-[900px]:grid-cols-5 gap-3">
-              {sellingProducts.map((item) => {
+              {dataSelling?.sellingProducts.map((item) => {
                 return (
                   <div key={item.id} className="mt-3">
                     <ProductCard

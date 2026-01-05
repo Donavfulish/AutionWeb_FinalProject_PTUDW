@@ -2,7 +2,6 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 
 export const publicApi: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  withCredentials: true,
   timeout: 10000,
 });
 
