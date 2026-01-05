@@ -203,7 +203,6 @@ function Page() {
         </h1>
         <div className="mt-2 text-sm md:text-base text-gray-500 max-w-2xl mx-auto">
           Tìm kiếm và đấu giá hàng triệu sản phẩm từ những người bán uy tín{" "}
-          <span className="font-semibold text-blue-600">{user?.username}</span>
         </div>
       </div>
 

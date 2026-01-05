@@ -1,5 +1,6 @@
 import React from "react";
 import { SubmitHandler, UseFormHandleSubmit } from "react-hook-form";
+import { formatPrice } from "@/utils";
 
 type BidModalProps = {
   handleSubmitBid: UseFormHandleSubmit<{ price: number }>;
