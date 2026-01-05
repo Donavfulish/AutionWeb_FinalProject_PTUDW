@@ -660,7 +660,7 @@ export class AuthController extends BaseController {
 
           <p style="text-align:center; margin:25px 0;">
             <a
-              href="http://localhost:3000/login"
+              href="${process.env.NEXT_PUBLIC_CLIENT_URL}/login"
               target="_blank"
               rel="noopener noreferrer"
               style="

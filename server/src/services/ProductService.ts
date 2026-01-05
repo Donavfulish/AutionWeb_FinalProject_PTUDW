@@ -902,7 +902,7 @@ RETURNING *;
                         Người bán <strong>${sellerInfo.name}</strong> đã chỉnh sửa chi tiết sản phẩm 
                         <strong>
                           <a 
-                            href="http://localhost:3000/product/${productInfo.slug}" 
+                            href="${process.env.NEXT_PUBLIC_CLIENT_URL}/product/${productInfo.slug}" 
                             target="_blank" 
                             rel="noopener noreferrer"
                             style="color: #0d6efd; text-decoration: underline;"
@@ -915,7 +915,7 @@ RETURNING *;
                         Hãy truy cập vào trang chi tiết để cập nhật thông tin mới nhất về sản phẩm và tiếp tục phiên đấu giá của bạn!
                       </p>
                       <div style="text-align: center; margin-top: 25px;">
-                        <a href="http://localhost:3000/product/${productInfo.slug}" 
+                        <a href="${process.env.NEXT_PUBLIC_CLIENT_URL}/product/${productInfo.slug}" 
                           style="background-color: #0d6efd; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
                           Xem chi tiết sản phẩm
                         </a>
@@ -1116,7 +1116,7 @@ RETURNING *;
                 Người đấu giá <strong> ${bidderInfo.name}</strong>  đã đặt câu hỏi về sản phẩm
                 <strong>
                  <a 
-                    href="http://localhost:3000/product/sell/${productInfo.slug}" 
+                    href="${process.env.NEXT_PUBLIC_CLIENT_URL}/product/sell/${productInfo.slug}" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     style="color: inherit; text-decoration: underline;"
@@ -1252,7 +1252,7 @@ RETURNING *;
                 Người bán <strong>${sellerInfo.name}</strong> đã trả lời câu hỏi của bạn
                 tại sản phẩm <strong>
                   <a 
-                    href="http://localhost:3000/product/${productInfo.slug}" 
+                    href="${process.env.NEXT_PUBLIC_CLIENT_URL}/product/${productInfo.slug}" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     style="color: inherit; text-decoration: underline;"
@@ -1282,7 +1282,7 @@ RETURNING *;
                 Người bán <strong>${sellerInfo.name}</strong> đã trả lời câu hỏi của người khác
                 tại sản phẩm <strong>
                   <a 
-                    href="http://localhost:3000/product/${productInfo.slug}" 
+                    href="${process.env.NEXT_PUBLIC_CLIENT_URL}/product/${productInfo.slug}" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     style="color: inherit; text-decoration: underline;"
