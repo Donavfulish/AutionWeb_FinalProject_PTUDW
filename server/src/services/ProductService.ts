@@ -233,8 +233,11 @@ export class ProductService extends BaseService {
     let sql = `
        SELECT COUNT(*) as total
        FROM product.products pp
-       WHERE to_tsvector('simple', unaccent(pp.name))
-             @@ websearch_to_tsquery('simple', unaccent($1)) and pp.end_time >= NOW() and not exists (
+       JOIN product.product_categories pc on pc.id = pp.category_id
+       WHERE (
+              setweight(to_tsvector('simple', unaccent(pp.name)), 'A') || 
+              setweight(to_tsvector('simple', unaccent(pc.name)), 'B')
+          ) @@ to_tsquery('simple', regexp_replace(trim(unaccent($1)), '\\s+', ' & ', 'g') || ':*') and pp.end_time >= NOW() and not exists (
    select 1
    from auction.orders o 
    where o.product_id = pp.id and o.status <> 'cancelled' 
@@ -254,8 +257,9 @@ export class ProductService extends BaseService {
     sort: string
   ): Promise<ProductPreview[]> {
     let sql = `
-   SELECT pp.id, GREATEST(COALESCE(bl.current_price, 0), pp.initial_price) AS price, pp.end_time
+  SELECT pp.id, GREATEST(COALESCE(bl.current_price, 0), pp.initial_price) AS price, pp.end_time
        FROM product.products pp
+          JOIN product.product_categories pc on pc.id = pp.category_id
        LEFT JOIN (
           SELECT 
             bl.product_id, 
@@ -263,8 +267,10 @@ export class ProductService extends BaseService {
           FROM auction.bid_logs bl 
           GROUP BY bl.product_id
       ) bl ON bl.product_id = pp.id
-       WHERE to_tsvector('simple', unaccent(pp.name))
-             @@ to_tsquery('simple', unaccent($1) || ':*')
+       WHERE (
+              setweight(to_tsvector('simple', unaccent(pp.name)), 'A') || 
+              setweight(to_tsvector('simple', unaccent(pc.name)), 'B')
+          ) @@ to_tsquery('simple', regexp_replace(trim(unaccent($1)), '\\s+', ' & ', 'g') || ':*')
              AND pp.end_time >= NOW() 
              AND NOT EXISTS (
                 SELECT 1
@@ -731,17 +737,22 @@ WHERE pc.parent_id is not null
     SELECT (GREATEST(MAX(bl.price), pp.initial_price) )  as current_price
     FROM auction.bid_logs bl 
     WHERE bl.product_id = pp.id
-    )
+    ),
+    pc.name as category_name
   FROM product.products pp
-  WHERE to_tsvector('simple', unaccent(pp.name))
-        @@ to_tsquery('simple', unaccent($1) || ':*')and pp.end_time >= NOW() and not exists (
+  JOIN product.product_categories pc on pp.category_id = pc.id
+  WHERE (
+        setweight(to_tsvector('simple', unaccent(pp.name)), 'A') || 
+        setweight(to_tsvector('simple', unaccent(pc.name)), 'B')
+    ) @@ to_tsquery('simple', regexp_replace(trim(unaccent($1)), '\\s+', ' & ', 'g') || ':*') and pp.end_time >= NOW() and not exists (
    select 1
    from auction.orders o 
    where o.product_id = pp.id and o.status <> 'cancelled' 
    )
   ORDER BY ts_rank(
-      to_tsvector('simple', unaccent(pp.name)),
-      websearch_to_tsquery('simple', unaccent($1))
+      setweight(to_tsvector('simple', unaccent(pp.name)), 'A') || 
+        setweight(to_tsvector('simple', unaccent(pc.name)), 'B'),
+        to_tsquery('simple', regexp_replace(trim(unaccent($1)), '\\s+', ' & ', 'g') || ':*')
     ) DESC
     `;
 

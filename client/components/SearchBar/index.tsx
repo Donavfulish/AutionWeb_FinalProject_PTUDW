@@ -35,20 +35,20 @@ export const SearchBar = () => {
     if (e.key === "Enter" && query.length > 0) {
       router.push(`/search?query=${query}`);
       setShowSuggestions(false);
-      setQuery("");
+      // setQuery("");
     }
   };
 
   const handleSuggestionClick = (item: SearchProduct) => {
     router.push(`/product/${item.slug}`);
     setShowSuggestions(false);
-    setQuery("");
+    // setQuery("");
   };
 
   const handleSearchClick = () => {
     router.push(`/search?query=${query}`);
     setShowSuggestions(false);
-    setQuery("");
+    // setQuery("");
   };
 
   return (
@@ -86,7 +86,7 @@ export const SearchBar = () => {
                 onClick={() => handleSuggestionClick(item)}
                 className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer"
               >
-                <div className="w-12 h-12 relative">
+                <div className="w-12 h-12 relative flex-shrink-0">
                   <Image
                     src={item.main_image || defaultImage}
                     alt={item.name}
@@ -95,8 +95,16 @@ export const SearchBar = () => {
                     sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                   />
                 </div>
+
                 <div className="flex flex-col">
-                  <span className="font-medium">{item.name}</span>
+                  <span className="font-medium text-sm">{item.name}</span>
+
+                  {/* --- PHẦN BỔ SUNG CATEGORY --- */}
+                  <span className="text-gray-500 text-xs">
+                    {item.category_name}
+                  </span>
+                  {/* ----------------------------- */}
+
                   {item.current_price && (
                     <span className="text-blue-600 text-sm font-medium">
                       {formatCurrency(item.current_price)}

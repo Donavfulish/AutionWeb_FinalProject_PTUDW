@@ -71,7 +71,7 @@ export type ProductPreview = Pick<
 
 export type SearchProduct = Pick<
   Product,
-  "id" | "slug" | "name" | "main_image" | "current_price"
+  "id" | "slug" | "name" | "main_image" | "current_price" | "category_name"
 >;
 
 export type ProductCategoryTree = {
