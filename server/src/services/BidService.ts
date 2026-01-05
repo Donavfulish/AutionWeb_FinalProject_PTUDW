@@ -39,7 +39,7 @@ export class BidService extends BaseService {
     return BidService.instance;
   }
   async getBidLogs(id: number): Promise<BidLog[]> {
-    const sql = `SELECT *, json_build_object(
+    const sql = `SELECT l.*, json_build_object(
                             'id', u.id,
                             'name', u.name
                             ) AS user

@@ -18,10 +18,11 @@ export const BidHistory = ({ productId }: ProductId) => {
     productId,
     user ? true : false
   ) as { data: BidLog[]; isLoading: boolean };
+  console.log(bidLogs);
   return (
     <div className="relative bg-white rounded-xl shadow-sm overflow-hidden  mb-8 border border-slate-200">
       {isLoadingBigLogs && <LoadingSpinner />}
-       <div className="p-4 md:p-6 border-b border-slate-100 bg-slate-50/50">
+      <div className="p-4 md:p-6 border-b border-slate-100 bg-slate-50/50">
         <h3 className="text-xl md:text-2xl font-bold text-slate-800">
           Lịch sử đấu giá
         </h3>
