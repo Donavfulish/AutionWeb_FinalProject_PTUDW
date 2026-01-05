@@ -47,6 +47,18 @@ export const RelatedProducts = ({
             ))}
         </div>
       </div>
+
+      <div className="hidden lg:grid lg:grid-cols-5  gap-4 xl:gap-6">
+        {products &&
+          (products || []).map((product, index) => (
+            <div key={`desktop-${index}`} className="w-full">
+              <ProductCard
+                product={product as ProductPreview}
+                isFavorite={favorite_products.has(Number(product.id))}
+              />
+            </div>
+          ))}
+      </div>
     </div>
   );
 };
