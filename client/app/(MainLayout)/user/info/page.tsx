@@ -69,7 +69,7 @@ const InfoPage = () => {
 
   if (isLoading)
     return (
-      <div className="h-screen">
+      <div className="fixed inset-0">
         <LoadingSpinner />
       </div>
     );

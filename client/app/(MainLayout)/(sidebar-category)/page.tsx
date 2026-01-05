@@ -163,7 +163,7 @@ function Page() {
 
   if (isLoadingTopProduct || isLoadingFavoriteProduct)
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="fixed inset-0">
         <LoadingSpinner />
       </div>
     );
@@ -199,11 +199,11 @@ function Page() {
       {/* Header Section */}
       <div className="text-center w-full mb-8 md:mb-12">
         <h1 className="text-2xl md:text-4xl font-bold text-gray-800">
-          Chào mừng đến AuctionHub
+          Chào mừng đến <span className="text-gray-700">Auction</span>
+          <span className="text-teal-600">Hub</span>
         </h1>
         <div className="mt-2 text-sm md:text-base text-gray-500 max-w-2xl mx-auto">
-          Tìm kiếm và đấu giá hàng triệu sản phẩm từ những người bán uy tín{" "}
-          <span className="font-semibold text-blue-600">{user?.username}</span>
+          Tìm kiếm và đấu giá hàng triệu sản phẩm từ những người bán uy tín
         </div>
       </div>
 

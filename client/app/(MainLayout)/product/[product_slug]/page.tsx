@@ -331,6 +331,7 @@ export default function ProductPage() {
   };
 
   const handleOrder = () => {
+    setOpenBuyNowModal(false);
     const newOrder: NewOrderRequest = {
       product_id: product.id,
       shipping_address: "",
@@ -340,7 +341,7 @@ export default function ProductPage() {
       { payload: newOrder },
       {
         onSuccess: () => {
-          router.replace(`/product/order/${product.id}`);
+          router.push(`/product/order/${product.id}`);
         },
       }
     );
@@ -372,11 +373,9 @@ export default function ProductPage() {
       isLoadingIsCanBid ||
       isCreatingBid ||
       isCreatingOrder ? (
-        <div className="h-screen">
-          <div className="fixed inset-0 z-100">
-            <LoadingSpinner />
-          </div>
-        </div>
+        <div className="fixed inset-0">
+        <LoadingSpinner />
+      </div>
       ) : (
         <>
           <div className="mb-4">
@@ -842,10 +841,10 @@ export default function ProductPage() {
                             {formatCurrency(product.buy_now_price)}
                           </p>
 
-                          <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-800 text-center">
+                          {/* <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-800 text-center">
                             Sau khi xác nhận, bạn có <strong>24 giờ</strong> để
                             thanh toán và nhập thông tin nhận hàng.
-                          </div>
+                          </div> */}
 
                           {product.top_bidder?.id == userBid.user_id &&
                             userBid?.max_price && (

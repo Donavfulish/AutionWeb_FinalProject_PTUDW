@@ -143,7 +143,7 @@ const page = () => {
   // Handling loading
   if (isCategoriesLoading || isCountProductsLoading)
     return (
-      <div className="h-screen">
+      <div className="fixed inset-0">
         <LoadingSpinner />
       </div>
     );

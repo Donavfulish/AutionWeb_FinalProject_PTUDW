@@ -44,7 +44,7 @@ export default function SidebarLayout({
   return (
     <>
       {isLoading && (
-        <div className="flex justify-center items-center min-h-[50vh]">
+        <div className="fixed inset-0">
           <LoadingSpinner />
         </div>
       )}
