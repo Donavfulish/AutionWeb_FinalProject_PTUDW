@@ -66,8 +66,9 @@ export default function ProductCard({
 
   const { data: serverMinTime } = SystemHook.useGetProductMinTime();
 
-  const isLeading = user?.id == product.top_bidder_id;
-  const isSeller = user?.id === product.seller_id;
+  console.log("user?.id::", user?.id);
+  const isLeading = user?.id && user.id == product.top_bidder_id;
+  const isSeller = user?.id && user.id === product.seller_id;
 
   const isHighlight = useMemo(() => {
     if (!serverMinTime || serverMinTime.length === 0) return false;
