@@ -37,7 +37,9 @@ function Page() {
   return (
     <>
       {(isLoadingCategoryProduct || isLoadingFavoriteProduct) && (
-        <LoadingSpinner />
+        <div className="inset-0 h-[80vh]">
+          <LoadingSpinner />
+        </div>
       )}
       {errorCategoryProduct && <>Error...</>}
       {errorFavoriteProduct && <>Error...</>}

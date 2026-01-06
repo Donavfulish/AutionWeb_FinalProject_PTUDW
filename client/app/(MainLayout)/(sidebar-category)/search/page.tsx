@@ -19,7 +19,7 @@ function SearchPage() {
   const query = searchParams.get("query") || "";
   const sort = searchParams.get("sort") || "ascending-price";
   let totalPages = 1;
-  
+
   const {
     data,
     isLoading: isLoadingProducts,
@@ -53,7 +53,11 @@ function SearchPage() {
 
   // 1. Logic Loading: Hiện spinner ngay khi đang tải bất kỳ dữ liệu nào
   if (isLoadingProducts || isLoadingFavoriteProduct) {
-    return <LoadingSpinner />;
+    return (
+      <div className="inset-0 h-[80vh]">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   // 2. Logic Error: Báo lỗi nếu có
