@@ -76,6 +76,11 @@ const Header = () => {
           </button>
         </div>
 
+        {/* HÀNG 2: Mobile SearchBar (MỚI THÊM - Chỉ hiện trên mobile) */}
+        <div className="md:hidden pb-3 pt-1 w-full">
+          <SearchBar />
+        </div>
+
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-gray-100 bg-white animate-in slide-in-from-top duration-200">

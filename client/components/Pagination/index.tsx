@@ -68,7 +68,7 @@ const Pagination: React.FC<PaginationProps> = ({
             </span>
           ) : (
             <button
-              key={item}
+              key={idx}
               onClick={() => handlePageChange(item)}
               className={`px-3 py-2 border rounded text-sm ${
                 item === currentPage
