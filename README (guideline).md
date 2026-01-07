@@ -105,7 +105,7 @@ PostgreSQL >= 14
 ### 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/Donavfulish/AutionWeb_FinalProject_PTUDW.git
-cd project-name
+cd AutionWeb_FinalProject_PTUDW
 ```
 
 ### 2️⃣ Install dependencies
