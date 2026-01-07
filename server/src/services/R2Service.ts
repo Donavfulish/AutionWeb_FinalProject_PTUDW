@@ -6,8 +6,7 @@ export type R2DirectoryType = "product" | "user" | "order";
 export class R2Service {
   private readonly r2Client = CloudflareR2.getInstance();
   private readonly devUrl: string =
-    process.env.R2_PUBLIC_DEV_URL ||
-    "https://pub-ab2f2215803443f7bc2b22fed45d0aa1.r2.dev";
+    process.env.R2_PUBLIC_DEV_URL;
 
   private static _instance: R2Service;
   private constructor() {}
