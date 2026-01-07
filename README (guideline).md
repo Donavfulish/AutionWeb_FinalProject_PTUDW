@@ -205,10 +205,3 @@ npm run dev
 | `npm run build --workspace server` | Build backend |
 | `npm run build --workspace shared` | Build shared library |
 
----
-
-## 📜 License
-
-MIT © [Do Van Ha](https://github.com/Donavfulish)
-
----
